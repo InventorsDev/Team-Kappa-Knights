@@ -60,15 +60,24 @@ const CreateAcct = () => {
             }
         }
         return (
-            <main className='md:flex md:grid-cols-[2fr 3fr] w-screen relative  select-none h-screen' style={{ fontFamily: 'var(--font-nunito), sans-serif' }}>
-                <section className='hidden  md:block  w-4/9 h-full overflow-hidden fixed left-0 top-0'>
-                    <Image src={Picture} width={638} alt='' className='w-full h-full object-cover scale-120' />
-                </section>
-                <section className='flex justify-center mx-[20px] md:mx-[30px] w-full md:w-5/9 md:ml-[45%] overflow-x-clip '>
-                    <section className='w-full max-w-[440px] md:min-w-[500px] md:max-w-[700px] mt-[64px] '>
-                        <div className='w-full flex items-center justify-center'>
-                            <Image src={Logo} alt="Neuroloom Logo" className='' />
-                        </div>
+             <main
+            className="xl:flex w-screen h-screen overflow-hidden"
+            style={{ fontFamily: 'var(--font-nunito), sans-serif' }}
+        >
+
+            <section className="hidden xl:block w-[40%] h-screen fixed left-0 top-0 z-10">
+                <Image
+                    src={Picture}
+                    width={638}
+                    alt=""
+                    className="w-full h-full object-cover scale-110"
+                />
+            </section>
+            <section className="flex justify-center xl:ml-[45%] w-full overflow-y-auto h-screen px-[20px] xl:px-[50px] ">
+                <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px]">
+                                <div className='w-full flex items-center justify-center'>
+                                    <Image src={Logo} alt="Neuroloom Logo" className='' />
+                                </div>
                         <div className='w-full mt-[29px] text-center'>
                             <div>
                                 <p style={{ fontWeight: 700 }} className='w-full text-[24px]'>Create an account</p>
