@@ -1,0 +1,58 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environment files
+.env
+*.env
+
+# Django stuff:
+*.log
+db.sqlite3
+media/
+staticfiles/
+local_settings.py
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Python virtualenv
+venv/
+env/
+ENV/
+.venv/
+
+# Migrations (optional to exclude)
+**/migrations/*.pyc
+**/migrations/__pycache__/
+
+# Coverage / test reports
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+.nox/
+.cache/
+pytest_cache/
+.pytest_cache/
+
+# MyPy / Pylint
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pylint.d/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
