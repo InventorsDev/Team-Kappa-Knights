@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import Image from 'next/image'
-import Logo from '@/public/images/image 3.png'
+import Logo from '@/public/images/logo.png'
 import Link from 'next/link'
 import Google from '@/public/images/Google.png'
 import Picture from '@/public/images/ea1b6262a739e5fb38bc0cd69c97b27da0a6e89f.jpg'
@@ -11,6 +11,8 @@ import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
 import { addDoc, collection } from 'firebase/firestore'
 import { signInWithPopup } from 'firebase/auth'
+import { toast } from "sonner";
+
 
 const CreateAcct = () => {
     const [email, setEmail] = useState('');
@@ -18,6 +20,7 @@ const CreateAcct = () => {
     const [name, setName] = useState('');
     const [signingIn, setSigningIn] = useState(false)
     const router = useRouter();
+
 
     const handleCreateAccount = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -37,11 +40,11 @@ const CreateAcct = () => {
                 })
             }
             );
-            alert('User signed up successfully')
+            toast.success('Signed up successfully')
             router.push('/components/Login');
 
         } catch (error) {
-            alert('Incorrect email or password')
+            toast.error('Incorrect email or password')
             console.error("Error creating account:", error);
         }
     };
@@ -69,7 +72,7 @@ const CreateAcct = () => {
     }
     return (
         <main
-            className="xl:flex w-screen h-screen overflow-hidden"
+            className="xl:flex w-screen h-screen overflow-hidden select-none"
             style={{ fontFamily: 'var(--font-nunito), sans-serif' }}
         >
 
@@ -81,15 +84,18 @@ const CreateAcct = () => {
                     className="w-full h-full object-cover scale-110"
                 />
             </section>
-            <section className="flex justify-center xl:ml-[45%] w-full overflow-y-auto h-screen px-[20px] xl:px-[50px] ">
+            <section className='xl:ml-[45%] relative w-full'>
+                <div className='hidden md:block fixed top-[-50px] right-[-40px] h-[100px] w-[100px] bg-[#00BFA5] rounded-full filter drop-shadow-[0_0_140px_rgba(0,191,165,1)] '></div>
+                <div className='hidden md:block fixed bottom-[-50px] left-[40%] h-[200px] w-[200px] bg-[#00BFA5] opacity-30 blur-[120px] pointer-events-none z-0'></div>
+            <div className="flex justify-center z-20 absolute w-full  overflow-y-auto h-screen px-[20px] xl:px-[50px] ">
                 <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px]">
                     <div className='w-full flex items-center justify-center'>
                         <Image src={Logo} alt="Neuroloom Logo" className='' />
                     </div>
-                    <div className='w-full mt-[29px] text-center'>
+                    <div className='w-full mt-[15px] text-center'>
                         <div>
-                            <p style={{ fontWeight: 700 }} className='w-full text-[24px]'>Create an account</p>
-                            <p style={{ fontWeight: 400 }} className='text-[16px] text-[#6F6F6F]'>Fill in the field below to create an account</p>
+                            <p style={{ fontWeight: 700 }} className='w-full text-[24px]'>Welcome to Neuroloom!</p>
+                            <p style={{ fontWeight: 400 }} className='text-[16px] text-[#6F6F6F]'>Fill in the field below to register your account</p>
                         </div>
                         <form className='w-full mt-[30px]' onSubmit={(e) => (handleCreateAccount(e))}>
                             <div className='w-full'>
@@ -143,6 +149,7 @@ const CreateAcct = () => {
                         </button>
                     </div>
                 </section>
+            </div>
             </section>
         </main>
     )
