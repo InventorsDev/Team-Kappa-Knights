@@ -20,6 +20,7 @@ class Courses(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    course_url = models.URLField(blank=False, default='')
 
     def __str__(self):
         return self.course_name
@@ -51,7 +52,7 @@ class CourseRoadmap(models.Model):
     
 class CourseContent(models.Model):
     content_id = models.AutoField(primary_key=True)
-    roadmap_id = models.ForeignKey(CourseRoadmap, on_delete=models.CASCADE)
+    roadmap = models.ForeignKey(CourseRoadmap, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     content_type = models.CharField(max_length=50)  # e.g., 'video', 'article', 'quiz'
     content_url = models.URLField(blank=True, null=True)

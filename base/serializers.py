@@ -17,11 +17,10 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
 class CourseRoadmapSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseRoadmap
-        fields = ['roadmap_id', 'course_id', 'title', 'description']
+        fields = '__all__'
         read_only_fields = ['roadmap_id']
 
 class CourseContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseContent
-        fields = ['content_id', 'roadmap_id', 'title', 'content_type', 'content_url']
-        read_only_fields = ['content_id']
+        fields = '__all__'

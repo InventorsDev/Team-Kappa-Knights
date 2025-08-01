@@ -2,11 +2,12 @@
 from django.contrib import admin
 from django.urls import path
 
-from base.views import course_list, course_roadmap
+from base.views import course_list, roadmap_list, roadmap_detail, course_content_list
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('courses/', course_list, name='course-list'),
-    path('courses/<int:pk>/<int:roadmap_id>/', course_roadmap, name='course-roadmap'),
-
+    path('roadmaps/', roadmap_list, name='roadmap-list'),
+    path('roadmaps/<int:pk>/', roadmap_detail, name='roadmap-detail'),
+    path('roadmaps/<int:roadmap_pk>/contents/', course_content_list, name='roadmap-contents'),
 ]
