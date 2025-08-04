@@ -7,16 +7,15 @@ import Google from "@/public/images/Google.png";
 import Picture from "@/public/images/ea1b6262a739e5fb38bc0cd69c97b27da0a6e89f.jpg";
 import { useState } from "react";
 import { auth, provider } from "@/lib/firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { signInWithPopup } from "firebase/auth";
 import {
   browserLocalPersistence,
-  setPersistence,
   browserSessionPersistence,
+  signInWithPopup,
+  sendPasswordResetEmail,
 } from "firebase/auth";
-import { sendPasswordResetEmail } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { handleSignin, handleGoogleSignup } from "@/lib/auth";
+import AuthButton from "@/components/common/auth-button/AuthButton";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,44 +23,11 @@ const Login = () => {
   const [signingIn, setSigningIn] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
   const router = useRouter();
   const persistence = rememberMe
     ? browserLocalPersistence
     : browserSessionPersistence;
-
-  const handleSignin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      await setPersistence(auth, persistence);
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Signed in successfully");
-      router.push("");
-    } catch (error) {
-      toast.error("Incorrect email or password");
-      console.log(error);
-    }
-  };
-  const handleGoogleSignup = async () => {
-    if (signingIn) return;
-    setSigningIn(true);
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      router.push("/components/Login");
-      console.log(user);
-    } catch (error) {
-      if (typeof error === "object" && error !== null && "code" in error) {
-        const err = error as { code: string };
-        if (err.code === "auth/popup-closed-by-user") {
-          console.log("User closed the popup before completing sign-in");
-        } else {
-          console.error("Google Sign-In Error:", err);
-        }
-      }
-    } finally {
-      setSigningIn(false);
-    }
-  };
 
   const forgotPassword = async () => {
     if (!email) {
@@ -107,7 +73,16 @@ const Login = () => {
               </div>
               <form
                 className="w-full mt-[30px]"
-                onSubmit={(e) => handleSignin(e)}
+                onSubmit={(e) =>
+                  handleSignin(
+                    e,
+                    email,
+                    password,
+                    persistence,
+                    router,
+                    setLoggingIn
+                  )
+                }
               >
                 <div className="w-full">
                   <label
@@ -204,12 +179,12 @@ const Login = () => {
                     Forgot password?
                   </button>
                 </div>
-                <button
-                  className="bg-[#00BFA5] text-white rounded-xl md:rounded-2xl py-[12px] w-full md:py-[15px] text-xl hover:cursor-pointer"
-                  type="submit"
-                >
-                  Log In
-                </button>
+
+                <AuthButton
+                  action={loggingIn}
+                  text="Log in"
+                  textWhileActionIsTakingPlace="Logging in"
+                />
                 <div className="mt-[12px] mb-[20px]">
                   <p className="text-center">
                     Don&apos;t have an account?{" "}
@@ -228,8 +203,12 @@ const Login = () => {
                 </section>
               </form>
               <button
-                className=" border border-[#CCCCCC] rounded-xl py-[12px] w-full hover:cursor-pointer"
-                onClick={() => handleGoogleSignup()}
+                className={` border border-[#CCCCCC] rounded-xl py-[12px] w-full ${
+                  signingIn ? "cursor-not-allowed" : "cursor-pointer"
+                } `}
+                onClick={() =>
+                  handleGoogleSignup(setSigningIn, signingIn, router)
+                }
                 disabled={signingIn}
               >
                 <div className="flex items-center justify-center gap-[4px]">
