@@ -4,7 +4,7 @@ import Image from "next/image";
 import Logo from "@/public/images/logo.png";
 import Link from "next/link";
 import Google from "@/public/images/Google.png";
-import Picture from "@/public/images/ea1b6262a739e5fb38bc0cd69c97b27da0a6e89f.jpg";
+import Picture from "@/public/images/man-relaxing-taking-care-himself.png";
 import { useState } from "react";
 import { auth, db, provider } from "@/lib/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -12,38 +12,16 @@ import { useRouter } from "next/navigation";
 import { addDoc, collection } from "firebase/firestore";
 import { signInWithPopup } from "firebase/auth";
 import { toast } from "sonner";
-
+import { handleGoogleSignup, handleCreateAccount } from "@/lib/auth";
+import AuthButton from "@/components/common/auth-button/AuthButton";
 const CreateAcct = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [signingIn, setSigningIn] = useState(false);
+  const [error, setError] = useState("");
+  const [emailSigningIn, setEmailSigningIn] = useState(false);
   const router = useRouter();
-
-  const handleCreateAccount = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (password.length < 8) {
-      const el = document.getElementById("wrong")!;
-      if (el) el.classList.remove("hidden");
-      return;
-    }
-    const el = document.getElementById("wrong");
-    if (el) el.classList.add("hidden");
-
-    try {
-      await createUserWithEmailAndPassword(auth, email, password).then(() => {
-        addDoc(collection(db, "users"), {
-          email: email,
-          name: name,
-        });
-      });
-      toast.success("Signed up successfully");
-      router.push("../");
-    } catch (error) {
-      toast.error("Incorrect email or password");
-      console.error("Error creating account:", error);
-    }
-  };
 
   const handleGoogleSignup = async () => {
     if (signingIn) return;
@@ -90,7 +68,7 @@ const CreateAcct = () => {
             <div className="w-full mt-[15px] text-center">
               <div>
                 <p style={{ fontWeight: 700 }} className="w-full text-[24px]">
-                  Welcome to Neuroloom!
+                  Welcome to Nuroki!
                 </p>
                 <p
                   style={{ fontWeight: 400 }}
@@ -100,8 +78,18 @@ const CreateAcct = () => {
                 </p>
               </div>
               <form
-                className="w-full mt-[30px]"
-                onSubmit={(e) => handleCreateAccount(e)}
+                className="w-full  flex flex-col gap-6"
+                onSubmit={(e) =>
+                  handleCreateAccount(
+                    e,
+                    password,
+                    setError,
+                    router,
+                    name,
+                    email,
+                    setEmailSigningIn
+                  )
+                }
               >
                 <div className="w-full">
                   <label
@@ -116,7 +104,7 @@ const CreateAcct = () => {
                     name="name"
                     placeholder="John Doe"
                     className="border border-[#D9D9D9] focus:border-[#00BFA5]
-                                           rounded-xl p-[12px] w-[100%] mb-[30px]"
+                                           rounded-xl p-[12px] w-[100%]"
                     onChange={(e) => setName(e.target.value)}
                   />
                 </div>
@@ -133,7 +121,7 @@ const CreateAcct = () => {
                     name="email"
                     placeholder="name@example.com "
                     className="border border-[#D9D9D9] focus:border-[#00BFA5]
-             not-placeholder-shown:border-[#00BFA5] rounded-xl p-[12px] w-[100%] mb-[30px]"
+             not-placeholder-shown:border-[#00BFA5] rounded-xl p-[12px] w-[100%]"
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
@@ -156,15 +144,12 @@ const CreateAcct = () => {
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                <div id="wrong" className="hidden text-red-600 ">
-                  Password cannot be less than 8 characters
-                </div>
-                <button
-                  className="bg-[#00BFA5] text-white rounded-xl py-[12px] w-full hover:cursor-pointer mt-[50px]"
-                  type="submit"
-                >
-                  Sign up
-                </button>
+                <div className=" text-red-600 ">{error}</div>
+                <AuthButton
+                  action={emailSigningIn}
+                  text="Sign up"
+                  textWhileActionIsTakingPlace="Signing up"
+                />
                 <div className="mt-[12px] mb-[15px]">
                   <p className="text-center ">
                     Already have an account?{" "}
