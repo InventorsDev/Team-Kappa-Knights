@@ -1,19 +1,17 @@
 import { auth, provider } from "@/lib/firebase";
 import {
-  browserLocalPersistence,
   setPersistence,
-  browserSessionPersistence,
   signInWithEmailAndPassword,
   Persistence,
   signInWithPopup,
   createUserWithEmailAndPassword,
+  sendEmailVerification,
 } from "firebase/auth";
 
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { addDoc, collection } from "firebase/firestore";
-import { FirebaseError } from "firebase/app";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
 
 // sign in with email and password function
@@ -29,7 +27,21 @@ export const handleSignin = async (
   setLoggingIn(true);
   try {
     await setPersistence(auth, persistence);
-    await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    await userCredential.user.reload();
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      await auth.signOut(); // log them out
+      toast.warning("Please verify your email before logging in.");
+      setLoggingIn(false);
+      return;
+    }
+
     toast.success("Logged in successfully");
     router.push("/dashboard");
   } catch (error) {
@@ -74,32 +86,43 @@ export const handleCreateAccount = async (
   router: AppRouterInstance,
   name: string,
   email: string,
-  setSigningIn: (bool: boolean) => void
+  setSigningIn: (bool: boolean) => void,
+  setIsVerifying: (bool: boolean) => void
 ) => {
   e.preventDefault();
 
   if (password.length < 8) {
     toast.error("Password must be at least 8 characters long");
-    console.log("Password must be at least 8 characters long");
     return;
   }
 
   if (!name || !email || !password) {
     toast.error("Please fill in all fields");
-    console.log("Please fill in all fields");
     return;
   }
-  setSigningIn(true);
 
+  setSigningIn(true);
   setError("");
+
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+
+    await sendEmailVerification(user);
+    toast.message("Verification email sent. Please check your inbox.");
+
+    // Optionally store partial user now (or delay till verification)
     await addDoc(collection(db, "users"), {
       email,
       name,
+      verified: false,
     });
-    toast.success("Signed up successfully");
-    router.push("../");
+
+    setIsVerifying(true);
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
     toast.error(message);
