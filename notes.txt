@@ -1,0 +1,6 @@
+json format for recomendation
+{
+  "skill_level": "advanced",
+  "course_type": "data_science",
+  "interests": ["Python", "Pandas"]
+}
