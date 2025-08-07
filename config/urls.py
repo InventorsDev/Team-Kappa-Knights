@@ -10,7 +10,7 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
    openapi.Info(
-      title="Your API",
+      title="Nuroki API",
       default_version='v1',
       description="API documentation",
    ),
