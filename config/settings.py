@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'base',
     'rest_framework',
     'userprofile',
+    'drf_yasg',  # Swagger documentation
 ]
 
 MIDDLEWARE = [
