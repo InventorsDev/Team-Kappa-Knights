@@ -16,7 +16,8 @@ SECRET_KEY = 'django-insecure-y30x-xrjsh*iux8vr^v3g2u46+!7!608^v*@=#vy(e1uf!fu%^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['nuroki-backend.onrender.com', 'localhost', '127.0.0.1']
+
 
 
 # Application definition
