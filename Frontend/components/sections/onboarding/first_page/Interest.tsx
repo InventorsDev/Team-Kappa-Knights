@@ -72,9 +72,10 @@ const tags = [
 
 function Interest() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [isClosed, setIsClosed] = useState<boolean>(true)
 
   return (
-    <div className="p-4">
+    <div className="p-4 ">
       <Image src={logo} className="m-auto" alt="logo" width={40} height={40} />
       <h1 className="text-xl font-[700] text-[24px] md:text-[40px] text-center mt-2">
         What are you interested in learning?
@@ -124,7 +125,7 @@ function Interest() {
             color: "rgb(91, 33, 182)",
           }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4" onClick={() => setIsClosed(false)}>
             <Image
               src={`/plus.svg`}
               alt="Add your own"
@@ -135,7 +136,7 @@ function Interest() {
           </div>
         </div>
       </section>
-      <div className="max-w-[600px] py-4 m-auto">
+      <div className="max-w-[600px] py-4 m-auto" >
         <AuthButton
           text="Next"
           textWhileActionIsTakingPlace="Hold on..."
@@ -143,6 +144,26 @@ function Interest() {
           isAuth={false}
         />
       </div>
+      <section className={`w-full min-h-screen bg-black/60 flex justify-center items-center absolute top-0 left-0 ${ isClosed ? 'hidden' : 'visible'}`}>
+        <div className="p-5 py-10 rounded-xl bg-white relative w-[30%]">
+        <button className="absolute right-5 top-5" onClick={() => setIsClosed(true)}>X</button>
+        <label className="font-[600] text-base">Add your own interest
+          <input 
+          placeholder="e.g Product Manager" 
+          className="w-full py-2 px-4 border border-gray-300 rounded-xl text-gray-600 mt-2 mb-4"
+          onChange={(e) => e.target.value} />
+        </label>
+        <div className="w-full py-4 ">
+          <AuthButton
+          text="Done"
+          textWhileActionIsTakingPlace="Hold on..."
+          action={false}
+          isAuth={false}
+          />
+          </div>
+      </div>
+      </section>
+      
     </div>
   );
 }
