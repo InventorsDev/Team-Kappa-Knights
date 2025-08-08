@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import email from "@/public/SVGs/email-verification.svg";
-import AuthButton from "@/components/common/auth-button/AuthButton";
+import AuthButton from "@/components/common/button/Button";
 import Link from "next/link";
 function Verify() {
   const [isVerifying, setIsVerifying] = useState(false);

@@ -1,6 +1,7 @@
 import { FirebaseError } from "firebase/app";
 
 export function getFirebaseErrorMessage(error: unknown): string {
+  // 🔥 Firebase-specific errors
   if (error instanceof FirebaseError) {
     switch (error.code) {
       // 🔐 Auth Errors – Sign-up
@@ -22,6 +23,8 @@ export function getFirebaseErrorMessage(error: unknown): string {
         return "Too many attempts. Please try again later.";
       case "auth/user-disabled":
         return "This account has been disabled.";
+      case "auth/network-request-failed":
+        return "Network error. Please check your internet connection.";
 
       // 🧾 Firestore Errors
       case "permission-denied":
@@ -43,7 +46,7 @@ export function getFirebaseErrorMessage(error: unknown): string {
       case "invalid-argument":
         return "An invalid argument was provided.";
 
-      // 🧱 Common fallback
+      // 🧱 Default fallback
       default:
         return `Firebase error: ${
           error.message || "An unknown error occurred."
@@ -51,5 +54,16 @@ export function getFirebaseErrorMessage(error: unknown): string {
     }
   }
 
+  // 🌐 Generic network-related errors
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    return "Network error. Please check your internet connection.";
+  }
+
+  // ❓ General JS Error fallback
+  if (error instanceof Error) {
+    return error.message || "An unexpected error occurred.";
+  }
+
+  // 🧩 Unknown fallback
   return "Unexpected error occurred.";
 }
