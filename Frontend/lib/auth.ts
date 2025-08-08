@@ -21,7 +21,8 @@ export const handleSignin = async (
   password: string,
   persistence: Persistence,
   router: AppRouterInstance,
-  setLoggingIn: (bool: boolean) => void
+  setLoggingIn: (bool: boolean) => void,
+  isDone: (bool: boolean) => void
 ) => {
   e.preventDefault();
   setLoggingIn(true);
@@ -43,7 +44,7 @@ export const handleSignin = async (
     }
 
     toast.success("Logged in successfully");
-    router.push("/dashboard");
+    isDone(true);
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
     toast.error(message);

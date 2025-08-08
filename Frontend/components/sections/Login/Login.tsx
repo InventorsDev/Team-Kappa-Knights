@@ -15,9 +15,14 @@ import {
 } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { handleSignin, handleGoogleSignup } from "@/lib/auth";
-import AuthButton from "@/components/common/auth-button/AuthButton";
+import AuthButton from "@/components/common/button/Button";
+import { toast } from "sonner";
 
-const Login = () => {
+type prop = {
+  isDone: (boolean: boolean) => void;
+};
+
+const Login = ({ isDone }: prop) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [signingIn, setSigningIn] = useState(false);
@@ -31,32 +36,42 @@ const Login = () => {
 
   const forgotPassword = async () => {
     if (!email) {
-      alert("Please enter your email first.");
+      toast.message("Please enter your email.");
       return;
     }
 
     try {
+      await auth.setPersistence(persistence);
       await sendPasswordResetEmail(auth, email);
-      alert("Password reset link sent. Check your email.");
-    } catch (error) {
-      console.error(error);
-      alert("Error sending reset link. Is the email correct?");
+
+      toast.success("Password reset link sent. Check your email.");
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+
+      if (error.code === "auth/user-not-found") {
+        toast.error("No user found with this email.");
+      } else if (error.code === "auth/invalid-email") {
+        toast.error("Invalid email format.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
     }
   };
+
   return (
     <main
       className="md:flex w-screen h-screen overflow-hidden select-none"
       style={{ fontFamily: "var(--font-nunito), sans-serif" }}
     >
-      <section className="hidden md:block w-[40%] h-screen fixed left-0 top-0 z-10">
+      <section className="hidden xl:block w-[40%] h-screen fixed left-0 top-0 z-10">
         <Image
           src={Picture}
-          width={638}
+          width={900}
           alt=""
           className="w-full h-full object-cover scale-110"
         />
       </section>
-      <section className="md:ml-[45%] relative w-full">
+      <section className="xl:ml-[45%] relative w-full">
         <div className="hidden md:block fixed top-[-50px] right-[-40px] h-[100px] w-[100px] bg-[#00BFA5] rounded-full filter drop-shadow-[0_0_140px_rgba(0,191,165,1)] "></div>
         <div className="hidden md:block fixed bottom-[-50px] left-[40%] h-[200px] w-[200px] bg-[#00BFA5] opacity-30 blur-[120px] pointer-events-none z-0"></div>
         <div className="flex justify-center z-20 absolute w-full overflow-y-auto h-screen px-[20px] md:px-[50px]">
@@ -80,7 +95,8 @@ const Login = () => {
                     password,
                     persistence,
                     router,
-                    setLoggingIn
+                    setLoggingIn,
+                    isDone
                   )
                 }
               >
@@ -94,6 +110,7 @@ const Login = () => {
                   <input
                     type="email"
                     name="email"
+                    id="email"
                     placeholder="name@example.com"
                     className="border border-[#D9D9D9] focus:border-[#00BFA5] not-placeholder-shown:border-[#00BFA5] rounded-xl md:rounded-2xl p-[12px] md:p-[20px] w-full mb-[30px]"
                     onChange={(e) => setEmail(e.target.value)}
@@ -110,7 +127,8 @@ const Login = () => {
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
-                      placeholder="min. of 8 characters"
+                      id="password"
+                      placeholder="******"
                       className="border border-[#D9D9D9] focus:border-[#00BFA5] not-placeholder-shown:border-[#00BFA5] rounded-xl md:rounded-2xl p-[12px] w-full mb-[12px] md:p-[20px]"
                       onChange={(e) => setPassword(e.target.value)}
                     />
@@ -172,18 +190,19 @@ const Login = () => {
                     />
                     <span>Remember me</span>
                   </label>
-                  <button
+                  <p
                     className="hover:cursor-pointer hover:text-[#00BFA5]"
                     onClick={forgotPassword}
                   >
                     Forgot password?
-                  </button>
+                  </p>
                 </div>
 
                 <AuthButton
                   action={loggingIn}
                   text="Log in"
                   textWhileActionIsTakingPlace="Logging in"
+                  isAuth={true}
                 />
                 <div className="mt-[12px] mb-[20px]">
                   <p className="text-center">

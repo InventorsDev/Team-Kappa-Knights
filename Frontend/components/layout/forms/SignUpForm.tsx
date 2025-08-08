@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AuthButton from "@/components/common/auth-button/AuthButton";
+import AuthButton from "@/components/common/button/Button";
 import Image from "next/image";
 import Logo from "@/public/images/logo.png";
 import Link from "next/link";
@@ -130,6 +130,7 @@ function SignUpForm({ setIsVerifying }: props) {
             action={emailSigningIn}
             text="Sign up"
             textWhileActionIsTakingPlace="Signing up"
+            isAuth={false}
           />
           <div className="mt-[12px] mb-[15px]">
             <p className="text-center ">
