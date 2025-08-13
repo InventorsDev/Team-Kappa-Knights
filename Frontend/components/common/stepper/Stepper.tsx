@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-const steps = ["interests", "step2", "step3", "step4"]; // define your steps
+const steps = ["interests", "skill-level", "step3", "step4"]; // define your steps
 
 export default function Stepper() {
   const pathname = usePathname();
