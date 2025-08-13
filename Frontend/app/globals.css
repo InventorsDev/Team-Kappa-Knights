@@ -120,3 +120,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* border: 1px solid black; */
+}
+.onboarding {
+  background-image: url("../public//images/onboarding.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
