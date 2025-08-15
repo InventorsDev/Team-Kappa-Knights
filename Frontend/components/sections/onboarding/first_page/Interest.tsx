@@ -50,6 +50,7 @@ function Interest() {
         setFirestoreTags(tagData);
         setLoading(false);
       } catch (error) {
+        toast.error("Network issues, please reload page");
         console.error("Error fetching tags from Firestore", error);
       }
     };
@@ -145,7 +146,7 @@ function Interest() {
       <h1 className="text-xl font-[700] text-[24px] md:text-[40px] text-center mt-2">
         What are you interested in learning?
       </h1>
-      <p className="text-gray-600 text-center mb-4">
+      <p className="text-gray-600 md:text-[24px] max-w-[500px] m-auto text-center mb-4">
         Pick 2–5 topics to help us personalize your learning path
       </p>
 
