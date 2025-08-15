@@ -132,7 +132,8 @@ function Interest() {
       toast.message("The skills selected do not meet the limit.");
       return;
     }
-    router.push("/skill-level");
+    localStorage.clear();
+    router.push("./skill-level");
   };
 
   // Merge both arrays for rendering

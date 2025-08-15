@@ -1,3 +1,9 @@
+import SkillLevel from "@/components/sections/onboarding/second-page/SkillLevel";
+
 export default function Page() {
-  return <div>hey success, all your code goes here</div>;
+  return (
+    <div>
+      <SkillLevel />
+    </div>
+  );
 }
