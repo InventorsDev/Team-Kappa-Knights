@@ -1,6 +1,11 @@
 import Stepper from "@/components/common/stepper/Stepper";
 import type { Metadata } from "next";
-
+import { Nunito } from "next/font/google";
+const nunito = Nunito({
+  variable: "--font-nunito",
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
 export const metadata: Metadata = {
   title: "Get started with nuroki",
   description:
@@ -16,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <section>
+    <section className={`${nunito.variable}`}>
       <div className="px-6 py-4">
         <Stepper />
       </div>
