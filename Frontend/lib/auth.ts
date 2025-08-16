@@ -13,6 +13,13 @@ import { db } from "@/lib/firebase";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { addDoc, collection } from "firebase/firestore";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
+import {
+  // getFirestore,
+  // collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 
 // sign in with email and password function
 export const handleSignin = async (
@@ -113,13 +120,15 @@ export const handleCreateAccount = async (
     );
     const user = userCredential.user;
 
-    
-    sessionStorage.setItem("user", JSON.stringify({
-      uid: user.uid,
-      email: user.email,
-      name,
-    }))
-    
+    sessionStorage.setItem(
+      "user",
+      JSON.stringify({
+        uid: user.uid,
+        email: user.email,
+        name,
+      })
+    );
+
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");
 
@@ -129,8 +138,6 @@ export const handleCreateAccount = async (
       name,
       verified: false,
     });
-    
-
 
     setIsVerifying(true);
   } catch (error) {
@@ -140,3 +147,40 @@ export const handleCreateAccount = async (
     setSigningIn(false);
   }
 };
+interface user {
+  name: string;
+  id: string;
+  email: string;
+  verified: boolean;
+}
+export async function getCurrentUserFromFirestore(): Promise<user | null> {
+  try {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error("No user is currently logged in.");
+    }
+
+    const email = currentUser.email;
+    if (!email) {
+      throw new Error("Logged in user has no email associated.");
+    }
+
+    const usersRef = collection(db, "users"); // 👈 your Firestore collection
+    const q = query(usersRef, where("email", "==", email));
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      return null; // no matching user found in Firestore
+    }
+
+    // Assuming unique email → return first match
+    const userDoc = querySnapshot.docs[0];
+    const data = userDoc.data() as Omit<user, "id">; // cast the Firestore doc
+
+    return { id: userDoc.id, ...data };
+  } catch (error) {
+    console.error("Error fetching current user from Firestore:", error);
+    throw error;
+  }
+}
