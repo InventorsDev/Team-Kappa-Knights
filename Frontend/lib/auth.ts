@@ -113,6 +113,13 @@ export const handleCreateAccount = async (
     );
     const user = userCredential.user;
 
+    
+    sessionStorage.setItem("user", JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      name,
+    }))
+    
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");
 
@@ -122,6 +129,8 @@ export const handleCreateAccount = async (
       name,
       verified: false,
     });
+    
+
 
     setIsVerifying(true);
   } catch (error) {
