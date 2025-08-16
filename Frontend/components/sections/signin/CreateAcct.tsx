@@ -14,7 +14,7 @@ const CreateAcct = () => {
     >
       <section className="hidden xl:block w-[40%] h-screen fixed left-0 top-0 z-10">
         <Image
-          src="https://res.cloudinary.com/dlpty7kky/image/upload/v1754322897/man-relaxing-taking-care-himself_yctzwn.png"
+          src={Picture}
           width={638}
           priority
           blurDataURL="https://res.cloudinary.com/dlpty7kky/image/upload/w_10,q_1,e_blur:1000/v1754322897/man-relaxing-taking-care-himself_yctzwn.png"
