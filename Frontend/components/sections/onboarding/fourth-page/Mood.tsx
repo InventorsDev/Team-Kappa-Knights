@@ -95,12 +95,14 @@ function Mood() {
                 }}
                 onClick={() => setMood(item.title)}
               >
-                <Image
-                  src={`/emotions/${item.logo}`}
-                  alt="logo"
-                  width={50}
-                  height={50}
-                />
+                <div className="w-[50px]">
+                  <Image
+                    src={`/emotions/${item.logo}`}
+                    alt="logo"
+                    width={100}
+                    height={100}
+                  />
+                </div>
                 <p>{item.title}</p>
               </div>
             );

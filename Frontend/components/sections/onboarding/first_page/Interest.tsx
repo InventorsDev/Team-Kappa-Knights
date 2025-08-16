@@ -8,6 +8,7 @@ import { db } from "@/lib/firebase";
 import { toast } from "sonner";
 import Loader from "@/components/common/loader/Loader";
 import { useRouter } from "next/navigation";
+import { getCurrentUserFromFirestore } from "@/lib/auth";
 
 interface Tags {
   id: string;
@@ -17,6 +18,13 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
+}
+
+interface user {
+  name: string;
+  id: string;
+  email: string;
+  verified: boolean;
 }
 
 function Interest() {
@@ -32,6 +40,21 @@ function Interest() {
   useEffect(() => {
     console.log(selectedTags);
   }, [selectedTags]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user: user | null = await getCurrentUserFromFirestore();
+        if (user && user.name) {
+          sessionStorage.setItem("userName", user.name);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // Load Firestore tags once
   useEffect(() => {

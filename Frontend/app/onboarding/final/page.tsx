@@ -1,12 +1,11 @@
-import AllSet from '@/components/sections/onboarding/final-page/AllSet'
-import React from 'react'
+import AllSet from "@/components/sections/onboarding/final-page/AllSet";
 
 const page = () => {
   return (
     <div>
-        <AllSet/>
+      <AllSet />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
