@@ -1,6 +1,7 @@
 import Stepper from "@/components/common/stepper/Stepper";
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+import StepperGate from "../stepper-gate";
 const nunito = Nunito({
   variable: "--font-nunito",
   weight: ["400", "500", "700"],
@@ -22,9 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <section className={`${nunito.variable} `}>
-      <div className="px-6 py-4">
-        <Stepper />
-      </div>
+        <StepperGate />
       {children}
     </section>
   );

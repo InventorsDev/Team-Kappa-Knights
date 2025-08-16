@@ -22,12 +22,12 @@ function Support() {
 
   const handleRoute = () => {
     if (!support) {
-      toast.error("please choose one");
+     return toast.error("please choose one");
     }
-    router.push("");
+    router.push("/onboarding/final");
   };
   const handleSkip = () => {
-    router.push("");
+    router.push("/onboarding/final");
   };
   return (
     <div>
@@ -72,20 +72,24 @@ function Support() {
 
       <div
         className="max-w-[550px] m-auto flex flex-col gap-4"
-        onClick={handleRoute}
+        
       >
+        <div onClick={handleRoute}>
         <AuthButton
           text="Continue"
           action={isRouting}
           textWhileActionIsTakingPlace="Routing"
           isAuth={false}
         />
+        </div>
+        <div onClick={handleSkip}>
         <button
           type="button"
           className="w-full rounded-xl md:rounded-2xl bg-[#ebfffc] py-4 cursor-pointer"
         >
           skip
         </button>
+        </div>
       </div>
     </div>
   );
