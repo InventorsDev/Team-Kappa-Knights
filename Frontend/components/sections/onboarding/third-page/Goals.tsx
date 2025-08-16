@@ -13,7 +13,7 @@ const goals = [
     logo: "new_career",
   },
   {
-    title: "Master a specific skills",
+    title: "Master a specific skill",
     desc: "I want to go deep into one thing",
     logo: "specific_skills",
   },
