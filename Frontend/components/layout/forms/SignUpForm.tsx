@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import Image from "next/image";
 import Logo from "@/public/images/logo.png";
@@ -9,6 +9,7 @@ import { handleGoogleSignup, handleCreateAccount } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { auth, provider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
+import { useUsername } from "@/state/store";
 type props = {
   setIsVerifying: (bool: boolean) => void;
   // setIsVerifying: (bool: boolean) => void;
@@ -18,9 +19,11 @@ function SignUpForm({ setIsVerifying }: props) {
   const [emailSigningIn, setEmailSigningIn] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  // const [name, setName] = useState("");
   const [signingIn, setSigningIn] = useState(false);
   const router = useRouter();
+  const name = useUsername((state) => state.name);
+  const setName = useUsername((state) => state.setName);
 
   const handleGoogleSignup = async () => {
     if (signingIn) return;
@@ -87,6 +90,7 @@ function SignUpForm({ setIsVerifying }: props) {
               className="border border-[#D9D9D9] focus:border-[#00BFA5]
                                            rounded-xl p-[12px] w-[100%]"
               onChange={(e) => setName(e.target.value)}
+              value={name}
             />
           </div>
           <div className="w-full">

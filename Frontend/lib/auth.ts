@@ -20,6 +20,7 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
+import { useUsername } from "@/state/store";
 
 // sign in with email and password function
 export const handleSignin = async (
@@ -33,6 +34,7 @@ export const handleSignin = async (
 ) => {
   e.preventDefault();
   setLoggingIn(true);
+
   try {
     await setPersistence(auth, persistence);
     const userCredential = await signInWithEmailAndPassword(
@@ -98,6 +100,7 @@ export const handleCreateAccount = async (
   setIsVerifying: (bool: boolean) => void
 ) => {
   e.preventDefault();
+  const setName = useUsername.getState().setName;
 
   if (password.length < 8) {
     toast.error("Password must be at least 8 characters long");
@@ -119,15 +122,7 @@ export const handleCreateAccount = async (
       password
     );
     const user = userCredential.user;
-
-    sessionStorage.setItem(
-      "user",
-      JSON.stringify({
-        uid: user.uid,
-        email: user.email,
-        name,
-      })
-    );
+    setName(name);
 
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");
@@ -153,7 +148,7 @@ interface user {
   email: string;
   verified: boolean;
 }
-export async function getCurrentUserFromFirestore(): Promise<user | null> {
+export async function getCurrentUserFromFirestore() {
   try {
     const currentUser = auth.currentUser;
 
@@ -177,8 +172,8 @@ export async function getCurrentUserFromFirestore(): Promise<user | null> {
     // Assuming unique email → return first match
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data() as Omit<user, "id">; // cast the Firestore doc
-
-    return { id: userDoc.id, ...data };
+    const setName = useUsername.getState().setName;
+    setName(data.name);
   } catch (error) {
     console.error("Error fetching current user from Firestore:", error);
     throw error;
