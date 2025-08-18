@@ -1,4 +1,4 @@
-# Neuroki Backend (FastAPI)
+# Nuroki Backend (FastAPI)
 
 ## Project Vision
 
