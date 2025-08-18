@@ -163,5 +163,5 @@ huggingface_hub/
 *.pt
 
 # Model downloads
-models/
+
 checkpoints/
