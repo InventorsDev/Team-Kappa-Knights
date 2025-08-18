@@ -2,7 +2,7 @@
 
 ## Project Vision
 
-**Neuroki** empowers individuals with personalized learning paths and emotional well-being insights, fostering a more effective and supportive self-learning journey.
+**Nuroki** empowers individuals with personalized learning paths and emotional well-being insights, fostering a more effective and supportive self-learning journey.
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Project Overview
 
-Neuroki is an MVP web application that integrates:
+Nuroki is an MVP web application that integrates:
 - **Personalized course recommendations**
 - **Progress tracking**
 - **Sentiment analysis via learning journal**
