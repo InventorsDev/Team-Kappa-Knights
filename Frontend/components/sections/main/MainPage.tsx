@@ -8,7 +8,6 @@ import { redirect } from "next/navigation";
 function MainPage() {
   const [done, isDone] = useState(false);
 
-  // useAuthStore(state => state.isAuthenticated) ? isDone(true) : redirect("/")
   return <>{done ? <OnboardingHomepage /> : <Login isDone={isDone} />}</>;
 }
 

@@ -1,22 +1,33 @@
-'use client'
-import React, { ReactNode } from 'react'
-import { useAuthStore } from './authStore'
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+// app/ClientLayoutWrapper.tsx
+"use client";
 
-const ProtectedLayout = ({children}: {children: ReactNode}) => {
-    const {isAuthenticated, hydrated} = useAuthStore()
-    const router = useRouter()
+import { useEffect, useState } from "react";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
-    useEffect(() => {
-        if(hydrated && !isAuthenticated) {
-            router.push("/")
-        }
-    }, [hydrated, isAuthenticated, router])
-    if (!hydrated) return null;
-  return (
-   <> {isAuthenticated ? children : null} </>
-  )
+export default function ClientLayoutWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (!user) {
+    router.push("/");
+    return;
+  }
+
+  return <div>{children}</div>;
 }
-
-export default ProtectedLayout

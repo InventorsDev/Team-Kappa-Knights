@@ -18,13 +18,12 @@ export function getFirebaseErrorMessage(error: unknown): string {
       case "auth/user-not-found":
         return "No account found with this email.";
       case "auth/wrong-password":
-        return "Incorrect password.";
+      case "auth/invalid-credential": // 👈 handle this too
+        return "Incorrect email or password.";
       case "auth/too-many-requests":
         return "Too many attempts. Please try again later.";
       case "auth/user-disabled":
         return "This account has been disabled.";
-      case "auth/network-request-failed":
-        return "Network error. Please check your internet connection.";
 
       // 🧾 Firestore Errors
       case "permission-denied":

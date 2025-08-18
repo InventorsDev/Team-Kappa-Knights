@@ -25,8 +25,8 @@ export default function Layout({
   return (
     <section className={`${nunito.variable} `}>
       <ProtectedLayout>
-      <StepperGate />
-      {children}
+        <StepperGate />
+        {children}
       </ProtectedLayout>
     </section>
   );

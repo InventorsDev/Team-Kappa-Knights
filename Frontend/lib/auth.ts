@@ -13,13 +13,7 @@ import { db } from "@/lib/firebase";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { addDoc, collection } from "firebase/firestore";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
-import {
-  // getFirestore,
-  // collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { query, where, getDocs } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
 // import { useAuthStore } from "@/state/authStore";
 
@@ -60,8 +54,8 @@ export const handleSignin = async (
     return user;
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
-    toast.error(message);
-    console.error("signin error: ", message);
+    toast.error(message); // 🚀 user-friendly message now
+    console.error("signin error:", error); // log raw error for debugging
     setLoggingIn(false);
   }
 };
@@ -144,8 +138,8 @@ export const handleCreateAccount = async (
     return user;
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
-    toast.error(message);
-    console.error("signup error: ", message);
+    toast.error(message); // 🚀 user-friendly message now
+    console.error("signin error:", error); // log raw error for debugging
     setSigningIn(false);
   }
 };
