@@ -186,7 +186,11 @@ const Login = ({ isDone }: prop) => {
                       name="remember"
                       className="mr-[8px] accent-[#00BFA5]"
                       checked={rememberMe}
+<<<<<<< HEAD
                       onChange={() => setRememberMe(!rememberMe)}
+=======
+                      onChange={(e) => setRememberMe(e.target.checked)}
+>>>>>>> zustand-login
                     />
                     <span>Remember me</span>
                   </label>
