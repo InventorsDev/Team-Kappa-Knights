@@ -1,4 +1,4 @@
-import { useCounterStore } from "@/state/store";
+import { useCounterStore } from "@/state/usernameStore";
 import React from "react";
 
 interface Props {

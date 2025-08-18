@@ -6,7 +6,7 @@ import BgMobile from "@/public/images/bg-mobile.png";
 import CheckCircle from "@/public/images/check-circle.png";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
-import { useUsername } from "@/state/store";
+import { useUsername } from "@/state/usernameStore";
 
 const AllSet = () => {
   const name = useUsername((state) => state.name);

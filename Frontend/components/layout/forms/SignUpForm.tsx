@@ -9,7 +9,8 @@ import { handleGoogleSignup, handleCreateAccount } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { auth, provider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { useUsername } from "@/state/store";
+import { useUsername } from "@/state/usernameStore";
+import { useAuthStore } from "@/state/authStore";
 type props = {
   setIsVerifying: (bool: boolean) => void;
   // setIsVerifying: (bool: boolean) => void;
@@ -24,6 +25,7 @@ function SignUpForm({ setIsVerifying }: props) {
   const router = useRouter();
   const name = useUsername((state) => state.name);
   const setName = useUsername((state) => state.setName);
+  const setUser = useAuthStore((state) => state.setUser)
 
   const handleGoogleSignup = async () => {
     if (signingIn) return;
@@ -31,6 +33,7 @@ function SignUpForm({ setIsVerifying }: props) {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      setUser(user)
       router.back();
       console.log(user);
     } catch (error) {

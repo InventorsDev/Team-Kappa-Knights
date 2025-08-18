@@ -1,5 +1,5 @@
 "use client";
-import { useCounterStore } from "@/state/store";
+import { useCounterStore } from "@/state/usernameStore";
 import OtherComponent from "./OtherComponent";
 import { useEffect } from "react";
 const logCount = () => {
