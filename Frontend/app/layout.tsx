@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Nunito, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/components/AuthProvider";
+// import { AuthProvider } from "@/components/AuthProvider";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -33,9 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${nunito.variable} ${inter.variable} antialiased`}>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        {children}
         <Toaster
           position="top-center"
           toastOptions={{

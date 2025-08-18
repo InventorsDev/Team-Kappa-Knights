@@ -21,7 +21,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
-import { useAuthStore } from "@/state/authStore";
+// import { useAuthStore } from "@/state/authStore";
 
 // sign in with email and password function
 export const handleSignin = async (
@@ -35,7 +35,7 @@ export const handleSignin = async (
 ) => {
   e.preventDefault();
   setLoggingIn(true);
-  const setUser = useAuthStore((state) => state.setUser)
+  // const setUser = useAuthStore((state) => state.setUser)
 
   try {
     await setPersistence(auth, persistence);
@@ -46,7 +46,7 @@ export const handleSignin = async (
     );
     await userCredential.user.reload();
     const user = userCredential.user;
-    setUser(user)
+    // setUser(user)
 
     if (!user.emailVerified) {
       await auth.signOut(); // log them out
@@ -105,7 +105,7 @@ export const handleCreateAccount = async (
 ) => {
   e.preventDefault();
   const setName = useUsername.getState().setName;
-  const setUser = useAuthStore((state) => state.setUser)
+  // const setUser = useAuthStore((state) => state.setUser)
 
   if (password.length < 8) {
     toast.error("Password must be at least 8 characters long");
@@ -129,7 +129,7 @@ export const handleCreateAccount = async (
     const user = userCredential.user;
     setName(name);
 
-    setUser(user)
+    // setUser(user)
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");
 
@@ -182,7 +182,7 @@ export async function getCurrentUserFromFirestore() {
     const setName = useUsername.getState().setName;
     setName(data.name);
 
-    const setUser = useAuthStore((state) => state.setUser);
+    // const setUser = useAuthStore((state) => state.setUser);
     // setUser(data)
   } catch (error) {
     console.error("Error fetching current user from Firestore:", error);
