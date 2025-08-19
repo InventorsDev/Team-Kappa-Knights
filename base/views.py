@@ -3,10 +3,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .models import Courses, Tag
 from .serializers import RecommendationInputSerializer
-
-# Create your views here.
-
 from .serializers import CoursesSerializers, CourseEnrollmentSerializer, CourseRoadmapSerializer, CourseContentSerializer
+from django.db.models import Q, Count
+from difflib import SequenceMatcher
+
+
 
 from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent
 
@@ -83,7 +84,7 @@ def course_content_list(request, roadmap_pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     
-# views.py
+
 
 
 # @api_view(['POST'])
@@ -92,47 +93,173 @@ def course_content_list(request, roadmap_pk):
 
 #     if serializer.is_valid():
 #         skill_level = serializer.validated_data['skill_level']
-#         course_type = serializer.validated_data['course_type']
+#         #course_type = serializer.validated_data['course_type']
 #         interests = [i.lower().strip() for i in serializer.validated_data['interests']]
 
-#         # Case-insensitive tag match
-#         tags = Tag.objects.filter(name__in=interests)
+#         from django.db.models.functions import Lower
+#         tags = Tag.objects.annotate(lower_name=Lower('name')).filter(lower_name__in=interests)
 
-#         # Recommend all matching courses
-#         recommended_courses = Courses.objects.filter(
+#         print("Matching tags:", list(tags.values_list("name", flat=True)))
+
+#         courses = Courses.objects.filter(
 #             difficulty=skill_level,
-#             course_type=course_type,
+#             #course_type=course_type,
 #             tags__in=tags
 #         ).distinct().order_by('-rating')
 
-#         return Response(CoursesSerializers(recommended_courses, many=True).data)
+#         print("Matched courses:", courses.count())
+
+#         return Response(CoursesSerializers(courses, many=True).data)
 
 #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
+from .serializers import CoursesSerializers, RecommendationInputSerializer
+
 @api_view(['POST'])
 def recommend_courses(request):
-    serializer = RecommendationInputSerializer(data=request.data)
+    """
+    Recommend courses based on skill level and interests (tags)
+    
+    Expected input:
+    {
+        "skill_level": "beginner",
+        "interests": ["Machine Learning", "Python"]
+    }
+    """
+    try:
+        # Validate input using serializer
+        input_serializer = RecommendationInputSerializer(data=request.data)
+        if not input_serializer.is_valid():
+            return Response({
+                'error': 'Invalid input data',
+                'details': input_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Extract validated data
+        validated_data = input_serializer.validated_data
+        skill_level = validated_data['skill_level']
+        interests = validated_data['interests']
+        
+        # Build the query
+        courses_query = Courses.objects.filter(difficulty=skill_level)
+        
+        if interests:
+            # Filter courses that have tags matching the interests
+            # Using case-insensitive matching for better UX
+            tag_query = Q()
+            for interest in interests:
+                tag_query |= Q(tags__name__icontains=interest.strip())
+            
+            courses_query = courses_query.filter(tag_query).distinct()
+            
+            # Annotate with the number of matching tags for better sorting
+            courses_query = courses_query.annotate(
+                matching_tags_count=Count('tags', filter=tag_query)
+            ).order_by('-matching_tags_count', '-rating', '-created_at')
+        else:
+            # If no specific interests, order by rating and creation date
+            courses_query = courses_query.order_by('-rating', '-created_at')
+        
+        # Limit results to top 10 recommendations
+        recommended_courses = courses_query[:10]
+        
+        # Serialize the courses
+        output_serializer = CoursesSerializers(recommended_courses, many=True)
+        
+        # Prepare response
+        response_data = {
+            'recommendations': output_serializer.data,
+            'total_found': len(output_serializer.data),
+            'filters_applied': {
+                'skill_level': skill_level,
+                'interests': interests
+            }
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'error': 'An error occurred while processing your request',
+            'details': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    if serializer.is_valid():
-        skill_level = serializer.validated_data['skill_level']
-        course_type = serializer.validated_data['course_type']
-        interests = [i.lower().strip() for i in serializer.validated_data['interests']]
 
-        from django.db.models.functions import Lower
-        tags = Tag.objects.annotate(lower_name=Lower('name')).filter(lower_name__in=interests)
+from .serializers import CoursesSerializers, CourseSearchInputSerializer
 
-        print("Matching tags:", list(tags.values_list("name", flat=True)))
-
-        courses = Courses.objects.filter(
-            difficulty=skill_level,
-            course_type=course_type,
-            tags__in=tags
-        ).distinct().order_by('-rating')
-
-        print("Matched courses:", courses.count())
-
-        return Response(CoursesSerializers(courses, many=True).data)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def search_courses(request):
+    """
+    Search courses based on query string with flexible matching
+    
+    Expected input:
+    {
+        "query": "python machine learning",  # Required: search term
+        "skill_level": "beginner"            # Optional: filter by skill level
+    }
+    
+    Search logic:
+    - Searches in course titles and descriptions (case-insensitive, partial matching)
+    - Also searches in associated tag names (case-insensitive, partial matching)
+    - Returns distinct results ordered by rating (descending)
+    """
+    try:
+        # Validate input using serializer
+        input_serializer = CourseSearchInputSerializer(data=request.data)
+        if not input_serializer.is_valid():
+            return Response({
+                'error': 'Invalid input data',
+                'details': input_serializer.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Extract validated data
+        validated_data = input_serializer.validated_data
+        query = validated_data.get('query', '').strip()
+        skill_level = validated_data.get('skill_level')
+        
+        # Start building the query
+        courses_query = Courses.objects.all()
+        
+        # Apply skill level filter if provided
+        if skill_level:
+            courses_query = courses_query.filter(difficulty=skill_level)
+        
+        # Apply search query if provided
+        if query:
+            # Create comprehensive search across title, description, and tags
+            search_query = (
+                Q(title__icontains=query) |           # Search in title
+                Q(description__icontains=query) |     # Search in description  
+                Q(tags__name__icontains=query)        # Search in tag names
+            )
+            courses_query = courses_query.filter(search_query)
+        
+        # Make results distinct and order by rating descending, then by creation date
+        courses_query = courses_query.distinct().order_by('-rating', '-created_at')
+        
+        # Execute query
+        found_courses = courses_query
+        
+        # Serialize the results
+        serializer = CoursesSerializers(found_courses, many=True)
+        
+        # Prepare response
+        response_data = {
+            'courses': serializer.data,
+            'total_found': len(serializer.data),
+            'search_info': {
+                'query': query,
+                'skill_level': skill_level,
+                'searched_fields': ['title', 'description', 'tags']
+            }
+        }
+        
+        return Response(response_data, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'error': 'An error occurred while searching courses',
+            'details': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

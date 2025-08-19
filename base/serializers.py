@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent
+from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent, Tag
 
-class CoursesSerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Courses
-        fields = ['course_id', 'title', 'description', 'course_type',  'description', 'difficulty', 'rating']
-        read_only_fields = ['course_id']
+# class CoursesSerializers(serializers.ModelSerializer):
+#     class Meta:
+#         model = Courses
+#         fields = ['course_id', 'title', 'description','description', 'difficulty', 'rating']
+#         read_only_fields = ['course_id']
 
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -25,9 +25,54 @@ class CourseContentSerializer(serializers.ModelSerializer):
         model = CourseContent
         fields = '__all__'
 
-from base.models import Courses
+
+
+# class RecommendationInputSerializer(serializers.Serializer):   
+#     skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
+#     interests = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+#     #course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
+
+
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['tag_id', 'name']
+
+class CoursesSerializers(serializers.ModelSerializer):
+    tags = TagSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Courses
+        fields = [
+            'course_id',
+            'title', 
+            'description',
+            'created_at',
+            'updated_at',
+            'course_url',
+            'difficulty',
+            'rating',
+            'tags'
+        ]
+        read_only_fields = ['course_id', 'created_at', 'updated_at']
 
 class RecommendationInputSerializer(serializers.Serializer):   
     skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
     interests = serializers.ListField(child=serializers.CharField(), allow_empty=False)
-    course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
+    #course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
+
+# Input validation serializer for course search
+class CourseSearchInputSerializer(serializers.Serializer):
+    query = serializers.CharField(
+        max_length=500,
+        required=True,
+        help_text="Search term to look for in course title, description, and tags"
+    )
+    skill_level = serializers.ChoiceField(
+        choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')],
+        required=False,
+        help_text="Filter by difficulty level"
+    )
+

@@ -14,14 +14,14 @@ COURSES_TYPE = {
 # Create your models here.
 class Tag(models.Model):
     tag_id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50, unique=True)
+    name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.name
 
 class Courses(models.Model):
     course_id = models.AutoField(primary_key=True)
-    course_type = models.CharField(choices=COURSES_TYPE, max_length=50)
+    #course_type = models.CharField(choices=COURSES_TYPE, max_length=50, null=True, default='')
     title = models.CharField(max_length=200, blank=False, null=False)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)

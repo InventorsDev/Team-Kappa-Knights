@@ -2,7 +2,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from base.views import course_list, roadmap_list, roadmap_detail, course_content_list, recommend_courses
+from base.views import course_list, roadmap_list, roadmap_detail, course_content_list, recommend_courses, search_courses
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -25,6 +25,8 @@ urlpatterns = [
     path('roadmaps/<int:pk>/', roadmap_detail, name='roadmap-detail'),
     path('roadmaps/<int:roadmap_pk>/contents/', course_content_list, name='roadmap-contents'),
     path('recommend/', recommend_courses, name='recommend_courses'),
+    path('search/', search_courses, name='search_courses'),
+
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),

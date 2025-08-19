@@ -56,3 +56,11 @@ pytest_cache/
 # Pip
 pip-log.txt
 pip-delete-this-directory.txt
+
+seed_courses.json
+tags.json
+add_courses.py
+
+test_recommendation.py
+test_api.py
+test_for_search.py
