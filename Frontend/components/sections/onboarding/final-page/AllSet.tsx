@@ -20,7 +20,7 @@ const AllSet = () => {
 
   const handleRoute = () => {
     setIsRouting(true);
-    router.push("");
+    router.push("/dashboard");
   };
   return (
     <main className="relative">
