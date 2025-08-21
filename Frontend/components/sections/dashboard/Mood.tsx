@@ -62,23 +62,28 @@ function Mood() {
     router.push("/onboarding/support");
   };
   return (
-    <div className=" text-[#212121] select-none">
-      <header className="flex flex-col text-[16px] gap-2 ">
-        <h1 className="text-[20px] md:text-[18px] font-semibold text-[#212121]">
+    <div className=" text-[#212121] select-none md:pt-[4%]">
+      <div className="md:block hidden pb-7">
+        <p className='text-[40px] font-bold'>Hello, Gbemisola!</p>
+        <p className='text-[24px] text-[#4A4A4A]'>Here&apos;s to steady growth</p>
+      </div>
+      <section className=" md:border-2 md:border-gray-300 rounded-3xl md:p-6">
+      <header className="flex flex-col text-[16px] gap-2">
+        <h1 className="text-[20px] md:text-[32px] font-semibold text-[#212121]">
           How are you feeling right now?
         </h1>
-        <p className="text-[#4A4A4A] md:text-[24px] max-w-[500px]  font-[400]">
+        <p className="text-[#4A4A4A] md:text-[24px] max-w-[500px] font-[400] md:hidden">
           Select one that best describes your current mood.
         </p>
       </header>
 
-      <section className="max-w-[1000px] mt-4 m-auto">
-        <div className=" grid gap-4 grid-cols-3 lg:grid-cols-6 ">
+      <section className="mt-4 m-auto">
+        <div className=" grid gap-4 grid-cols-3 lg:grid-cols-6 md:gap-8 md:py-4  ">
           {moods.map((item, index) => {
             return (
               <div
                 key={index}
-                className={` flex flex-col items-center p-3 gap-3 rounded-[16px]  cursor-pointer`}
+                className={` flex flex-col items-center p-3 gap-3 md:gap-2 rounded-[16px]  cursor-pointer`}
                 style={{
                   backgroundColor: item.bg,
                   border:
@@ -88,15 +93,15 @@ function Mood() {
                 }}
                 onClick={() => setMood(item.title)}
               >
-                <div className="w-[50px]">
+                <div className="md:w-[50px]">
                   <Image
                     src={`/emotions/${item.logo}`}
                     alt="logo"
-                    width={100}
-                    height={100}
+                    width={64}
+                    height={64}
                   />
                 </div>
-                <p>{item.title}</p>
+                <p className="md:text-[24px]">{item.title}</p>
               </div>
             );
           })}
@@ -105,7 +110,7 @@ function Mood() {
         <div className="flex flex-col gap-4 py-4">
           <label
             htmlFor="extra_info"
-            className="text-[#212121] text-[18px] md:text-[24px] font-[500]"
+            className="text-[#212121] text-[18px] md:text-[32px] md:font-[700] font-[500]"
           >
             What&apos;s on your mind? (Optional)
           </label>
@@ -115,7 +120,7 @@ function Mood() {
             cols={30}
             rows={3}
             placeholder="Type a short note..."
-            className="border border-[#CCCCCCCC] w-full p-4 pt-[9px] text-[16px] focus-within:outline-0 rounded-[16px]"
+            className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px]"
             value={desc}
             onChange={(e) => {
               setDesc(e.target.value);
@@ -123,7 +128,8 @@ function Mood() {
           />
         </div>
 
-        <div onClick={handleRoute}>
+        <div className="md:flex justify-center md:w-full">
+        <div onClick={handleRoute} className="md:flex justify-center md:w-[40%] md:text-[24px] md:py-[10px]">
           <AuthButton
             text="Save Today's Entry"
             action={isRouting}
@@ -131,6 +137,8 @@ function Mood() {
             isAuth={false}
           />
         </div>
+        </div>
+      </section>
       </section>
     </div>
   );

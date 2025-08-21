@@ -36,17 +36,17 @@ const Suggested = () => {
 
     return (
         <main className='select-none'>
-            <p className='text-[18px] font-bold pb-3'>Suggested for you</p>
-            <section className='space-y-5 pb-5'>
+            <p className='text-[18px] md:text-[32px] font-bold pb-3'>Suggested for you</p>
+            <section className='space-y-8 pb-10'>
                 {suggested.map((item, index) => {
                     const isGreen = index % 2 !== 0
                     return (
                         <section key={index} className='border border-[#CCCCCCCC] w-full p-4 rounded-[16px] select-none'>
-                            <p className='text-[16px] font-semibold '>{item.title}</p>
-                            <p className='text-[#4A4A4A] text-[14px]'> {item.details} </p>
+                            <p className='text-[16px] md:text-[24px] font-semibold '>{item.title}</p>
+                            <p className='text-[#4A4A4A] text-[14px] md:text-[18px]'> {item.details} </p>
                             <div className='flex gap-3 pt-2 '>
-                                <div className={`px-3 py-1 rounded-lg border ${isGreen ? ' border-[#AAF4E9] border-2' : 'border-[#886CFF]'}`}>{item.category}</div>
-                                <div className={`px-3 py-1 rounded-lg border  ${isGreen ? ' border-[#AAF4E9] border-2' : 'border-[#886CFF]'}`}>{item.feature}</div>
+                                <div className={`px-3 py-1 rounded-lg border md:text-[18px] ${isGreen ? ' border-[#AAF4E9] border-2' : 'border-[#886CFF]'}`}>{item.category}</div>
+                                <div className={`px-3 py-1 rounded-lg border md:text-[18px] ${isGreen ? ' border-[#AAF4E9] border-2' : 'border-[#886CFF]'}`}>{item.feature}</div>
                             </div>
                         </section>
                     )

@@ -29,11 +29,11 @@ const Progress = () => {
         setJourney(journeyContent);
     }, [])
     return (
-        <main className='border border-[#CCCCCCCC] w-full p-4 py-6 rounded-[16px] select-none'>
+        <main className='border border-[#CCCCCCCC] w-full p-4 md:px-8 py-6 rounded-[16px] select-none'>
             <div className='flex justify-between items-center pb-5'>
-                <p className='text-[18px] font-bold '>Your Progress</p>
+                <p className='text-[18px] font-bold md:text-[32px]'>Your Progress</p>
                 <div className='flex gap-3 items-center'>
-                    <p className=' text-[#4A4A4A] text-[14px]'>View detailed analytics</p>
+                    <p className=' text-[#4A4A4A] text-[14px] md:text-[18px]'>View detailed analytics</p>
                     <div>
                         <Image src={Side} alt='View Analytics'/>
                     </div>
@@ -42,16 +42,16 @@ const Progress = () => {
             <section className='space-y-4'>
                     <div className='flex justify-between items-center divide- divide-[#CCCCCC] text-[16px] font-semibold space-x-2 rounded-2xl p-[16px]  '>
                         <div className='text-center space-y-2'>
-                                <p className='text-[#886CFF] text-[24px] font-bold'>5</p>
-                                <p className='text-[13px] font-bold'>Days Active</p>
+                                <p className='text-[#886CFF] text-[24px] md:text-[40px] font-bold'>5</p>
+                                <p className='text-[13px] md:text-[18px] font-bold'>Days Active</p>
                         </div>
                         <div className='text-center space-y-2'>
-                                <p className='text-[#FF6665] text-[24px] font-bold'>8</p>
-                                <p className='text-[13px] font-bold'>Courses Completed</p>
+                                <p className='text-[#FF6665] text-[24px] md:text-[40px] font-bold'>8</p>
+                                <p className='text-[13px] md:text-[18px] font-bold'>Courses Completed</p>
                         </div>
                         <div className='text-center space-y-2'>
-                                <p className='text-[#7ABF00] text-[24px] font-bold'>4.2/5</p>
-                                <p className='text-[13px] font-bold'>Avg Mood Score</p>
+                                <p className='text-[#7ABF00] text-[24px] md:text-[40px] font-bold'>4.2/5</p>
+                                <p className='text-[13px] md:text-[18px] font-bold'>Avg Mood Score</p>
                         </div>
                     </div>
             </section>

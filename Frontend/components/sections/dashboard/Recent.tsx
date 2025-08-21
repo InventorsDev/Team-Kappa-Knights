@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
-import Purple from '@/public/dashboard/Vector.png'
+import Purple from '@/public/dashboard/purpleVector.png'
 
 type activityType = {
     activity: string
@@ -26,18 +26,18 @@ const activityContent: activityType[] = [
 const Recent = () => {
   return (
     <main className='border border-[#CCCCCCCC] w-full p-4 mt-10 rounded-[16px] select-none'>
-            <p className='text-[18px] font-bold pb-5'>Recent Activity</p>
+            <p className='text-[18px] md:text-[32px] font-bold pb-5'>Recent Activity</p>
             <div className='space-y-4 divide-y divide-gray-300'>
                 {activityContent.map((item, index) => {
                     return (
                         <div key={index} className={`flex gap-2 items-center space-x-2  p-[16px] `}>
                             <div>
-                                    <Image src={Purple} alt='' className={``} />
+                                    <Image src={Purple}  alt='' className={`md:w-8`} />
                             </div>
                             <section className='w-full space-y-2'>
                                 <div className='flex justify-between '>
-                                    <p className=' text-[14px]'>{item.activity}</p>
-                                    <p className=' text-[14px]'>{item.time}</p>
+                                    <p className=' text-[14px] md:text-[24px]'>{item.activity}</p>
+                                    <p className=' text-[14px] md:text-[24px]'>{item.time}</p>
                                 </div>
                             </section>
                         </div>

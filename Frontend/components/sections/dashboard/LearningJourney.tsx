@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image';
-import Purple from '@/public/dashboard/Vector.png'
+import Purple from '@/public/dashboard/purpleVector.png'
 import Green from '@/public/dashboard/greenVector.png'
 
 type JourneyType = {
@@ -28,8 +28,8 @@ const LearningJourney = () => {
         setJourney(journeyContent);
     }, [])
     return (
-        <main className='border border-[#CCCCCCCC] w-full p-4 rounded-[16px] select-none'>
-            <p className='text-[18px] font-bold pb-5'>Your Learning Journey</p>
+        <main className='border border-[#CCCCCCCC] w-full p-4 md:px-8 rounded-[16px] select-none'>
+            <p className='text-[18px] md:text-[32px] font-bold pb-5'>Your Learning Journey</p>
             <div className='space-y-4'>
                 {journey.map((item, index) => {
                     const isGreen = index % 2 !== 0
@@ -45,8 +45,8 @@ const LearningJourney = () => {
                             </div>
                             <section className='w-full space-y-2'>
                                 <div className='flex justify-between '>
-                                    <p className='font-semibold text-[16px]'>{item.journey}</p>
-                                    <p>{item.percent}%</p>
+                                    <p className='font-semibold text-[16px] md:text-[24px]'>{item.journey}</p>
+                                    <p className='font-medium md:text-[24px]'>{item.percent}%</p>
                                 </div>
                                 <hr className={`border-2 ${isGreen ? 'text-[#AAF4E9] ' : 'text-[#886CFF]'}`} />
                             </section>
