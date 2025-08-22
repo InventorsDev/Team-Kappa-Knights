@@ -53,7 +53,7 @@ const Suggested = () => {
                 })}
             </section>
             <AuthButton 
-            text="Next"
+            text="View all recommendations"
             action={isRouting}
             textWhileActionIsTakingPlace="..."
             isAuth={false}

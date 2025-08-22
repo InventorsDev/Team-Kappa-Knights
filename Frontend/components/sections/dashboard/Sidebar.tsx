@@ -32,8 +32,8 @@ const sidebarItems = [
 
 const Sidebar = () => {
   return (
-    <nav className="w-screen h-screen">
-      <section className=" fixed hidden md:block bg-gray-100 border-l border-gray-500 pt-30 pb-5 ">
+    <main>
+      <section className="w-[12%] h-screen fixed hidden md:block bg-gray-10 border-l border-gray-500 pt-30 pb-5 md:border-r md:border-gray-300">
         <section className="flex flex-col justify-between h-full">
           <div className="flex flex-col gap-5 justify-between">
             {sidebarItems.map((item, idx) => (
@@ -62,35 +62,7 @@ const Sidebar = () => {
           </div>
         </section>
       </section>
-      <nav className="flex flex-col md:hidden gap-[10%] p-6 w-full h-screen bg-[#005C4D]">
-        <div>
-          <Link href={"/dashboard"}>X</Link>
-        </div>
-        <section className="flex flex-col gap-10 items-cent h-full">
-          {sidebarItems.map((item, idx) => (
-            <div key={idx} className="flex  gap-3 items-center justify-cente ">
-              <Image
-                src={`${item.logo}`}
-                width={32}
-                height={32}
-                alt={item.altText}
-              />
-              <p className="text-[24px] ">{item.text}</p>
-            </div>
-          ))}
-
-          <div className="flex f gap-3 items-cente justify-cente">
-            <Image
-              src={`/dashboard/logout.png`}
-              width={32}
-              height={32}
-              alt={"Log Out"}
-            />
-            <p className="text-[24px] text-[#EA4335]">Log Out</p>
-          </div>
-        </section>
-      </nav>
-    </nav>
+    </main>
   );
 };
 
