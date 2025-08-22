@@ -49,11 +49,12 @@ export const handleSignin = async (
 
     toast.success("Logged in successfully");
     isDone(true);
+    router.push('/dashboard')
     return user;
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
-    toast.error(message); // 🚀 user-friendly message now
-    console.error("signin error:", error); // log raw error for debugging
+    toast.error(message);
+    console.error("signin error:", error);
     setLoggingIn(false);
   }
 };

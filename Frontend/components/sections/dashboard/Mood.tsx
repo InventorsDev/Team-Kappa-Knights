@@ -6,6 +6,7 @@ import { useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import FirstName from "@/components/common/names/FirstName";
 
 const moods = [
   {
@@ -62,10 +63,10 @@ function Mood() {
     router.push("/onboarding/support");
   };
   return (
-    <div className=" text-[#212121] select-none md:pt-[4%]">
+    <div className=" text-[#212121] select-none md:pt-[5%]">
       <div className="md:block hidden pb-7">
-        <p className='text-[40px] font-bold'>Hello, Gbemisola!</p>
-        <p className='text-[24px] text-[#4A4A4A]'>Here&apos;s to steady growth</p>
+        <p className='text-[40px] font-bold'>Hello, <FirstName />!</p>
+        <p className='text-[24px] text-[#4A4A4A]'>Here&apos;s to steady growth.</p>
       </div>
       <section className=" md:border-2 md:border-gray-300 rounded-3xl md:p-6">
       <header className="flex flex-col text-[16px] gap-2">

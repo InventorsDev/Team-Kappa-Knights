@@ -30,9 +30,11 @@ const Login = ({ isDone }: prop) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
   const router = useRouter();
-  const persistence = rememberMe
-    ? browserLocalPersistence
-    : browserSessionPersistence;
+  // const persistence = rememberMe
+  //   ? browserLocalPersistence
+  //   : browserSessionPersistence;
+
+  const persistence = browserLocalPersistence
 
   const forgotPassword = async () => {
     if (!email) {
