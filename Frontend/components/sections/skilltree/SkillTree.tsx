@@ -13,7 +13,11 @@ interface Course {
   subtitles: Subtitle[];
 }
 function SkillTree(data: Course) {
-  return <div>yo</div>;
+  return (
+    <div>
+      <div>{data.title}</div>
+    </div>
+  );
 }
 
 export default SkillTree;
