@@ -1,193 +1,41 @@
-import SkillLevel from "@/components/sections/onboarding/second-page/SkillLevel";
 import SkillTree from "@/components/sections/skilltree/SkillTree";
 import XPBar from "@/components/sections/skilltree/XPBar";
-import React from "react";
-interface Subtitle {
-  title: string;
-  link: string;
-  sequence: number; // order in which it should be taken
-  completedStatus: boolean;
-}
+import Image from "next/image";
+import skilltree from "@/public/SVGs/skilltree.svg";
+import { data } from "@/lib/testData";
 
-// Interface for each course
-interface Course {
-  title: string;
-  subtitles: Subtitle[];
-}
-const data: Course[] = [
-  {
-    title: "Web Development Full Course",
-    subtitles: [
-      {
-        title: "HTML Basics",
-        link: "",
-        sequence: 1,
-        completedStatus: true,
-      },
-      {
-        title: "CSS Fundamentals",
-        link: "",
-        sequence: 2,
-        completedStatus: true,
-      },
-      {
-        title: "JavaScript Essentials",
-        link: "",
-        sequence: 3,
-        completedStatus: false,
-      },
-      {
-        title: "Responsive Web Design",
-        link: "",
-        sequence: 4,
-        completedStatus: false,
-      },
-      {
-        title: "Version Control (Git & GitHub)",
-        link: "",
-        sequence: 5,
-        completedStatus: false,
-      },
-    ],
-  },
-  {
-    title: "Frontend Frameworks",
-    subtitles: [
-      {
-        title: "React Basics",
-        link: "",
-        sequence: 1,
-        completedStatus: false,
-      },
-      {
-        title: "React Hooks & State Management",
-        link: "",
-        sequence: 2,
-        completedStatus: false,
-      },
-      {
-        title: "Next.js Introduction",
-        link: "",
-        sequence: 3,
-        completedStatus: false,
-      },
-      {
-        title: "Advanced Component Patterns",
-        link: "",
-        sequence: 4,
-        completedStatus: false,
-      },
-    ],
-  },
-  {
-    title: "Backend Development",
-    subtitles: [
-      {
-        title: "Node.js Fundamentals",
-        link: "",
-        sequence: 1,
-        completedStatus: false,
-      },
-      {
-        title: "Express.js Basics",
-        link: "",
-        sequence: 2,
-        completedStatus: false,
-      },
-      {
-        title: "REST API Development",
-        link: "",
-        sequence: 3,
-        completedStatus: false,
-      },
-      {
-        title: "Authentication & Security",
-        link: "",
-        sequence: 4,
-        completedStatus: false,
-      },
-      {
-        title: "Database Integration (MongoDB)",
-        link: "",
-        sequence: 5,
-        completedStatus: false,
-      },
-    ],
-  },
-  {
-    title: "Computer Science Fundamentals",
-    subtitles: [
-      {
-        title: "Introduction to Algorithms",
-        link: "",
-        sequence: 1,
-        completedStatus: true,
-      },
-      {
-        title: "Data Structures Basics",
-        link: "",
-        sequence: 2,
-        completedStatus: true,
-      },
-      {
-        title: "Recursion & Complexity",
-        link: "",
-        sequence: 3,
-        completedStatus: false,
-      },
-      {
-        title: "Graphs & Trees",
-        link: "",
-        sequence: 4,
-        completedStatus: false,
-      },
-    ],
-  },
-  {
-    title: "DevOps & Deployment",
-    subtitles: [
-      {
-        title: "Linux & Command Line Basics",
-        link: "",
-        sequence: 1,
-        completedStatus: false,
-      },
-      {
-        title: "Docker Fundamentals",
-        link: "",
-        sequence: 2,
-        completedStatus: false,
-      },
-      {
-        title: "CI/CD Pipelines",
-        link: "",
-        sequence: 3,
-        completedStatus: false,
-      },
-      {
-        title: "Cloud Deployment (AWS Basics)",
-        link: "",
-        sequence: 4,
-        completedStatus: false,
-      },
-    ],
-  },
-];
 const num: number = 1250;
 
 const fmt = (num: number) => num.toLocaleString();
 
 const HomePage = () => {
   return (
-    <div className="p-4">
+    <div className="px-4 text-[#212121]">
+      <header className="flex py-4 items-center justify-between text-[#212121]">
+        <div>
+          <h1 className="font-[700] text-[24px] md:text-[32px]">
+            Your Learning Journey
+          </h1>
+          <p className="text-[16px]">
+            Track your progress through various tech learning paths.
+          </p>
+        </div>
+        <Image src={skilltree} alt="Skill Tree" height={70} width={70} />
+      </header>
       <XPBar xp={fmt(num)} />
-      <section>
+      <section className="flex flex-col gap-4 py-4">
         {data.map((course, idx) => {
+          const total = course.subtitles.length;
+          const completed = course.subtitles.filter(
+            (subtitle) => subtitle.status === "completed"
+          ).length;
+
           return (
             <SkillTree
               key={idx}
-              title={course.title}
-              subtitles={course.subtitles}
+              data={course}
+              completed={completed}
+              total={total}
             />
           );
         })}

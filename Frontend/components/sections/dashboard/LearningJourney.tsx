@@ -1,61 +1,90 @@
-'use client'
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image';
-import Purple from '@/public/dashboard/purpleVector.png'
-import Green from '@/public/dashboard/greenVector.png'
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import Purple from "@/public/dashboard/purpleVector.png";
+import Green from "@/public/dashboard/greenVector.png";
+import Side from "@/public/dashboard/sideArrow.png";
+import { data } from "@/lib/testData";
 
 type JourneyType = {
-    journey: string
-    percent: number
-}
-
+  journey: string;
+  percent: number;
+};
 
 const journeyContent: JourneyType[] = [
-    {
-        journey: 'Web3',
-        percent: 50
-    },
-    {
-        journey: 'Business',
-        percent: 35
-    },
-]
+  {
+    journey: "Web3",
+    percent: 50,
+  },
+  {
+    journey: "Business",
+    percent: 35,
+  },
+];
+
+const shownData = data.slice(0, 2);
 
 const LearningJourney = () => {
-    const [journey, setJourney] = useState<JourneyType[]>([]);
+  const [journey, setJourney] = useState<JourneyType[]>([]);
 
-    useEffect(() => {
-        setJourney(journeyContent);
-    }, [])
-    return (
-        <main className='border border-[#CCCCCCCC] w-full p-4 md:px-8 rounded-[16px] select-none'>
-            <p className='text-[18px] md:text-[32px] font-bold pb-5'>Your Learning Journey</p>
-            <div className='space-y-4'>
-                {journey.map((item, index) => {
-                    const isGreen = index % 2 !== 0
-                    return (
-                        <div key={index} className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${isGreen ? 'bg-[#EBFFFC]' : 'bg-[#F1EFFF]'} `}>
-                            <div>
-                                {isGreen && (
-                                    <Image src={Green} alt='' className={``} />
-                                )}
-                                {!isGreen && (
-                                    <Image src={Purple} alt='' className={``} />
-                                )}
-                            </div>
-                            <section className='w-full space-y-2'>
-                                <div className='flex justify-between '>
-                                    <p className='font-semibold text-[16px] md:text-[24px]'>{item.journey}</p>
-                                    <p className='font-medium md:text-[24px]'>{item.percent}%</p>
-                                </div>
-                                <hr className={`border-2 ${isGreen ? 'text-[#AAF4E9] ' : 'text-[#886CFF]'}`} />
-                            </section>
-                        </div>
-                    )
-                })}
+  useEffect(() => {
+    setJourney(journeyContent);
+  }, []);
+  return (
+    <main className="w-full p-4 md:px-8 rounded-[16px] h-full flex flex-col justify-between select-none">
+      <div className=" pb-5 flex items-center justify-between">
+        <p className="text-[18px] md:text-[24px] font-bold">
+          Your Learning Journey
+        </p>
+        <div className="flex gap-3 items-center">
+          <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">
+            View more
+          </p>
+          <div>
+            <Image src={Side} alt="View Analytics" />
+          </div>
+        </div>
+      </div>
+      <div className="space-y-4">
+        {shownData.map((item, index) => {
+          const isGreen = index % 2 !== 0;
+          const total = item.subtitles.length;
+          const completed = item.subtitles.filter(
+            (subtitle) => subtitle.status === "completed"
+          ).length;
+          const progress =
+            total > 0 ? Math.min((completed / total) * 100, 100) : 0;
+          return (
+            <div
+              key={index}
+              className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${
+                isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
+              } `}
+            >
+              <div>
+                {isGreen && <Image src={Green} alt="" className={``} />}
+                {!isGreen && <Image src={Purple} alt="" className={``} />}
+              </div>
+              <section className="w-full space-y-2">
+                <div className="flex justify-between gap-2 ">
+                  <p className="font-semibold text-[18px] max-w-[185px] md:max-w-none truncate">
+                    {item.title}
+                  </p>
+                  <p className="font-medium md:text-[18px]">{progress}%</p>
+                </div>
+                <div className=" my-2 h-[6px] w-full bg-[#ffffff] rounded-lg overflow-hidden">
+                  <div
+                    className="h-full bg-[#00bfa5] rounded-lg "
+                    style={{ width: `${progress}%` }}
+                  ></div>
+                </div>
+              </section>
             </div>
-        </main>
-    )
-}
+          );
+        })}
+      </div>
+    </main>
+  );
+};
 
-export default LearningJourney
+export default LearningJourney;
