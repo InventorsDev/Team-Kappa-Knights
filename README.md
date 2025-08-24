@@ -167,7 +167,7 @@ Frontend developers should use production Firebase credentials, not the emulator
 - **Auth:** Use Firebase Auth SDK on frontend. Send JWT in `Authorization: Bearer <token>` header for protected endpoints.
 - **Endpoints:** See above for available routes. All endpoints expect/return JSON.
 - **CORS:** Configured for local frontend dev (`localhost`).
-
+- **API Documentation:** Check out the full API documentation [here](./fastapi-backend/API_DOC.md).
 ---
 
 ## Environment Variables & Config

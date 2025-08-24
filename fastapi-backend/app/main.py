@@ -7,7 +7,7 @@ from app.core.database import init_postgres_db
 # from app.models.learning import LearningJournalEntryModel, LearningProgressModel
 import logging
 
-app = FastAPI(title="Neuroki FastAPI with Firebase Auth", version="1.0.0")
+app = FastAPI(title="Nuroki FastAPI with Firebase Auth", version="1.0.0")
 
 # CORS Configuration
 app.add_middleware(
@@ -52,9 +52,9 @@ async def startup_event():
 # Optional: root endpoint for health check
 @app.get("/")
 async def root():
-    return {"message": "Neuroki FastAPI running"}
+    return {"message": "Nuroki FastAPI running"}
 
 # Health check endpoint for load balancer
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "neuroki-api"}
+    return {"status": "healthy", "service": "nuroki-api"}
