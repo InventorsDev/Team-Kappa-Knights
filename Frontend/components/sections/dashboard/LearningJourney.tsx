@@ -74,7 +74,7 @@ const LearningJourney = () => {
                 </div>
                 <div className=" my-2 h-[6px] w-full bg-[#ffffff] rounded-lg overflow-hidden">
                   <div
-                    className="h-full bg-[#00bfa5] rounded-lg "
+                    className="h-full bg-[#00bfa5] rounded-lg  "
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
