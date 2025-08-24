@@ -43,14 +43,7 @@ function Interest() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const user: user | null = await getCurrentUserFromFirestore();
-        if (user && user.name) {
-          sessionStorage.setItem("userName", user.name);
-        }
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
+      await getCurrentUserFromFirestore();
     };
 
     fetchUser();

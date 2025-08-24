@@ -13,13 +13,9 @@ import { db } from "@/lib/firebase";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { addDoc, collection } from "firebase/firestore";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
-import {
-  // getFirestore,
-  // collection,
-  query,
-  where,
-  getDocs,
-} from "firebase/firestore";
+import { query, where, getDocs } from "firebase/firestore";
+import { useUsername } from "@/state/usernameStore";
+// import { useAuthStore } from "@/state/authStore";
 
 // sign in with email and password function
 export const handleSignin = async (
@@ -33,6 +29,7 @@ export const handleSignin = async (
 ) => {
   e.preventDefault();
   setLoggingIn(true);
+
   try {
     await setPersistence(auth, persistence);
     const userCredential = await signInWithEmailAndPassword(
@@ -52,10 +49,12 @@ export const handleSignin = async (
 
     toast.success("Logged in successfully");
     isDone(true);
+    router.push('/dashboard')
+    return user;
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
     toast.error(message);
-    console.error("signin error: ", message);
+    console.error("signin error:", error);
     setLoggingIn(false);
   }
 };
@@ -98,6 +97,7 @@ export const handleCreateAccount = async (
   setIsVerifying: (bool: boolean) => void
 ) => {
   e.preventDefault();
+  const setName = useUsername.getState().setName;
 
   if (password.length < 8) {
     toast.error("Password must be at least 8 characters long");
@@ -119,15 +119,7 @@ export const handleCreateAccount = async (
       password
     );
     const user = userCredential.user;
-
-    sessionStorage.setItem(
-      "user",
-      JSON.stringify({
-        uid: user.uid,
-        email: user.email,
-        name,
-      })
-    );
+    setName(name);
 
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");
@@ -140,10 +132,11 @@ export const handleCreateAccount = async (
     });
 
     setIsVerifying(true);
+    return user;
   } catch (error) {
     const message = getFirebaseErrorMessage(error);
-    toast.error(message);
-    console.error("signup error: ", message);
+    toast.error(message); // 🚀 user-friendly message now
+    console.error("signin error:", error); // log raw error for debugging
     setSigningIn(false);
   }
 };
@@ -153,7 +146,7 @@ interface user {
   email: string;
   verified: boolean;
 }
-export async function getCurrentUserFromFirestore(): Promise<user | null> {
+export async function getCurrentUserFromFirestore() {
   try {
     const currentUser = auth.currentUser;
 
@@ -177,8 +170,8 @@ export async function getCurrentUserFromFirestore(): Promise<user | null> {
     // Assuming unique email → return first match
     const userDoc = querySnapshot.docs[0];
     const data = userDoc.data() as Omit<user, "id">; // cast the Firestore doc
-
-    return { id: userDoc.id, ...data };
+    const setName = useUsername.getState().setName;
+    setName(data.name);
   } catch (error) {
     console.error("Error fetching current user from Firestore:", error);
     throw error;

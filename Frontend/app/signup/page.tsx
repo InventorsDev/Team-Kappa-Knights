@@ -1,4 +1,4 @@
-import CreateAcct from "@/components/sections/signin/CreateAcct";
+import CreateAcct from "@/components/sections/signup/CreateAcct";
 import React from "react";
 
 function page() {
