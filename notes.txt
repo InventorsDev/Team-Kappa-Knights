@@ -316,3 +316,6 @@ for insights
     {"category": "recommendation", "message": "Mondays still show lower mood; consider energizing activities before studying."}
   ]
 }
+
+for outrecommendall
+{"tags":["machine learning"]}

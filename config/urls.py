@@ -7,7 +7,8 @@ from base.views import course_list, roadmap_list, roadmap_detail, course_content
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from outcourse.views import RecommendCoursesView
+from outcourse.views import (#RecommendCoursesView
+                             RecommendAllCoursesView)
 
 from insights.views import ProgressDashboardView
 
@@ -40,7 +41,8 @@ urlpatterns = [
     
     
     
-    path("outrecommend/", RecommendCoursesView.as_view(), name="recommend_courses"),
+    #path("outrecommend/", RecommendCoursesView.as_view(), name="recommend_courses"),
+    path("outrecommendall/", RecommendAllCoursesView.as_view(), name="recommend_courses"),
 
 
     path('insights/progress/<str:user_id>/', ProgressDashboardView.as_view(), name='progress-dashboard'),
