@@ -11,8 +11,8 @@ from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent, Tag
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
-        fields = ['enrollment_id', 'user_id', 'course_id', 'enrolled_at']
-        read_only_fields = ['enrollment_id', 'enrolled_at']
+        fields = ['enrollment', 'user', 'course']
+        read_only_fields = ['enrollment', 'enrolled_at']
 
 class CourseRoadmapSerializer(serializers.ModelSerializer):
     class Meta:

@@ -263,3 +263,44 @@ def search_courses(request):
             'error': 'An error occurred while searching courses',
             'details': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@api_view(['GET', 'POST'])
+def enrollment(request):
+    """
+    Handle course enrollments (create and list enrollments)
+
+    Expected input (POST):
+    {
+        "user_id": 1,       # Required: ID of the user enrolling
+        "course_id": 5      # Required: ID of the course to enroll in
+    }
+
+    Behavior:
+    - GET: Returns a list of all enrollments with user and course details
+    - POST: Creates a new enrollment if valid data is provided
+
+    Validation:
+    - Ensures that user_id and course_id exist in the database
+    - Prevents invalid or incomplete data from being saved
+
+    Responses:
+    - 201 Created: Enrollment successfully created
+    - 400 Bad Request: Invalid data (e.g., missing or incorrect fields)
+    - 200 OK: List of all enrollments when using GET
+    - 405 Method Not Allowed: For unsupported HTTP methods
+"""
+
+
+    if request.method == 'POST':
+        serializer = CourseEnrollmentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    elif request.method == 'GET':
+        enrollments = CourseEnrollment.objects.all()
+        serializer = CourseEnrollmentSerializer(enrollments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

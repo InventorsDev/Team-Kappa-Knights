@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'userprofile',
     'drf_yasg',  # Swagger documentation
+
+    'outcourse',  # Outcourse app for recommendations and YouTube integration
+    'insights',  # Insights app for analytics and insights
 ]
 
 MIDDLEWARE = [

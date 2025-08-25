@@ -39,17 +39,32 @@ class Courses(models.Model):
         return self.title
     
 
+
+# class CourseEnrollment(models.Model):
+#     user = models.ForeignKey('userprofile.UserProfile', on_delete=models.CASCADE)
+#     course = models.ForeignKey(Courses, on_delete=models.CASCADE)
+#     enrolled_at = models.DateTimeField(auto_now_add=True)
+#     completed = models.BooleanField(default=False)
+
+#     class Meta:
+#         unique_together = ('user', 'course')
+
+#     def __str__(self):
+#         return f"{self.user.full_name} enrolled in {self.course.course_name}"
+
+
 class CourseEnrollment(models.Model):
-    enrollment_id = models.AutoField(primary_key=True)
-    user_id = models.ForeignKey('userprofile.UserProfile', on_delete=models.CASCADE)
-    course_id = models.ForeignKey(Courses, on_delete=models.CASCADE)
+    enrollment = models.AutoField(primary_key=True)
+    user = models.ForeignKey('userprofile.UserProfile', on_delete=models.CASCADE)
+    course = models.ForeignKey(Courses, on_delete=models.CASCADE, to_field='course_id')  # Add to_field parameter
     enrolled_at = models.DateTimeField(auto_now_add=True)
-
+    completed = models.BooleanField(default=False)
+    
     class Meta:
-        unique_together = ('user_id', 'course_id')
-
+        unique_together = ('user', 'course')
+    
     def __str__(self):
-        return f"{self.user_id.username} enrolled in {self.course_id.course_name}"
+        return f"{self.user.full_name} enrolled in {self.course.title}"  # Adjust field name as needed
     
 
 class CourseRoadmap(models.Model):
@@ -78,3 +93,9 @@ class CourseContent(models.Model):
 
 
 
+# class Onboarding(models.Model):
+#     user = models.OneToOneField('userprofile.UserProfile', on_delete=models.CASCADE, primary_key=True)
+#     completed = models.BooleanField(default=False)
+
+#     def __str__(self):
+#         return f"Onboarding status for {self.user.full_name or self.user.email}"

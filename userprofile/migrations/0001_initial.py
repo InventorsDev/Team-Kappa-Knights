@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserProfile',
             fields=[
-                ('user_id', models.AutoField(primary_key=True, serialize=False)),
+                ('user_id', models.CharField(primary_key=True, serialize=False)),
                 ('username', models.CharField(max_length=150, unique=True)),
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('date_joined', models.DateTimeField(auto_now_add=True)),

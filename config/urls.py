@@ -2,11 +2,14 @@
 from django.contrib import admin
 from django.urls import path
 
-from base.views import course_list, roadmap_list, roadmap_detail, course_content_list, recommend_courses, search_courses
+from base.views import course_list, roadmap_list, roadmap_detail, course_content_list, recommend_courses, search_courses, enrollment
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from outcourse.views import RecommendCoursesView
+
+from insights.views import ProgressDashboardView
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -28,6 +31,17 @@ urlpatterns = [
     path('search/', search_courses, name='search_courses'),
 
 
+    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('enrollments/', enrollment, name='course-enrollment'),
+
+    
+    
+    
+    
+    path("outrecommend/", RecommendCoursesView.as_view(), name="recommend_courses"),
+
+
+    path('insights/progress/<str:user_id>/', ProgressDashboardView.as_view(), name='progress-dashboard'),
 ]

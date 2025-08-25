@@ -269,3 +269,50 @@ $.ajax({
         "interests": ["This list may not be empty."]
     }
 }
+
+
+
+for enrollment 
+{
+    "user": "oCkuQy0bj3X2NHLXmlLD1Zlnmdch",
+    "course":1
+}
+
+
+
+
+
+
+for insights
+{
+  "performance": {
+    "skills_completed": 25,
+    "active_days": 46,
+    "hours_studied": 146,
+    "motivation_level": "High+"
+  },
+  "skills_progress": [
+    {"skill_name": "Design", "completion_percent": 61},
+    {"skill_name": "Web", "completion_percent": 46},
+    {"skill_name": "Focus", "completion_percent": 71},
+    {"skill_name": "Java", "completion_percent": 86}
+  ],
+  "motivation_trends": [
+    {"week_number": 1, "score": 21},
+    {"week_number": 2, "score": 46},
+    {"week_number": 3, "score": 66},
+    {"week_number": 4, "score": 76}
+  ],
+  "daily_engagement": [
+    {"day_of_week": "mon", "hours": 2.6},
+    {"day_of_week": "tue", "hours": 3.1},
+    {"day_of_week": "wed", "hours": 2.1},
+    {"day_of_week": "thu", "hours": 4.1},
+    {"day_of_week": "fri", "hours": 3.6}
+  ],
+  "key_insights": [
+    {"category": "progress", "message": "Even better progress! You’ve stayed consistent for 9 days."},
+    {"category": "pattern", "message": "Tuesdays & Thursdays remain your strongest learning days."},
+    {"category": "recommendation", "message": "Mondays still show lower mood; consider energizing activities before studying."}
+  ]
+}
