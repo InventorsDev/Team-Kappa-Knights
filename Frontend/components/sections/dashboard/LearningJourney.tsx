@@ -72,9 +72,9 @@ const LearningJourney = () => {
                   </p>
                   <p className="font-medium md:text-[18px]">{progress}%</p>
                 </div>
-                <div className=" my-2 h-[6px] w-full bg-[#ffffff] rounded-lg overflow-hidden">
+                <div className={`my-2 h-[6px] w-full ${isGreen ? 'bg-[#AAF4E9]' : 'bg-[#D7D2FF]'} rounded-lg overflow-hidden`} >
                   <div
-                    className="h-full bg-[#00bfa5] rounded-lg  "
+                    className={`h-full  ${ isGreen ? 'bg-[#00bfa5]' : 'bg-[#886CFF]'} rounded-lg`}
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
