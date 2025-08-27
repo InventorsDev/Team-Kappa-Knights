@@ -7,7 +7,7 @@ const sidebarItems = [
     text: "Home",
     logo: "/dashboard/house.png",
     altText: "Home",
-    link: "/",
+    link: "/dashboard",
   },
   {
     text: "Journals",

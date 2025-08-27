@@ -10,7 +10,7 @@ const fmt = (num: number) => num.toLocaleString();
 
 const HomePage = () => {
   return (
-    <div className="px-4 text-[#212121]">
+    <div className="text-[#212121]">
       <header className="flex py-4 items-center justify-between text-[#212121]">
         <div>
           <h1 className="font-[700] text-[24px] md:text-[32px]">
