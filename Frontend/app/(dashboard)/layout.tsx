@@ -21,7 +21,9 @@ export default function DashboardLayout({
       </aside>
 
       {/* Main content */}
-      <main className="row-start-2 col-span-1 md:col-start-2">{children}</main>
+      <main className="row-start-2 col-span-1 md:col-start-2 px-5 md:px-10">
+        {children}
+      </main>
     </div>
   );
 }

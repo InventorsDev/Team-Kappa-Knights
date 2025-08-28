@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   return (
     <main
-      className=" px-5 md:px-8 space-y-8 text-[#212121] pb-20"
+      className=" space-y-8 text-[#212121] pb-20"
       style={{ fontFamily: "var(--font-nunito), sans-serif" }}
     >
       <Mood />

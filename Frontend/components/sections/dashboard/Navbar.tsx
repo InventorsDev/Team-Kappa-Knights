@@ -67,12 +67,10 @@ const Navbar = () => {
           <div className="hidden md:flex  w-[12%] justify-center">
             <Image src={Logo} width={49} height={49} alt="" />
           </div>
+          <div className="hidden md:block pl-2">
+            <p className={`text-[24px] ${isDashboard && "font-black"}`}>Home</p>
+          </div>
           <section className="flex justify-between w-full items-center">
-            <div className="hidden md:block pl-2">
-              <p className={`text-[24px] ${isDashboard && "font-black"}`}>
-                Home
-              </p>
-            </div>
             {isDashboard ? (
               <div className="flex justify-between w-full md:justify-end items-center py-4 md:py-0">
                 <section className="md:flex items-center gap-6">
@@ -108,8 +106,8 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex justify-between items-center w-full md:hidden py-4">
-                <div className="w-[20px] h-[20px]">
-                  <Image src={back} alt="back" width={30} height={30} />
+                <div className="w-[10px] h-[10px]">
+                  <Image src={back} alt="back" width={20} height={20} />
                 </div>
                 <p className="font-[500] text-[24px]">{currentPage}</p>
                 <div
