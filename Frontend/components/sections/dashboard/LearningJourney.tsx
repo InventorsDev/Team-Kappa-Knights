@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Purple from "@/public/dashboard/purpleVector.png";
-import Green from "@/public/dashboard/greenVector.png";
+import Green from "@/public/dashboard/business.png";
 import Side from "@/public/dashboard/sideArrow.png";
 import { data } from "@/lib/testData";
 
@@ -62,8 +62,8 @@ const LearningJourney = () => {
               } `}
             >
               <div>
-                {isGreen && <Image src={Green} alt="" className={``} />}
-                {!isGreen && <Image src={Purple} alt="" className={``} />}
+                {isGreen && <Image src={Green} width={32} height={32} alt="" className={``} />}
+                {!isGreen && <Image src={Purple} width={32} height={32} alt="" className={``} />}
               </div>
               <section className="w-full space-y-2">
                 <div className="flex justify-between gap-2 ">

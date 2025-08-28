@@ -24,7 +24,7 @@ const mobileNavItems = [
     text: "Journals",
     logo: "/dashboard/journalWhite.png",
     altText: "Journals",
-    link: "/dashboard/journals",
+    link: "/journals",
   },
   {
     text: "Skills",
@@ -36,13 +36,13 @@ const mobileNavItems = [
     text: "Insights",
     logo: "/dashboard/insightswhite.png",
     altText: "Insights",
-    link: "/dashboard/insights",
+    link: "/insights",
   },
   {
     text: "Profile",
     logo: "/dashboard/profileWhite.png",
     altText: "Profile",
-    link: "/dashboard/profile",
+    link: "/profile",
   },
   {
     text: "Log Out",

@@ -38,7 +38,19 @@ export const handleSignin = async (
       password
     );
     await userCredential.user.reload();
+    const token = await userCredential.user.getIdToken()
     const user = userCredential.user;
+    await fetch("http://34.228.198.154/users/sync-profile", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        name: user.displayName || "Anonymous",
+      }),
+    })
 
     if (!user.emailVerified) {
       await auth.signOut(); // log them out
@@ -70,6 +82,21 @@ export const handleGoogleSignup = async (
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
+
+    const token = await user.getIdToken()
+
+    await fetch("http://34.228.198.154/users/sync-profile", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: user.email,
+        name: user.displayName,
+      }),
+    })
+
     router.push("login");
     console.log(user);
   } catch (error) {
@@ -119,6 +146,21 @@ export const handleCreateAccount = async (
       password
     );
     const user = userCredential.user;
+
+    const token = await user.getIdToken()
+
+    await fetch("http://34.228.198.154/users/sync-profile", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email,
+        name,
+      }),
+    })
+
     setName(name);
 
     await sendEmailVerification(user);
@@ -177,3 +219,140 @@ export async function getCurrentUserFromFirestore() {
     throw error;
   }
 }
+
+
+
+
+// import { auth, provider } from "@/lib/firebase";
+// import {
+//   signInWithEmailAndPassword,
+//   signInWithPopup,
+//   createUserWithEmailAndPassword,
+//   sendEmailVerification,
+//   User,
+// } from "firebase/auth";
+
+// import { toast } from "sonner";
+// import { db } from "@/lib/firebase";
+// import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+// import { addDoc, collection } from "firebase/firestore";
+// import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
+// import { useUsername } from "@/state/usernameStore";
+
+// const BASE_URL = "http://34.228.198.154";
+
+// export interface AuthResult {
+//   firebaseUser: User;
+//   backendUser: any;
+//   token: string;
+// }
+
+// async function syncWithBackend(user: User): Promise<AuthResult> {
+//   const token = await user.getIdToken();
+
+//   await fetch(`${BASE_URL}/users/sync-profile`, {
+//     method: "POST",
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify({
+//       email: user.email,
+//       name: user.displayName || "Anonymous",
+//     }),
+//   });
+
+//   const profileRes = await fetch(`${BASE_URL}/users/me`, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+
+//   if (!profileRes.ok) {
+//     throw new Error("Failed to fetch backend profile");
+//   }
+
+//   const backendUser = await profileRes.json();
+
+//   if (backendUser?.name) {
+//     useUsername.getState().setName(backendUser.name);
+//   }
+
+//   return { firebaseUser: user, backendUser, token };
+// }
+
+// export async function loginWithEmail(
+//   email: string,
+//   password: string,
+//   router?: AppRouterInstance
+// ): Promise<AuthResult | null> {
+//   try {
+//     const userCred = await signInWithEmailAndPassword(auth, email, password);
+//     const user = userCred.user;
+
+//     if (!user.emailVerified) {
+//       await auth.signOut();
+//       toast.warning("Please verify your email before logging in.");
+//       return null;
+//     }
+
+//     const result = await syncWithBackend(user);
+//     toast.success("Logged in successfully");
+//     if (router) router.push("/dashboard");
+//     return result;
+//   } catch (error) {
+//     toast.error(getFirebaseErrorMessage(error));
+//     return null;
+//   }
+// }
+
+// export async function signupWithEmail(
+//   name: string,
+//   email: string,
+//   password: string
+// ): Promise<AuthResult | null> {
+//   try {
+//     const userCred = await createUserWithEmailAndPassword(auth, email, password);
+//     const user = userCred.user;
+
+//     await sendEmailVerification(user);
+//     toast.message("Verification email sent. Please check your inbox.");
+
+//     await addDoc(collection(db, "users"), {
+//       email,
+//       name,
+//       verified: false,
+//     });
+
+//     const result = await syncWithBackend(user);
+//     return result;
+//   } catch (error) {
+//     toast.error(getFirebaseErrorMessage(error));
+//     return null;
+//   }
+// }
+
+// export async function loginWithGoogle(
+//   router?: AppRouterInstance
+// ): Promise<AuthResult | null> {
+//   try {
+//     const result = await signInWithPopup(auth, provider);
+//     const user = result.user;
+
+//     const synced = await syncWithBackend(user);
+//     if (router) router.push("/dashboard");
+//     return synced;
+//   } catch (error) {
+//     toast.error("Google sign-in failed");
+//     console.error(error);
+//     return null;
+//   }
+// }
+
+
+
+
+
+
+
+

@@ -1,4 +1,3 @@
-"use client";
 import React, { useState } from "react";
 import Mood from "./Mood";
 import LearningJourney from "./LearningJourney";
@@ -6,11 +5,8 @@ import Progress from "./Progress";
 import Suggested from "./Suggested";
 import ThisWeek from "./ThisWeek";
 import Recent from "./Recent";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
 
 const Dashboard = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <main
