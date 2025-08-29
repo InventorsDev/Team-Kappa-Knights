@@ -11,8 +11,13 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-toggle": "^1.1.10",
     "@types/d3": "^7.4.3",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "dotenv": "^17.2.1",
