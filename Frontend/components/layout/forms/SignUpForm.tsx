@@ -47,7 +47,7 @@ function SignUpForm({ setIsVerifying }: props) {
     }
   };
   return (
-    <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px]">
+    <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px] select-none">
       <div className="w-full flex items-center justify-center">
         <Image src={Logo} alt="Neuroloom Logo" className="" />
       </div>
@@ -60,7 +60,23 @@ function SignUpForm({ setIsVerifying }: props) {
             Fill in the field below to register your account
           </p>
         </div>
-        <form
+        {/* <form
+          className="w-full flex flex-col gap-6"
+          onSubmit={(e) =>
+            handleCreateAccount(
+              e,
+              email,
+              password,
+              name, // this is fullName from your zustand store
+              router,
+              setError,
+              setEmailSigningIn,
+              setIsVerifying
+            )
+          }
+        > */}
+
+          <form
           className="w-full  flex flex-col gap-6"
           onSubmit={(e) =>
             handleCreateAccount(

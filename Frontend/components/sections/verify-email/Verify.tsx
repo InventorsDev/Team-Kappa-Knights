@@ -23,7 +23,7 @@ function Verify() {
           see it in your inbox, check your spam. if you have already verified
           click the button below
         </p>
-        <Link href={"../"} onClick={() => setIsVerifying(true)}>
+        <Link href={"../onboarding/interests"} onClick={() => setIsVerifying(true)}>
           <AuthButton
             action={isVerifying}
             text="Sign in"

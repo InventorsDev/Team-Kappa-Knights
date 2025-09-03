@@ -1,4 +1,5 @@
 import { auth, provider } from "@/lib/firebase";
+import { doc, setDoc } from "firebase/firestore";
 import {
   setPersistence,
   signInWithEmailAndPassword,
@@ -18,6 +19,8 @@ import { useUsername } from "@/state/usernameStore";
 // import { useAuthStore } from "@/state/authStore";
 
 // sign in with email and password function
+
+
 export const handleSignin = async (
   e: React.FormEvent<HTMLFormElement>,
   email: string,
@@ -40,7 +43,7 @@ export const handleSignin = async (
     await userCredential.user.reload();
     const token = await userCredential.user.getIdToken()
     const user = userCredential.user;
-    await fetch("http://34.228.198.154/users/sync-profile", {
+    await fetch("http://34.228.198.154/api/auth/login", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -48,7 +51,7 @@ export const handleSignin = async (
       },
       body: JSON.stringify({
         email: user.email,
-        name: user.displayName || "Anonymous",
+        password: password,
       }),
     })
 
@@ -70,6 +73,49 @@ export const handleSignin = async (
     setLoggingIn(false);
   }
 };
+
+
+// export const handleSignin = async (
+//   e: React.FormEvent<HTMLFormElement>,
+//   email: string,
+//   password: string,
+//   router: AppRouterInstance,
+//   setLoggingIn: (bool: boolean) => void,
+//   isDone: (bool: boolean) => void
+// ) => {
+//   e.preventDefault();
+//   setLoggingIn(true);
+
+//   try {
+//     const res = await fetch("http://34.228.198.154/api/auth/login", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ email, password }),
+//     });
+
+//     if (!res.ok) {
+//       throw new Error("Login failed");
+//     }
+
+//     const data = await res.json();
+
+//     // If their backend returns a token
+//     if (data?.token) {
+//       localStorage.setItem("authToken", data.token);
+//     }
+
+//     toast.success("Logged in successfully");
+//     isDone(true);
+//     router.push("/dashboard");
+//     return data;
+//   } catch (error: any) {
+//     console.error("signin error:", error);
+//     toast.error(error.message || "Login failed");
+//     setLoggingIn(false);
+//   }
+// };
+
+
 
 //  Google sign up function
 export const handleGoogleSignup = async (
@@ -113,6 +159,58 @@ export const handleGoogleSignup = async (
   }
 };
 
+
+// export const handleCreateAccount = async (
+//   e: React.FormEvent<HTMLFormElement>,
+//   email: string,
+//   password: string,
+//   fullName: string,
+//   router: AppRouterInstance,
+//   setError: (error: string) => void,
+//   setSigningIn: (bool: boolean) => void,
+//   setIsVerifying: (bool: boolean) => void
+// ) => {
+//   e.preventDefault();
+//   setSigningIn(true);
+//   setError("");
+
+//   try {
+//     const res = await fetch("/api/register", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         email,
+//         password,
+//         full_name: fullName, // ✅ backend requires this exact key
+//       }),
+//     });
+
+//     if (!res.ok) {
+//       const data = await res.json().catch(() => ({}));
+//       throw new Error(data.message || "Registration failed");
+//     }
+
+//     const data = await res.json();
+
+//     // save token if backend gives one
+//     if (data.token) {
+//       localStorage.setItem("authToken", data.token);
+//     }
+
+//     //toast.success("Account created! Please verify your email if required.");
+//     setIsVerifying(true);
+
+//     router.push("/dashboard");
+//   } catch (error: any) {
+//     console.error("signup error:", error);
+//     //toast.error(error.message || "Failed to register");
+//     setError(error.message || "Failed to register");
+//   } finally {
+//     setSigningIn(false);
+//   }
+// };
+
+
 export const handleCreateAccount = async (
   e: React.FormEvent<HTMLFormElement>,
   password: string,
@@ -149,7 +247,7 @@ export const handleCreateAccount = async (
 
     const token = await user.getIdToken()
 
-    await fetch("http://34.228.198.154/users/sync-profile", {
+    await fetch("http://34.228.198.154/api/user/sync-profile", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -157,7 +255,8 @@ export const handleCreateAccount = async (
       },
       body: JSON.stringify({
         email,
-        name,
+        password,
+        full_name: name,
       }),
     })
 
@@ -167,11 +266,17 @@ export const handleCreateAccount = async (
     toast.message("Verification email sent. Please check your inbox.");
 
     // Optionally store partial user now (or delay till verification)
-    await addDoc(collection(db, "users"), {
-      email,
-      name,
-      verified: false,
-    });
+    // await addDoc(collection(db, "users"), {
+    //   email,
+    //   name,
+    //   verified: false,
+    // });
+
+    await setDoc(doc(db, "users", user.uid), {
+  email,
+  name,
+  verified: false,
+});
 
     setIsVerifying(true);
     return user;
@@ -182,12 +287,14 @@ export const handleCreateAccount = async (
     setSigningIn(false);
   }
 };
+
 interface user {
   name: string;
   id: string;
   email: string;
   verified: boolean;
 }
+
 export async function getCurrentUserFromFirestore() {
   try {
     const currentUser = auth.currentUser;

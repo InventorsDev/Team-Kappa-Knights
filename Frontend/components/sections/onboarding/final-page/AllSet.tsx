@@ -14,7 +14,7 @@ const AllSet = () => {
   const router = useRouter();
 
   const getFirstName = (fullName?: string) => {
-    if (!fullName) return "stranger";
+    if (!fullName) return "Guest";
     return fullName.trim().split(" ")[0];
   };
 

@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import Photo from './Photo'
 import PersonalInfo from './PersonalInfo'
@@ -7,13 +8,15 @@ import Preference from './Preference'
 import Security from './Security'
 import Image from 'next/image'
 import Back from '@/public/dashboard/backArrow.png'
+import { useRouter } from 'next/navigation'
 
 const Profile = () => {
+  const router = useRouter()
   return (
-    <main className='space-y-5 text-[#212121]' style={{ 'fontFamily': 'var(--font-nunito)'}}>
+    <main className='space-y-5  text-[#212121]' style={{ 'fontFamily': 'var(--font-nunito)'}}>
       <section className=' hidden md:block'>
         <div className='flex items-center py-3 '>
-        <div>
+        <div onClick={() => router.back()} className='hover:cursor-pointer'>
           <Image src={Back} alt=''/>
         </div>
         <div className='w-full flex justify-center'>

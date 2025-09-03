@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import logo from "@/public//images/logo.png";
+import Check from '@/public/images/check-circle.png'
+import Back from '@/public/dashboard/xButtonBlack.png'
 import { useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
@@ -51,6 +52,7 @@ function Mood() {
   const [mood, setMood] = useState("");
   const [desc, setDesc] = useState("");
   const [isRouting, setIsRouting] = useState(false);
+  const [isClicked, setIsClicked] = useState<boolean>(false);
   const router = useRouter();
 
   const handleRoute = () => {
@@ -62,8 +64,38 @@ function Mood() {
     setIsRouting(true);
     router.push("/onboarding/support");
   };
+
+  const handleClick = () => {
+    setIsClicked(!desc.trim())
+  }
   return (
     <div className=" text-[#212121] select-none pt-4">
+       {isClicked && (
+              <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
+                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
+                  <div className="flex w-full justify-end">
+                    <button onClick={() => setIsClicked(false)} className="p-1">
+                      <Image src={Back} alt="Exit" width={10} height={10} />
+                    </button>
+                  </div>
+                  <section className="flex flex-col justify-center items-center text-center pt-6">
+                    <Image src={Check} alt="Delete" width={60} height={60} />
+                    <p className="text-[24px] font-bold">Your mood has been logged</p>
+                    <p className="text-[#4A4A4A] pb-8">
+                      Thanks for checking in. Every step helps you understand yourself better.
+                    </p>
+                    <section className="flex flex-col gap-2 w-full">
+                      <button onClick={() => setIsClicked(false)} className="bg-[#00B5A5] rounded-xl py-3 text-white font-semibold">
+                        Done
+                      </button>
+                      <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                        Go To Journal
+                      </button>
+                    </section>
+                  </section>
+                </div>
+              </section>
+            )}
       <div className="md:block hidden pb-7">
         <p className="text-[24px] font-bold">
           Hello, <FirstName />!
@@ -135,12 +167,12 @@ function Mood() {
 
           <div className="md:flex justify-center md:w-full">
             <div
-              onClick={handleRoute}
               className="md:flex justify-center md:w-[40%] md:text-[24px] md:py-[10px]"
+              onClick={handleClick}
             >
               <AuthButton
                 text="Save Today's Entry"
-                action={isRouting}
+                action={isClicked}
                 textWhileActionIsTakingPlace="Saving..."
                 isAuth={false}
               />

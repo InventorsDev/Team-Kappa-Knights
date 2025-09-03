@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Neuroloom",
+  title: "Nuroki",
   description:
     "Unlock deeper learning with Neuroloom—an intelligent study platform built to match your mind.",
   icons: {
@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} ${inter.variable} antialiased`}>
+      <body className={`${nunito.variable} ${inter.variable} antialiased select-none`}>
         {children}
         <Toaster
           position="top-center"

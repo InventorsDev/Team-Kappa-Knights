@@ -4,6 +4,7 @@ import Image from "next/image";
 import Purple from "@/public/dashboard/purpleVector.png";
 import Green from "@/public/dashboard/business.png";
 import Side from "@/public/dashboard/sideArrow.png";
+import Link from "next/link";
 import { data } from "@/lib/testData";
 
 type JourneyType = {
@@ -36,13 +37,15 @@ const LearningJourney = () => {
         <p className="text-[18px] md:text-[24px] font-bold">
           Your Learning Journey
         </p>
-        <div className="flex gap-3 items-center">
+        <div >
+          <Link href={'/skilltree'} className="flex gap-3 items-center">
           <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">
             View more
           </p>
           <div>
             <Image src={Side} alt="View Analytics" />
           </div>
+          </Link>
         </div>
       </div>
       <div className="space-y-4">

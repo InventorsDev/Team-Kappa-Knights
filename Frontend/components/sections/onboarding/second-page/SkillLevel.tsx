@@ -34,6 +34,7 @@ function SkillLevel() {
       return;
     }
     setIsRouting(true);
+    localStorage.setItem("skill_level", selectedSkillLevel);
     router.push("/onboarding/goals");
   };
 

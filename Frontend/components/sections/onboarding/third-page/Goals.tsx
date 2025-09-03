@@ -43,6 +43,8 @@ function Goals() {
       toast.error("Please select a goal");
       return;
     }
+    
+     localStorage.setItem("learning_goal", goal);
     setIsRouting(true);
     router.push("/onboarding/mood");
   };

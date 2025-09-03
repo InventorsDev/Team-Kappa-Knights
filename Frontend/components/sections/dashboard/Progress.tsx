@@ -1,8 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import Purple from "@/public/dashboard/Vector.png";
-import Green from "@/public/dashboard/greenVector.png";
+import Link from "next/link";
 import Side from "@/public/dashboard/sideArrow.png";
 
 type JourneyType = {
@@ -32,6 +31,7 @@ const Progress = () => {
       <div className="flex justify-between items-center pb-5">
         <p className="text-[18px] font-bold md:text-[24px]">Your Progress</p>
         <div className="flex gap-3 items-center">
+          <Link href={'/insights'}></Link>
           <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">
             View detailed analytics
           </p>

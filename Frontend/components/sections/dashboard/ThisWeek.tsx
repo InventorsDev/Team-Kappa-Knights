@@ -50,7 +50,57 @@ const ThisWeek = () => {
       <p className="text-[18px] md:text-[24px] font-bold">
         This Week&apos;s Journey
       </p>
-      <section>
+          <section className="w-full flex flex-wrap gap-3 ">
+            { moods.map((item, idx) => (
+              <div key={idx} className="md:flex-1 flex flex-col gap-2 items-center justify-center text-center text-[16px] bg-[#F5F5F5] font-semibold rounded-2xl p-4">
+                <p className="text-[24px] font-medium">{item.day}</p>
+                <Image
+                  src={`/emotions/${item.logo}`}
+                  width={50}
+                  height={50}
+                  alt={item.altText}
+                />
+              </div>
+            ))}
+          </section>
+
+
+
+
+      {/* <section className="max-w-full overflow-hidden">
+        <Swiper
+          spaceBetween={16}
+          slidesPerView={4}
+          className="mySwiper"
+          breakpoints={{
+            300: { slidesPerView: 3 },
+            414: { slidesPerView: 3 },
+            640: { slidesPerView: 4 },
+            768: { slidesPerView: 6 },
+            1024: { slidesPerView: 6 },
+            1280: { slidesPerView: 6 },
+            1600: { slidesPerView: 8 },
+          }}
+        >
+          {moods.map((item) => (
+            <SwiperSlide key={item.day}>
+              <div className="flex flex-col gap-2 items-center justify-center text-center text-[16px] bg-[#F5F5F5] font-semibold rounded-2xl p-4">
+                <p className="text-[24px] font-medium">{item.day}</p>
+                <Image
+                  src={`/emotions/${item.logo}`}
+                  width={50}
+                  height={50}
+                  alt={item.altText}
+                />
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </section> */}
+
+
+
+      {/* <section>
         <Swiper
           spaceBetween={16}
           slidesPerView={4}
@@ -84,7 +134,7 @@ const ThisWeek = () => {
             );
           })}
         </Swiper>
-      </section>
+      </section> */}
     </main>
   );
 };

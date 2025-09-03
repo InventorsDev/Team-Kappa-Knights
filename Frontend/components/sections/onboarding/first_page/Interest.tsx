@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/favicon.ico";
 import AuthButton from "@/components/common/button/Button";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { addDoc, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import Loader from "@/components/common/loader/Loader";
 import { useRouter } from "next/navigation";
 import { getCurrentUserFromFirestore } from "@/lib/auth";
+import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
 
 interface Tags {
   id: string;
@@ -18,6 +19,7 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
+  createdBy?: string 
 }
 
 interface user {
@@ -66,7 +68,8 @@ function Interest() {
         setFirestoreTags(tagData);
         setLoading(false);
       } catch (error) {
-        toast.error("Network issues, please reload page");
+        const message = getFirebaseErrorMessage(error);
+        toast.error(message);
         console.error("Error fetching tags from Firestore", error);
       }
     };
@@ -80,34 +83,85 @@ function Interest() {
     setCustomTags(localTags);
   }, []);
 
-  const handleAdd = () => {
-    if (!name) {
-      toast.message("Please add a skill");
-      return;
-    }
+  // const handleAdd = () => {
+  //   if (!name) {
+  //     toast.message("Please add a skill");
+  //     return;
+  //   }
 
-    const newTag: Tags = {
-      id: Date.now().toString(),
+  //     const user = auth.currentUser;
+  // if (!user) return;
+
+  //   const newTag: Tags = {
+  //     id: Date.now().toString(),
+  //     name,
+  //     bg: "rgb(173, 216, 230)",
+  //     border: "rgb(30, 144, 255)",
+  //     text: "rgb(0, 51, 102)",
+  //     icon: "Writing",
+  //     createdBy: user.uid,
+  //     custom: true,
+  //   };
+
+  //   // Save to state & localStorage
+  //   const updated = [...customTags, newTag];
+  //   setCustomTags(updated);
+  //   localStorage.setItem("newTags", JSON.stringify(updated));
+
+  //   // ✅ Immediately select the new tag
+  //   setSelectedTags((prev) => [...prev, newTag.name]);
+  //   // setLimit((n) => n + 1);
+
+  //   setName("");
+  //   setIsClosed(true);
+  // };
+
+// ...
+
+const handleAdd = async () => {
+  if (!name) {
+    toast.message("Please add a skill");
+    return;
+  }
+
+  const user = auth.currentUser;
+  if (!user) {
+    toast.error("You must be signed in to add a skill");
+    return;
+  }
+
+  try {
+    const newTag = {
       name,
       bg: "rgb(173, 216, 230)",
       border: "rgb(30, 144, 255)",
       text: "rgb(0, 51, 102)",
       icon: "Writing",
-      custom: true,
+      createdBy: user.uid, // 🔑 for rules
     };
 
-    // Save to state & localStorage
-    const updated = [...customTags, newTag];
-    setCustomTags(updated);
-    localStorage.setItem("newTags", JSON.stringify(updated));
+    // Write to Firestore
+    const docRef = await addDoc(collection(db, "tags"), newTag);
 
-    // ✅ Immediately select the new tag
+    // Update local state so UI refreshes immediately
+    setFirestoreTags((prev) => [
+      ...prev,
+      { id: docRef.id, ...newTag, custom: false },
+    ]);
+
+    // Auto-select the tag
     setSelectedTags((prev) => [...prev, newTag.name]);
-    // setLimit((n) => n + 1);
 
     setName("");
     setIsClosed(true);
-  };
+    toast.success("Skill added!");
+  } catch (err) {
+    console.error("Error adding tag:", err);
+    toast.error(getFirebaseErrorMessage(err));
+  }
+};
+
+
 
   const handleDelete = async (id: string, custom?: boolean) => {
     try {

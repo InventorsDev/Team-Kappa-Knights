@@ -5,13 +5,14 @@ import SidebarIcon from "@/public/dashboard/sideFrame.png";
 import Logo from "@/public/images/logo.png";
 import Search from "@/public/dashboard/search.png";
 import Link from "next/link";
-import UserName from "../../common/names/UserName";
+import UserName from "../common/names/UserName";
 import FirstName from "@/components/common/names/FirstName";
 import X from "@/public/dashboard/xButton.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { pages } from "@/lib/pages";
 import back from "@/public/SVGs/back.svg";
+import MobileNav from "./dashboard/MobileNav";
 
 const mobileNavItems = [
   {
@@ -25,6 +26,12 @@ const mobileNavItems = [
     logo: "/dashboard/journalWhite.png",
     altText: "Journals",
     link: "/journals",
+  },
+  {
+    text: "Courses",
+    logo: "/dashboard/coursesWhite.png",
+    altText: "Courses",
+    link: "/courses",
   },
   {
     text: "Skills",
@@ -57,30 +64,32 @@ const Navbar = () => {
   const pathname = usePathname();
   const isDashboard = pathname.includes("/dashboard");
   const currentPage =
-    pages.find((page) => pathname.startsWith(page.href))?.name || "Dashboard";
+    pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   console.log(currentPage);
 
   return (
     <main>
       <nav className=' select-none  top-0 px-3 md:pr-8 bg-white md:py-[1%] md:border-b md:border-gray-600"'>
         <div className="flex justify-between md:justify-start items-center">
-          <div className="hidden md:flex  w-[12%] justify-center">
+          <div className="hidden md:flex  w-[8%] justify-center">
             <Image src={Logo} width={49} height={49} alt="" />
           </div>
           <div className="hidden md:block pl-2">
-            <p className={`text-[24px] ${isDashboard && "font-black"}`}>Home</p>
+            <p className={`text-[24px] w-full`}>{currentPage}</p>
           </div>
-          <section className="flex justify-between w-full items-center">
-            {isDashboard ? (
-              <div className="flex justify-between w-full md:justify-end items-center py-4 md:py-0">
+          <section className={`${ isDashboard ? 'flex' : 'block'} justify-between w-full items-center`}>
+              <div className={`flex justify-between w-full md:justify-end items-center ${ isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
                 <section className="md:flex items-center gap-6">
                   <div className="hidden md:block">
                     <Image src={Search} alt="" />
                   </div>
                   <section className="flex gap-2 md:gap-4 items-center">
+                    { isDashboard && (
                     <div>
                       <Image src={Profile} width={48} alt="Profile picture" />
                     </div>
+                    )}
+                    { isDashboard && (
                     <div className="md:hidden">
                       <p className="text-[20px] font-bold">
                         Hello, <FirstName />!
@@ -89,6 +98,7 @@ const Navbar = () => {
                         Here's to steady growth.
                       </p>
                     </div>
+                  )}
                     <div className="hidden md:block">
                       <p className="text-[24px] font-bold">
                         <UserName />
@@ -97,27 +107,29 @@ const Navbar = () => {
                     </div>
                   </section>
                 </section>
+                { isDashboard && (
                 <div
                   className="block md:hidden cursor-pointer"
                   onClick={() => setIsClicked(true)}
                 >
                   <Image src={SidebarIcon} width={24} height={24} alt="menu" />
                 </div>
+              )}
               </div>
-            ) : (
-              <div className="flex justify-between items-center w-full md:hidden py-4">
+              { !isDashboard && (
+               <div className="flex justify-between items-center w-full md:hidden py-4">
                 <div className="w-[10px] h-[10px]">
                   <Image src={back} alt="back" width={20} height={20} />
                 </div>
                 <p className="font-[500] text-[24px]">{currentPage}</p>
                 <div
-                  className="block md:hidden cursor-pointer"
-                  onClick={() => setIsClicked(true)}
-                >
-                  <Image src={SidebarIcon} width={24} height={24} alt="menu" />
-                </div>
-              </div>
-            )}
+                   className="block md:hidden cursor-pointer"
+                   onClick={() => setIsClicked(true)}
+                 >
+                   <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                 </div>
+               </div>
+              )}
           </section>
         </div>
       </nav>

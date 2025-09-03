@@ -1,6 +1,6 @@
 "use client";
-import Navbar from "@/components/sections/dashboard/Navbar";
-import Sidebar from "@/components/sections/dashboard/Sidebar";
+import Navbar from "@/components/sections/Navbar";
+import Sidebar from "@/components/sections/Sidebar";
 import { useEffect, useState } from "react";
 
 export default function DashboardLayout({
@@ -9,7 +9,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen grid grid-rows-[auto_1fr] grid-cols-1 md:grid-cols-[12%_1fr]">
+    <div className="min-h-screen grid grid-rows-[auto_1fr] grid-cols-1 md:grid-cols-[8%_1fr]">
       {/* Navbar spans the full width */}
       <header className="row-start-1 col-span-2 sticky top-0 z-50">
         <Navbar />
