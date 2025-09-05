@@ -52,10 +52,10 @@ class LoginRequest(BaseModel):
 async def login(login_req: LoginRequest, db: AsyncSession = Depends(get_postgres_db)):
     # Use emulator URL instead of production
    
-    url = f"{EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    # url = f"{EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
     
     # production url
-    # url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
     
     payload = {
         "email": login_req.email,
