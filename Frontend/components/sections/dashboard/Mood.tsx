@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Check from '@/public/images/check-circle.png'
 import Back from '@/public/dashboard/xButtonBlack.png'
@@ -8,40 +8,42 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import FirstName from "@/components/common/names/FirstName";
+import { auth } from "@/lib/firebase";
+import { apiFetch } from "@/lib/apiClient";
 
 const moods = [
   {
-    title: "Motivated",
+    title: "motivated",
     bg: "#E9FFD8",
     logo: "motivated.png",
     borderColor: "#7CEE7C",
   },
   {
-    title: "Stressed",
+    title: "stressed",
     bg: "#F1EFFF",
     logo: "stressed.png",
     borderColor: "#9581E6",
   },
   {
-    title: "Excited",
+    title: "excited",
     bg: "#EEF1F0",
     logo: "excited.png",
     borderColor: "#FFD26E",
   },
   {
-    title: "Okay",
+    title: "okay",
     bg: "#FFECED",
     logo: "okay.png",
     borderColor: "#FF7474",
   },
   {
-    title: "Frustrated",
+    title: "frustrated",
     bg: "#EBFFFC",
     logo: "frustrated.png",
     borderColor: "#85E4E4",
   },
   {
-    title: "Tired",
+    title: "tired",
     bg: "#EEF1F0",
     logo: "tired.png",
     borderColor: "#FFB36E",
@@ -55,6 +57,27 @@ function Mood() {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const router = useRouter();
 
+  // useEffect(() => {
+  //   const handleFetch = async () => {
+  //     const token = await auth.currentUser?.getIdToken();
+  //     await fetch("http://34.228.198.154/journal/", {
+  //       method: "POST",
+  //       headers: {
+  //         "Authorization": `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+
+  //         content: desc,
+  //         title: "",
+  //         mood: mood
+
+  //       }),
+  //     })
+  //   }
+  //   handleFetch()
+  // }, [])
+
   const handleRoute = () => {
     if (!mood) {
       toast.error("please select your mood");
@@ -65,37 +88,75 @@ function Mood() {
     router.push("/onboarding/support");
   };
 
-  const handleClick = () => {
-    setIsClicked(!desc.trim())
+
+  // const handleClick = () => {
+  //   setIsClicked(!desc.trim())
+  // }
+
+  const handleClick = async () => {
+  if (!mood) {
+    toast.error("please select your mood");
+    return;
   }
+
+  try {
+    const token = localStorage.getItem('token');
+    if(!token) {
+      toast('no token')
+      return
+    }
+    console.log(token)
+    const res = await fetch("http://34.228.198.154/journal/", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        content: desc,
+        title: "Title",
+        mood: mood,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Server said ${res.status}`);
+    setIsClicked(true); // pop the modal
+    toast.success("Mood logged!");
+  } catch (err) {
+    console.error("Save failed:", err);
+    toast.error("Couldn’t save mood, try again");
+  }
+};
+
+
   return (
     <div className=" text-[#212121] select-none pt-4">
-       {isClicked && (
-              <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
-                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
-                  <div className="flex w-full justify-end">
-                    <button onClick={() => setIsClicked(false)} className="p-1">
-                      <Image src={Back} alt="Exit" width={10} height={10} />
-                    </button>
-                  </div>
-                  <section className="flex flex-col justify-center items-center text-center pt-6">
-                    <Image src={Check} alt="Delete" width={60} height={60} />
-                    <p className="text-[24px] font-bold">Your mood has been logged</p>
-                    <p className="text-[#4A4A4A] pb-8">
-                      Thanks for checking in. Every step helps you understand yourself better.
-                    </p>
-                    <section className="flex flex-col gap-2 w-full">
-                      <button onClick={() => setIsClicked(false)} className="bg-[#00B5A5] rounded-xl py-3 text-white font-semibold">
-                        Done
-                      </button>
-                      <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
-                        Go To Journal
-                      </button>
-                    </section>
-                  </section>
-                </div>
+      {isClicked && (
+        <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
+            <div className="flex w-full justify-end">
+              <button onClick={() => setIsClicked(false)} className="p-1">
+                <Image src={Back} alt="Exit" width={10} height={10} />
+              </button>
+            </div>
+            <section className="flex flex-col justify-center items-center text-center pt-6">
+              <Image src={Check} alt="Delete" width={60} height={60} />
+              <p className="text-[24px] font-bold">Your mood has been logged</p>
+              <p className="text-[#4A4A4A] pb-8">
+                Thanks for checking in. Every step helps you understand yourself better.
+              </p>
+              <section className="flex flex-col gap-2 w-full">
+                <button onClick={() => setIsClicked(false)} className="bg-[#00B5A5] rounded-xl py-3 text-white font-semibold">
+                  Done
+                </button>
+                <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                  Go To Journal
+                </button>
               </section>
-            )}
+            </section>
+          </div>
+        </section>
+      )}
       <div className="md:block hidden pb-7">
         <p className="text-[24px] font-bold">
           Hello, <FirstName />!

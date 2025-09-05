@@ -1,5 +1,6 @@
 "use client";
 import AuthButton from "@/components/common/button/Button";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 type suggestedType = {
@@ -67,12 +68,14 @@ const Suggested = () => {
           );
         })}
       </section>
+      <Link href={'/courses'}>
       <AuthButton
         text="View all recommendations"
         action={isRouting}
         textWhileActionIsTakingPlace="..."
         isAuth={false}
       />
+      </Link>
     </main>
   );
 };

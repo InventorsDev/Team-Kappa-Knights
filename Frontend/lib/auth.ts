@@ -16,6 +16,7 @@ import { addDoc, collection } from "firebase/firestore";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
 import { query, where, getDocs } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
+import { saveTokens } from "./token";
 // import { useAuthStore } from "@/state/authStore";
 
 // sign in with email and password function
@@ -34,34 +35,36 @@ export const handleSignin = async (
   setLoggingIn(true);
 
   try {
-    await setPersistence(auth, persistence);
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    await userCredential.user.reload();
-    const token = await userCredential.user.getIdToken()
-    const user = userCredential.user;
-    await fetch("http://34.228.198.154/api/auth/login", {
+    // await setPersistence(auth, persistence);
+    // const userCredential = await signInWithEmailAndPassword(
+    //   auth,
+    //   email,
+    //   password
+    // );
+    // await userCredential.user.reload();
+    // const token = await userCredential.user.getIdToken()
+    // const user = userCredential.user;
+    const user = await fetch("http://34.228.198.154/api/auth/login", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        // "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: user.email,
+        email,
         password: password,
       }),
     })
 
-    if (!user.emailVerified) {
-      await auth.signOut(); // log them out
-      toast.warning("Please verify your email before logging in.");
-      setLoggingIn(false);
-      return;
-    }
-
+    // if (!user.emailVerified) {
+    //   await auth.signOut(); // log them out
+    //   toast.warning("Please verify your email before logging in.");
+    //   setLoggingIn(false);
+    //   return;
+    // }
+    const resolvedUser = await user.json()
+    localStorage.setItem("token", resolvedUser.idToken)
+    console.log(resolvedUser)
     toast.success("Logged in successfully");
     isDone(true);
     router.push('/dashboard')
@@ -73,6 +76,46 @@ export const handleSignin = async (
     setLoggingIn(false);
   }
 };
+
+
+
+
+// export const handleSignin = async (
+//   e: React.FormEvent<HTMLFormElement>,
+//   email: string,
+//   password: string,
+//   router: AppRouterInstance,
+//   setLoggingIn: (bool: boolean) => void,
+//   isDone: (bool: boolean) => void
+// ) => {
+//   e.preventDefault();
+//   setLoggingIn(true);
+
+//   try {
+//     const res = await fetch("http://34.228.198.154/api/auth/login", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ email, password }),
+//     });
+
+//     if (!res.ok) throw new Error(`Login failed: ${res.statusText}`);
+//     const resolvedUser = await res.json();
+
+//     saveTokens(resolvedUser.idToken, resolvedUser.refreshToken);
+//     console.log("Login success", resolvedUser);
+
+//     toast.success("Logged in successfully");
+//     isDone(true);
+//     router.push("/dashboard");
+//   } catch (err) {
+//     console.error("signin error:", err);
+//     toast.error((err as Error).message || "Something went wrong");
+//     setLoggingIn(false);
+//   }
+// };
+
+
+
 
 
 // export const handleSignin = async (

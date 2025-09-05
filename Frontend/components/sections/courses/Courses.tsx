@@ -16,7 +16,7 @@ const Courses = () => {
                 <Image src={Back} alt=''/>
               </div>
               <div className='w-full flex justify-center'>
-              <p className='font-semibold text-[18px]'> Course Recommendation</p>
+              <p className='font-semibold text-[18px]'> Course Recommendations</p>
               </div>
               </div>
               <hr className='border border-[#CCCCCC]/30 w-full'/>
