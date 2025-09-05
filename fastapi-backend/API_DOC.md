@@ -36,6 +36,9 @@ Authorization: Bearer <firebase_jwt_token>
    - `POST /users/{id}/complete-onboarding`  
    - Marks onboarding flow as completed.  
 
+6. **Upload Profile Picture**
+   - `POST /users/upload-profile-picture`
+   - Upload profile picture.  
 ---
 
 ## 📘 Journals API  

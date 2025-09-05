@@ -1,5 +1,5 @@
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_postgres_db
 from app.models.learning import LearningJournalEntryModel, EntryType, MoodType
@@ -9,6 +9,7 @@ from app.core.security import get_current_user_uid
 from sqlalchemy import select
 from typing import List, Optional
 from sqlalchemy import text
+from datetime import datetime
 
 
 
@@ -269,3 +270,98 @@ async def get_sentiment_analytics(
 
 
 
+@router.get("/analytics/mood-distribution")
+async def get_mood_distribution(
+    days: int = Query(30, description="Number of days to analyze", ge=1, le=365),
+    db: AsyncSession = Depends(get_postgres_db),
+    user_id: str = Depends(get_current_user_uid),
+):
+    """Get mood distribution for pie/bar charts"""
+    try:
+        analytics = await journal_service.get_mood_analytics(user_id, db, days)
+        return {
+            "success": True,
+            "data": analytics
+        }
+    except Exception as e:
+        logger.error(f"Error fetching mood distribution: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch mood distribution"
+        )
+
+@router.get("/analytics/mood-timeline")
+async def get_mood_timeline(
+    days: int = Query(30, description="Number of days for timeline", ge=1, le=365),
+    db: AsyncSession = Depends(get_postgres_db),
+    user_id: str = Depends(get_current_user_uid)
+):
+    """Get mood timeline for line/scatter charts"""
+    try:
+        timeline = await journal_service.get_mood_timeline(user_id, db, days)
+        return {
+            "success": True,
+            "data": timeline
+        }
+    except Exception as e:
+        logger.error(f"Error fetching mood timeline: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch mood timeline"
+        )
+
+@router.get("/analytics/weekly-summary")
+async def get_weekly_mood_summary(
+    weeks: int = Query(4, description="Number of weeks to analyze", ge=1, le=52),
+    db: AsyncSession = Depends(get_postgres_db),
+    user_id: str = Depends(get_current_user_uid),
+):
+    """Get weekly mood summary for trend analysis"""
+    try:
+        summary = await journal_service.get_weekly_mood_summary(user_id, db, weeks)
+        return {
+            "success": True,
+            "data": summary
+        }
+    except Exception as e:
+        logger.error(f"Error fetching weekly summary: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch weekly summary"
+        )
+
+@router.get("/analytics/dashboard")
+async def get_mood_dashboard(
+    days: int = Query(30, description="Period for analysis", ge=7, le=365),
+    db: AsyncSession = Depends(get_postgres_db),
+    user_id: str = Depends(get_current_user_uid)
+):
+    """Get comprehensive mood dashboard data"""
+    try:
+        # Get all analytics in parallel
+        import asyncio
+        
+        distribution_task = journal_service.get_mood_analytics(user_id, db, days)
+        timeline_task = journal_service.get_mood_timeline(user_id, db, days)
+        weekly_task = journal_service.get_weekly_mood_summary(user_id, db, weeks=min(days//7, 8))
+        
+        distribution, timeline, weekly = await asyncio.gather(
+            distribution_task, timeline_task, weekly_task
+        )
+        
+        return {
+            "success": True,
+            "data": {
+                "period_days": days,
+                "mood_distribution": distribution,
+                "mood_timeline": timeline,
+                "weekly_summary": weekly,
+                "generated_at": datetime.utcnow().isoformat()
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error fetching mood dashboard: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to fetch mood dashboard"
+        )

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, date
 from app.models.user import SkillLevel, LearningGoal, SupportStyle
 
 
@@ -15,6 +15,9 @@ class UserProfileCreate(UserProfileBase):
 
 class UserProfileUpdate(BaseModel):
     full_name: Optional[str] = None
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    profile_picture_url: Optional[str] = None
     interests: Optional[List[str]] = None
     skills: Optional[List[str]] = None
     bio: Optional[str] = None
@@ -37,6 +40,9 @@ class UserProfileResponse(BaseModel):
     user_id: str
     email: Optional[str]
     full_name: Optional[str]
+    gender: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    profile_picture_url: Optional[str] = None
     interests: List[str]
     skills: List[str]
     bio: Optional[str]

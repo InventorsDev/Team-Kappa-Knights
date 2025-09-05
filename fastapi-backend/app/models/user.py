@@ -2,30 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, ARR
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 from app.core.database import Base
-
-
-
-
-# class UserProfileModel(Base):
-#     __tablename__ = "user_profiles"
-#     user_id = Column(String, primary_key=True)  # Firebase UID as primary key
-#     email = Column(String, nullable=True)       # For faster queries
-#     full_name = Column(String, nullable=True)
-#     interests = Column(ARRAY(String), default=[])
-#     skills = Column(ARRAY(String), default=[])
-#     bio = Column(Text, nullable=True)
-
-#     # Relationships
-#     journal_entries = relationship(
-#         "LearningJournalEntryModel", back_populates="user", cascade="all, delete-orphan"
-#     )
-#     progress_records = relationship(
-#         "LearningProgressModel", back_populates="user", cascade="all, delete-orphan"
-#     )
-
-
-
-
+from sqlalchemy import Date
 from enum import Enum
 
 class SkillLevel(str, Enum):
@@ -54,6 +31,10 @@ class UserProfileModel(Base):
     email = Column(String, nullable=True)       # For faster queries
     full_name = Column(String, nullable=True)
     
+    profile_picture_url = Column(String, nullable=True)  # Cloudinary URL
+    gender = Column(String, nullable=True)
+    date_of_birth = Column(Date, nullable=True)
+    
     # Existing fields
     interests = Column(ARRAY(String), default=[])
     skills = Column(ARRAY(String), default=[])
@@ -67,6 +48,10 @@ class UserProfileModel(Base):
     # Onboarding completion tracking
     onboarding_completed = Column(Boolean, default=False)
     onboarding_completed_at = Column(DateTime, nullable=True)
+    
+    # Soft delete fields
+    is_active = Column(Boolean, default=True)
+    deactivated_at = Column(DateTime, nullable=True)
     
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)

@@ -7,15 +7,13 @@ from typing import Optional, List, Tuple, Dict, Any
 from transformers import pipeline
 # services/course_validation.py
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import text
+from sqlalchemy import text, select, and_, func, extract, and_
 from fastapi import HTTPException, status
 from app.core.database import get_postgres_db
 from fastapi import Depends
 from app.models.learning import LearningProgressModel, LearningJournalEntryModel, MoodType, EntryType
-from sqlalchemy import select, and_, or_
-from datetime import datetime
-
-
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 
 logger = logging.getLogger(__name__)
@@ -153,6 +151,14 @@ class JournalService:
         if entry_type == EntryType.ONBOARDING and not title:
             title = self._generate_onboarding_title()
         
+        # convert mood string to enum if provided
+        mood = None
+        if entry_data.get("mood"):
+            try:
+                mood = MoodType(entry_data.get("mood"))
+            except ValueError:
+                raise ValueError(f"Invalid mood value: {entry_data.get('mood')}")
+        
         # Analyze sentiment if content exists
         sentiment_score, sentiment_label = None, None
         content = entry_data.get("content")
@@ -163,7 +169,7 @@ class JournalService:
         new_entry = LearningJournalEntryModel(
             user_id=user_id,
             title=title,
-            mood=entry_data.get("mood"),
+            mood=mood,
             content=content,
             entry_type=entry_type,
             sentiment_score=sentiment_score,
@@ -317,8 +323,208 @@ class JournalService:
             await db.rollback()
             raise Exception(f"Failed to delete journal entry: {str(e)}")
 
+    async def get_mood_analytics(
+        self, 
+        user_id: str, 
+        db: AsyncSession,
+        days: int = 30
+    ) -> Dict[str, Any]:
+        """Get mood analytics for graph plotting"""
+        try:
+            # Get mood distribution over last X days
+            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            
+            # Mood frequency count
+            mood_query = select(
+                LearningJournalEntryModel.mood,
+                func.count(LearningJournalEntryModel.id).label('count')
+            ).where(
+                and_(
+                    LearningJournalEntryModel.user_id == user_id,
+                    LearningJournalEntryModel.mood.isnot(None),
+                    LearningJournalEntryModel.created_at >= cutoff_date
+                )
+            ).group_by(LearningJournalEntryModel.mood)
+            
+            result = await db.execute(mood_query)
+            mood_data = result.all()
+            
+            # Convert to plottable format
+            mood_distribution = []
+            for mood, count in mood_data:
+                mood_distribution.append({
+                    "mood": mood.value,  # Get string value from enum
+                    "mood_display": mood.value.title(),  # "motivated" -> "Motivated"
+                    "emoji": self.MOOD_EMOJI_MAP.get(mood, ""),
+                    "count": count
+                })
+            
+            return {
+                "period_days": days,
+                "total_entries": sum(item["count"] for item in mood_distribution),
+                "mood_distribution": mood_distribution,
+                "generated_at": datetime.utcnow().isoformat()
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting mood analytics: {e}")
+            return {
+                "period_days": days,
+                "total_entries": 0,
+                "mood_distribution": [],
+                "error": str(e)
+            }
+
+    async def get_mood_timeline(
+        self,
+        user_id: str,
+        db: AsyncSession,
+        days: int = 30
+    ) -> Dict[str, Any]:
+        """Get mood timeline for time-series graph"""
+        try:
+            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            
+            # Get mood entries over time
+            timeline_query = select(
+                LearningJournalEntryModel.mood,
+                LearningJournalEntryModel.created_at,
+                LearningJournalEntryModel.sentiment_score
+            ).where(
+                and_(
+                    LearningJournalEntryModel.user_id == user_id,
+                    LearningJournalEntryModel.mood.isnot(None),
+                    LearningJournalEntryModel.created_at >= cutoff_date
+                )
+            ).order_by(LearningJournalEntryModel.created_at.asc())
+            
+            result = await db.execute(timeline_query)
+            timeline_data = result.all()
+            
+            # Convert moods to numeric values for plotting
+            mood_to_numeric = {
+                MoodType.SCARED: 1,
+                MoodType.FRUSTRATED: 2,
+                MoodType.TIRED: 3,
+                MoodType.STRESSED: 4,
+                MoodType.OKAY: 5,
+                MoodType.MOTIVATED: 6,
+                MoodType.EXCITED: 7
+            }
+            
+            timeline = []
+            for mood, created_at, sentiment_score in timeline_data:
+                timeline.append({
+                    "date": created_at.isoformat(),
+                    "mood": mood.value,
+                    "mood_numeric": mood_to_numeric.get(mood, 5),
+                    "emoji": self.MOOD_EMOJI_MAP.get(mood, ""),
+                    "sentiment_score": sentiment_score
+                })
+            
+            return {
+                "period_days": days,
+                "timeline": timeline,
+                "mood_scale": {
+                    "1": {"label": "Scared", "emoji": "😨"},
+                    "2": {"label": "Frustrated", "emoji": "😫"},
+                    "3": {"label": "Tired", "emoji": "😴"},
+                    "4": {"label": "Stressed", "emoji": "😐"},
+                    "5": {"label": "Okay", "emoji": "🙂"},
+                    "6": {"label": "Motivated", "emoji": "🤩"},
+                    "7": {"label": "Excited", "emoji": "😄"}
+                }
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting mood timeline: {e}")
+            return {
+                "period_days": days,
+                "timeline": [],
+                "error": str(e)
+            }
+
+    async def get_weekly_mood_summary(
+        self,
+        user_id: str,
+        db: AsyncSession,
+        weeks: int = 4
+    ) -> Dict[str, Any]:
+        """Get weekly mood averages for trend analysis"""
+        try:
+            cutoff_date = datetime.utcnow() - timedelta(weeks=weeks)
+            
+            # Group by week and get average mood
+            weekly_query = select(
+                extract('week', LearningJournalEntryModel.created_at).label('week'),
+                extract('year', LearningJournalEntryModel.created_at).label('year'),
+                LearningJournalEntryModel.mood,
+                func.count(LearningJournalEntryModel.id).label('count')
+            ).where(
+                and_(
+                    LearningJournalEntryModel.user_id == user_id,
+                    LearningJournalEntryModel.mood.isnot(None),
+                    LearningJournalEntryModel.created_at >= cutoff_date
+                )
+            ).group_by(
+                extract('week', LearningJournalEntryModel.created_at),
+                extract('year', LearningJournalEntryModel.created_at),
+                LearningJournalEntryModel.mood
+            ).order_by('year', 'week')
+            
+            result = await db.execute(weekly_query)
+            weekly_data = result.all()
+            
+            # Process weekly data
+            mood_to_numeric = {
+                MoodType.SCARED: 1, MoodType.FRUSTRATED: 2, MoodType.TIRED: 3,
+                MoodType.STRESSED: 4, MoodType.OKAY: 5, MoodType.MOTIVATED: 6, MoodType.EXCITED: 7
+            }
+            
+            weeks_summary = defaultdict(lambda: {"total_entries": 0, "mood_sum": 0, "moods": []})
+            
+            for week, year, mood, count in weekly_data:
+                week_key = f"{int(year)}-W{int(week)}"
+                weeks_summary[week_key]["total_entries"] += count
+                weeks_summary[week_key]["mood_sum"] += mood_to_numeric[mood] * count
+                weeks_summary[week_key]["moods"].append({
+                    "mood": mood.value,
+                    "count": count
+                })
+            
+            # Calculate weekly averages
+            weekly_summary = []
+            for week_key, data in weeks_summary.items():
+                avg_mood = data["mood_sum"] / data["total_entries"] if data["total_entries"] > 0 else 5
+                weekly_summary.append({
+                    "week": week_key,
+                    "average_mood_numeric": round(avg_mood, 2),
+                    "total_entries": data["total_entries"],
+                    "mood_breakdown": data["moods"]
+                })
+            
+            return {
+                "period_weeks": weeks,
+                "weekly_summary": sorted(weekly_summary, key=lambda x: x["week"])
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting weekly mood summary: {e}")
+            return {
+                "period_weeks": weeks,
+                "weekly_summary": [],
+                "error": str(e)
+            }
+
 # Global instance
 journal_service = JournalService(sentiment_service)
+
+
+
+
+
+
+
 
 
 

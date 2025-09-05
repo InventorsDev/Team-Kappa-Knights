@@ -6,6 +6,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 import firebase_admin
 from firebase_admin import credentials
+import cloudinary
+import cloudinary.uploader
 
 # Load .env for local development
 load_dotenv()
@@ -24,6 +26,11 @@ class Settings(BaseSettings):
     FIREBASE_EMULATOR_HOST: str | None = Field(None, env="FIREBASE_EMULATOR_HOST")
     FIREBASE_EMULATOR_Link: str | None = Field(None, env="FIREBASE_EMULATOR_Link")  
     FIREBASE_WEB_API_KEY: str | None = Field(None, env="FIREBASE_WEB_API_KEY")
+    
+    # Cloudinary settings
+    CLOUDINARY_NAME: str | None = Field(None, env="CLOUDINARY_NAME")
+    CLOUDINARY_API_KEY: str | None = Field(None, env="CLOUDINARY_API_KEY")
+    CLOUDINARY_API_SECRET: str | None = Field(None, env="CLOUDINARY_API_SECRET")
     
     # AWS settings
     AWS_REGION: str = Field("us-east-1", env="AWS_REGION")
@@ -51,7 +58,10 @@ class Settings(BaseSettings):
                 Names=[
                     '/neuroki/firebase/service-account-json',
                     '/neuroki/firebase/web-api-key',
-                    '/neuroki/postgres/url'
+                    '/neuroki/postgres/url',
+                    '/neuroki/cloudinary/name',
+                    '/neuroki/cloudinary/api-key',
+                    '/neuroki/cloudinary/api-secret'
                 ],
                 WithDecryption=True
             )
@@ -64,12 +74,30 @@ class Settings(BaseSettings):
                     self.FIREBASE_WEB_API_KEY = param['Value']
                 elif param['Name'] == '/neuroki/postgres/url':
                     self.POSTGRES_URL = param['Value']
+                elif param['Name'] == '/neuroki/cloudinary/name':
+                    self.CLOUDINARY_NAME = param['Value']
+                elif param['Name'] == '/neuroki/cloudinary/api-key':
+                    self.CLOUDINARY_API_KEY = param['Value']
+                elif param['Name'] == '/neuroki/cloudinary/api-secret':
+                    self.CLOUDINARY_API_SECRET = param['Value']
             
             print("✅ Configuration loaded from AWS Parameter Store")
             
         except Exception as e:
             print(f"❌ Failed to load from Parameter Store: {e}")
             print("Falling back to environment variables...")
+    
+    def _configure_cloudinary(self):
+        """Configure Cloudinary with loaded settings"""
+        if all([self.CLOUDINARY_NAME, self.CLOUDINARY_API_KEY, self.CLOUDINARY_API_SECRET]):
+            cloudinary.config(
+                cloud_name=self.CLOUDINARY_NAME,
+                api_key=self.CLOUDINARY_API_KEY,
+                api_secret=self.CLOUDINARY_API_SECRET
+            )
+            print("✅ Cloudinary configured successfully")
+        else:
+            print("⚠️ Cloudinary configuration incomplete - some credentials missing")
 
 settings = Settings()
 

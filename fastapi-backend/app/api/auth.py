@@ -11,6 +11,7 @@ from app.models.user import UserProfileModel, SkillLevel, LearningGoal, SupportS
 from app.core.config import settings
 from typing import Optional
 from datetime import datetime
+from sqlalchemy import select
 
 
 
@@ -48,13 +49,13 @@ class LoginRequest(BaseModel):
 
 
 @router.post("/login")
-async def login(login_req: LoginRequest):
+async def login(login_req: LoginRequest, db: AsyncSession = Depends(get_postgres_db)):
     # Use emulator URL instead of production
    
-    # url = f"{EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    url = f"{EMULATOR_HOST}/identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
     
-    # for production, you would use:
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    # production url
+    # url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
     
     payload = {
         "email": login_req.email,
@@ -72,12 +73,30 @@ async def login(login_req: LoginRequest):
         )
     
     data = response.json()
+    user_uid = data.get("localId")
+    reactivated = False
+    if user_uid:
+        result = await db.execute(
+            select(UserProfileModel).where(UserProfileModel.user_id == user_uid)
+        )
+        user_obj = result.scalars().first()
+        
+        if user_obj and not user_obj.is_active:
+            # auto-reactivate the account
+            user_obj.is_active = True
+            user_obj.deactivated_at = None
+            user_obj.updated_at = datetime.utcnow()
+            await db.commit()
+            await db.refresh(user_obj)
+            reactivated = True
+            print(f"Account auto-reactivated for user: {user_uid}")
     return {
         "idToken": data["idToken"],
         "refreshToken": data.get("refreshToken"),
         "expiresIn": data.get("expiresIn"),
         "localId": data.get("localId"),
-        "email": data.get("email")
+        "email": data.get("email"),
+        "account_reactivated": reactivated
     }
 
 
