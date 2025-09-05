@@ -47,6 +47,8 @@ class Settings(BaseSettings):
         # Load from AWS Parameter Store if enabled
         if self.USE_AWS_PARAMETER_STORE:
             self._load_from_parameter_store()
+        # Configure Cloudinary after loading all settings
+        self._configure_cloudinary()
     
     def _load_from_parameter_store(self):
         """Load configuration from AWS Systems Manager Parameter Store"""
