@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import React, { useState } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import React, { useState } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
 
-const CLOUD_NAME = "dexchhhbs" 
-const UPLOAD_PRESET = "nextjs_profile_upload" 
+const CLOUD_NAME = "dexchhhbs";
+const UPLOAD_PRESET = "nextjs_profile_upload";
 
 const Photo = () => {
-  const [image, setImage] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const [image, setImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    setLoading(true)
+    setLoading(true);
 
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("upload_preset", UPLOAD_PRESET)
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", UPLOAD_PRESET);
 
     try {
       const res = await fetch(
@@ -28,27 +28,37 @@ const Photo = () => {
           method: "POST",
           body: formData,
         }
-      )
+      );
 
-      const data = await res.json()
-      setImage(data.secure_url)
+      const data = await res.json();
+      setImage(data.secure_url);
     } catch (err) {
-      console.error("Upload failed:", err)
+      console.error("Upload failed:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <main className="flex flex-col items-center justify-center pt-5">
-      <div className="pb-2 w-[160px] h-[160px] overflow-hidden relative rounded-full">
-        <Image
-          key={image || "default"}
-          src={image || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
-          fill
-          alt="Profile Pic"
-          className=" object-cover"
-        />
+    <main className="flex flex-col items-center justify-center gap-4">
+      <div className="w-[160px] h-[160px] overflow-hidden relative rounded-full">
+        {image ? (
+          <Image
+            key={image}
+            src={image}
+            fill
+            alt="Profile Pic"
+            className=" object-cover"
+          />
+        ) : (
+          <Image
+            key={"default"}
+            src={"https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+            fill
+            alt="Profile Pic"
+            className=" object-cover"
+          />
+        )}
       </div>
 
       <label htmlFor="file-upload">
@@ -59,19 +69,19 @@ const Photo = () => {
           className="hidden"
           onChange={handleUpload}
         />
-        <Button asChild variant="outline" className="text-[#00BFA5] font-semibold">
+        <Button
+          asChild
+          variant="outline"
+          className="text-[#00BFA5] font-semibold"
+        >
           <span>{loading ? "Uploading..." : "Change Photo"}</span>
         </Button>
       </label>
     </main>
-  )
-}
+  );
+};
 
-export default Photo
-
-
-
-
+export default Photo;
 
 // import React from 'react'
 // import Image from 'next/image'

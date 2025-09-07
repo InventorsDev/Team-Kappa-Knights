@@ -1,149 +1,148 @@
-"use client"
+"use client";
 
-import React, { useState, useEffect } from "react"
-import Photo from "./Photo"
-import Image from "next/image"
-import Delete from '@/public/dashboard/deleteIcon.png'
-import Back from '@/public/dashboard/xButtonBlack.png'
+import React, { useState, useEffect } from "react";
+import Photo from "./Photo";
+import Image from "next/image";
+import Delete from "@/public/dashboard/deleteIcon.png";
+import Back from "@/public/dashboard/xButtonBlack.png";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 
 type ApiUser = {
-  full_name?: string
-  email?: string
-}
-
+  full_name?: string;
+  email?: string;
+};
 
 type UserInfo = {
-  fullName: string
-  email: string
-  gender: string
-  dob: { day: string; month: string; year: string }
-}
+  fullName: string;
+  email: string;
+  gender: string;
+  dob: { day: string; month: string; year: string };
+};
 
 const PersonalInfo = () => {
-  const [isEditing, setIsEditing] = useState(false)
-  const [isClicked, setIsClicked] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
   const [userInfo, setUserInfo] = useState<UserInfo>({
     fullName: "",
     email: "",
     gender: "",
     dob: { day: "", month: "", year: "" },
-  })
+  });
 
   // fetch existing user profile once
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       try {
         const res = await fetch("http://34.228.198.154/api/user/me", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-        })
-        if (!res.ok) return
-        const result: ApiUser = await res.json()
-          setUserInfo((prev) => ({
-            ...prev,
-            fullName: (result as any).full_name || "",   // pick full_name, not name
-            email: (result as any).email || "",
-}))
+        });
+        if (!res.ok) return;
+        const result: ApiUser = await res.json();
+        setUserInfo((prev) => ({
+          ...prev,
+          fullName: (result as any).full_name || "", // pick full_name, not name
+          email: (result as any).email || "",
+        }));
       } catch (err) {
-        console.error("Error fetching user:", err)
+        console.error("Error fetching user:", err);
       }
-    }
-    fetchData()
-  }, [])
+    };
+    fetchData();
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setUserInfo((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setUserInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
   const toggleEdit = async () => {
     if (isEditing) {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const payload = {
         full_name: userInfo.fullName.trim(),
         email: userInfo.email,
-      }
+      };
 
       try {
         const res = await fetch("http://34.228.198.154/api/user/me", {
-          method: "PATCH",
+          method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(payload),
-        })
-        if (!res.ok) console.error("Failed saving user:", await res.text())
+        });
+        if (!res.ok) console.error("Failed saving user:", await res.text());
         else {
-          const saved = await res.json()
+          const saved = await res.json();
           setUserInfo((prev) => ({
             ...prev,
             full_name: saved.name || prev.fullName,
             email: saved.email || prev.email,
-          }))
+          }));
         }
       } catch (err) {
-        console.error("Error saving user:", err)
+        console.error("Error saving user:", err);
       }
     }
-    setIsEditing((prev) => !prev)
-  }
+    setIsEditing((prev) => !prev);
+  };
 
   return (
-    <main className="md:border rounded-2xl md:p-7 md:mt-8 select-none">
+    <main className="w-[100%]">
       {isClicked && (
-              <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
-                <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
-                  <div className="flex w-full justify-end">
-                    <button onClick={() => setIsClicked(false)} className="p-1">
-                      <Image src={Back} alt="Exit" width={10} height={10} />
-                    </button>
-                  </div>
-                  <section className="flex flex-col justify-center items-center text-center pt-6">
-                    <Image src={Delete} alt="Delete" width={60} height={60} />
-                    <p className="text-[24px] font-bold">Log Out</p>
-                    <p className="text-[#4A4A4A] pb-8">
-                      Are you sure you want to log out?
-                    </p>
-                    <section className="flex flex-col gap-2 w-full">
-                      <button className=" bg-[#FF6665] rounded-xl py-3 text-white font-semibold">
-                        Don&apos;t Log Out
-                      </button>
-                      <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
-                        Log Out
-                      </button>
-                    </section>
-                  </section>
-                </div>
+        <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
+            <div className="flex w-full justify-end">
+              <button onClick={() => setIsClicked(false)} className="p-1">
+                <Image src={Back} alt="Exit" width={10} height={10} />
+              </button>
+            </div>
+            <section className="flex flex-col justify-center items-center text-center pt-6">
+              <Image src={Delete} alt="Delete" width={60} height={60} />
+              <p className="text-[24px] font-bold">Log Out</p>
+              <p className="text-[#4A4A4A] pb-8">
+                Are you sure you want to log out?
+              </p>
+              <section className="flex flex-col gap-2 w-full">
+                <button className=" bg-[#FF6665] rounded-xl py-3 text-white font-semibold">
+                  Don&apos;t Log Out
+                </button>
+                <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                  Log Out
+                </button>
               </section>
-            )}
+            </section>
+          </div>
+        </section>
+      )}
 
       <div className="pb-5">
-        <p className="text-[18px] md:text-[24px] font-bold">Personal Information</p>
+        <p className="text-[18px] md:text-[24px] font-bold">
+          Personal Information
+        </p>
         <p className="text-[15px] md:text-[18px] text-[#4A4A4A]">
           Update your profile details and personal information
         </p>
       </div>
 
       <section className="md:flex gap-10 md:pt-5">
-        <div className="md:inline-block hidden w-[30%]">
-          <Photo />
-        </div>
-
         <form className="space-y-5 w-full">
           {/* Full Name */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="md:flex-2 md:text-[16px] md:font-semibold">Full Name</label>
+            <label className="md:flex-2 md:text-[16px] md:font-semibold">
+              Full Name
+            </label>
             {isEditing ? (
               <input
                 type="text"
@@ -161,7 +160,9 @@ const PersonalInfo = () => {
 
           {/* Email */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="md:flex-2 md:text-[16px] md:font-semibold">Email Address</label>
+            <label className="md:flex-2 md:text-[16px] md:font-semibold">
+              Email Address
+            </label>
             {isEditing ? (
               <input
                 type="text"
@@ -179,7 +180,9 @@ const PersonalInfo = () => {
 
           {/* Gender */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="md:flex-2 md:text-[16px] md:font-semibold">Gender</label>
+            <label className="md:flex-2 md:text-[16px] md:font-semibold">
+              Gender
+            </label>
             {isEditing ? (
               <Select
                 onValueChange={(val) =>
@@ -205,13 +208,18 @@ const PersonalInfo = () => {
 
           {/* Date of Birth */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
-            <label className="md:flex-2 md:text-[16px] md:font-semibold">Date of Birth</label>
+            <label className="md:flex-2 md:text-[16px] md:font-semibold">
+              Date of Birth
+            </label>
             {isEditing ? (
               <section className="md:flex-7 flex justify-between gap-3">
                 {/* Day */}
                 <Select
                   onValueChange={(val) =>
-                    setUserInfo((prev) => ({ ...prev, dob: { ...prev.dob, day: val } }))
+                    setUserInfo((prev) => ({
+                      ...prev,
+                      dob: { ...prev.dob, day: val },
+                    }))
                   }
                   defaultValue={userInfo.dob.day}
                 >
@@ -230,7 +238,10 @@ const PersonalInfo = () => {
                 {/* Month */}
                 <Select
                   onValueChange={(val) =>
-                    setUserInfo((prev) => ({ ...prev, dob: { ...prev.dob, month: val } }))
+                    setUserInfo((prev) => ({
+                      ...prev,
+                      dob: { ...prev.dob, month: val },
+                    }))
                   }
                   defaultValue={userInfo.dob.month}
                 >
@@ -239,8 +250,18 @@ const PersonalInfo = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {[
-                      "January","February","March","April","May","June",
-                      "July","August","September","October","November","December",
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
                     ].map((m) => (
                       <SelectItem key={m} value={m}>
                         {m}
@@ -252,7 +273,10 @@ const PersonalInfo = () => {
                 {/* Year */}
                 <Select
                   onValueChange={(val) =>
-                    setUserInfo((prev) => ({ ...prev, dob: { ...prev.dob, year: val } }))
+                    setUserInfo((prev) => ({
+                      ...prev,
+                      dob: { ...prev.dob, year: val },
+                    }))
                   }
                   defaultValue={userInfo.dob.year}
                 >
@@ -261,12 +285,12 @@ const PersonalInfo = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({ length: 100 }, (_, i) => {
-                      const year = 2025 - i
+                      const year = 2025 - i;
                       return (
                         <SelectItem key={year} value={`${year}`}>
                           {year}
                         </SelectItem>
-                      )
+                      );
                     })}
                   </SelectContent>
                 </Select>
@@ -310,20 +334,10 @@ const PersonalInfo = () => {
         </form>
       </section>
     </main>
-  )
-}
+  );
+};
 
-export default PersonalInfo
-
-
-
-
-
-
-
-
-
-
+export default PersonalInfo;
 
 // "use client"
 
@@ -607,17 +621,6 @@ export default PersonalInfo
 
 // export default PersonalInfo
 
-
-
-
-
-
-
-
-
-
-
-
 // import React from 'react'
 // import Image from 'next/image'
 // import DropDown from '@/public/dashboard/downArrow.png'
@@ -691,11 +694,10 @@ export default PersonalInfo
 //             </div>
 //             </div>
 
-
 //             <hr className='border border-[#CCCCCC] w-full mt-8 md:hidden'/>
 //         </form>
 //         </section>
-       
+
 //     </main>
 //   )
 // }

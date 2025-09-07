@@ -72,24 +72,32 @@ const Navbar = () => {
       <nav className=' select-none  top-0 px-3 md:pr-8 bg-white md:py-[1%] md:border-b md:border-gray-600"'>
         <div className="flex justify-between md:justify-start items-center">
           <div className="hidden md:flex  w-[8%] justify-center">
-            <Image src={Logo} width={49} height={49} alt="" />
+            <Image src={Logo} width={25} height={25} alt="" />
           </div>
           <div className="hidden md:block pl-2">
             <p className={`text-[24px] w-full`}>{currentPage}</p>
           </div>
-          <section className={`${ isDashboard ? 'flex' : 'block'} justify-between w-full items-center`}>
-              <div className={`flex justify-between w-full md:justify-end items-center ${ isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
-                <section className="md:flex items-center gap-6">
-                  <div className="hidden md:block">
-                    <Image src={Search} alt="" />
-                  </div>
-                  <section className="flex gap-2 md:gap-4 items-center">
-                    { isDashboard && (
+          <section
+            className={`${
+              isDashboard ? "flex" : "block"
+            } justify-between w-full items-center`}
+          >
+            <div
+              className={`flex justify-between w-full md:justify-end items-center ${
+                isDashboard ? "py-4" : " py-0 "
+              } md:py-0`}
+            >
+              <section className="md:flex items-center gap-6">
+                <div className="hidden md:block">
+                  <Image src={Search} alt="" />
+                </div>
+                <section className="flex gap-2 md:gap-4 items-center">
+                  {isDashboard && (
                     <div>
                       <Image src={Profile} width={48} alt="Profile picture" />
                     </div>
-                    )}
-                    { isDashboard && (
+                  )}
+                  {isDashboard && (
                     <div className="md:hidden">
                       <p className="text-[20px] font-bold">
                         Hello, <FirstName />!
@@ -99,15 +107,15 @@ const Navbar = () => {
                       </p>
                     </div>
                   )}
-                    <div className="hidden md:block">
-                      <p className="text-[24px] font-bold">
-                        <UserName />
-                      </p>
-                      <p className="text-[18px] text-[#4A4A4A]">Admin</p>
-                    </div>
-                  </section>
+                  <div className="hidden md:block">
+                    <p className="text-[24px] font-bold capitalize">
+                      <UserName />
+                    </p>
+                    <p className="text-[18px] text-[#4A4A4A]">Admin</p>
+                  </div>
                 </section>
-                { isDashboard && (
+              </section>
+              {isDashboard && (
                 <div
                   className="block md:hidden cursor-pointer"
                   onClick={() => setIsClicked(true)}
@@ -115,21 +123,21 @@ const Navbar = () => {
                   <Image src={SidebarIcon} width={24} height={24} alt="menu" />
                 </div>
               )}
-              </div>
-              { !isDashboard && (
-               <div className="flex justify-between items-center w-full md:hidden py-4">
+            </div>
+            {!isDashboard && (
+              <div className="flex justify-between items-center w-full md:hidden py-4">
                 <div className="w-[10px] h-[10px]">
                   <Image src={back} alt="back" width={20} height={20} />
                 </div>
                 <p className="font-[500] text-[24px]">{currentPage}</p>
                 <div
-                   className="block md:hidden cursor-pointer"
-                   onClick={() => setIsClicked(true)}
-                 >
-                   <Image src={SidebarIcon} width={24} height={24} alt="menu" />
-                 </div>
-               </div>
-              )}
+                  className="block md:hidden cursor-pointer"
+                  onClick={() => setIsClicked(true)}
+                >
+                  <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </nav>
