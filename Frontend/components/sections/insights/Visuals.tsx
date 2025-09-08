@@ -17,6 +17,7 @@ import {
   getCompletionOverCourses,
 } from "@/lib/charts";
 import { data } from "@/lib/testData";
+import mood from "@/components/common/graphs/testMood.json";
 
 const Details = [
   {
@@ -33,28 +34,33 @@ const Details = [
   },
 ];
 
+const moodLabels = mood.map((entry) => entry.created_at);
+
+const moodValues = mood.map((entry) => entry.mood);
+
 const Visuals = () => {
   const progress = getCourseProgress(data);
   const { completed, inProgress, notStarted } = getOverallStatus(data);
-  const { labels, values } = getCompletionOverCourses(data);
   return (
     <section className="select-none ">
       <p className="pb-3 font-bold text-[20px] md:text-[24px]">
         Learning Visuals
       </p>
       <div className=" space-y-3 md:grid grid-cols-2 gap-x-10 gap-y-8">
-        <div className="relative">
+        <div className="relative border ">
           <VisualCards
             props={{
               title: "overall course status",
               subtitle: "overall course completion status   ",
             }}
           >
-            <PieChart
-              labels={["Completed", "In-Progress", "Not Started"]}
-              dataValues={[completed, inProgress, notStarted]}
-              title="Learning Progress Breakdown"
-            />
+            <div className="grid place-items-center">
+              <PieChart
+                labels={["Completed", "In-Progress", "Not Started"]}
+                dataValues={[completed, inProgress, notStarted]}
+                title="Learning Progress Breakdown"
+              />
+            </div>
           </VisualCards>
         </div>
         <div>
@@ -64,33 +70,36 @@ const Visuals = () => {
               subtitle: "Your learning progress per course",
             }}
           >
-            <BarChart
-              labels={progress.map((c) => c.title)}
-              dataValues={progress.map((c) => c.completionRate)}
-              title="Course Completion Rates"
-            />
+            <div className="grid place-items-center">
+              <BarChart
+                labels={progress.map((c) => c.title)}
+                dataValues={progress.map((c) => c.completionRate)}
+                title="Course Completion Rates"
+              />
+            </div>
           </VisualCards>
         </div>
-        {/* <div className="col-span-2">
+        <div className="col-span-2">
           <VisualCards
             props={{
-              title: "Daily Engagement",
-              subtitle: "Time spent on learning activities per day",
+              title: "Motivational Level Trend",
+              subtitle: "Your emotional well-being over time",
             }}
           >
             <LineChart
-              labels={labels.map((c) => `Course ${c}`)}
+              labels={moodLabels}
               datasets={[
                 {
-                  label: "Completed Courses",
-                  data: values,
-                  borderColor: "green",
+                  label: "Mood Trend",
+                  data: moodValues,
+                  borderColor: "rgb(75, 192, 192)",
+                  backgroundColor: "rgba(75, 192, 192, 0.2)",
                 },
               ]}
-              title="Start-to-Completion Ratio"
+              title="Mood Over Time"
             />
           </VisualCards>
-        </div> */}
+        </div>
       </div>
     </section>
   );

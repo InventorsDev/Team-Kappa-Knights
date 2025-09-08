@@ -49,8 +49,24 @@ const BarChart = ({ labels, dataValues, title }: BarChartProps) => {
         display: !!title,
         text: title,
       },
+      tooltip: {
+        callbacks: {
+          title: (context) => {
+            // Show full label in tooltip
+            return context[0].label;
+          },
+          label: (context) => {
+            return `Completion Rate: ${context.formattedValue}%`;
+          },
+        },
+      },
     },
     scales: {
+      x: {
+        ticks: {
+          display: false, // 🚫 hide long labels on x-axis
+        },
+      },
       y: {
         beginAtZero: true,
         max: 100,

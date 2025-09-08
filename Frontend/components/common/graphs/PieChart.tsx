@@ -42,7 +42,7 @@ const PieChart = ({ labels, dataValues, title }: PieChartProps) => {
   const options: ChartOptions<"pie"> = {
     responsive: true,
     plugins: {
-      legend: { position: "bottom" },
+      legend: { position: "right" },
       title: {
         display: !!title,
         text: title,
