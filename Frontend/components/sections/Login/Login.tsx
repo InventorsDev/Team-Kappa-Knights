@@ -17,14 +17,16 @@ import { useRouter } from "next/navigation";
 import { handleSignin, handleGoogleSignup } from "@/lib/auth";
 import AuthButton from "@/components/common/button/Button";
 import { toast } from "sonner";
+import { useUserStore } from "@/state/store";
 
 type prop = {
   isDone: (boolean: boolean) => void;
 };
 
 const Login = ({ isDone }: prop) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  const{ email, setEmail, password, setPassword} = useUserStore()
   const [signingIn, setSigningIn] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -93,8 +95,8 @@ const Login = ({ isDone }: prop) => {
                 onSubmit={(e) =>
                   handleSignin(
                     e,
-                    email,
-                    password,
+                    //email,
+                    //password,
                     persistence,
                     router,
                     setLoggingIn,

@@ -9,7 +9,8 @@ import { handleGoogleSignup, handleCreateAccount } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { auth, provider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { useUsername } from "@/state/store";
+import { useUserStore } from "@/state/store";
+//import { useUsername } from "@/state/store";
 type props = {
   setIsVerifying: (bool: boolean) => void;
   // setIsVerifying: (bool: boolean) => void;
@@ -17,13 +18,14 @@ type props = {
 function SignUpForm({ setIsVerifying }: props) {
   const [error, setError] = useState("");
   const [emailSigningIn, setEmailSigningIn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  //const [email, setEmail] = useState("");
+  //const [password, setPassword] = useState("");
   // const [name, setName] = useState("");
   const [signingIn, setSigningIn] = useState(false);
   const router = useRouter();
-  const name = useUsername((state) => state.name);
-  const setName = useUsername((state) => state.setName);
+  //const name = useUsername((state) => state.name);
+  //const setName = useUsername((state) => state.setName);
+  const {name, setName, email, setEmail, password, setPassword} = useUserStore()
 
   const handleGoogleSignup = async () => {
     if (signingIn) return;
@@ -81,11 +83,11 @@ function SignUpForm({ setIsVerifying }: props) {
           onSubmit={(e) =>
             handleCreateAccount(
               e,
-              password,
+              //password,
               setError,
               router,
-              name,
-              email,
+              //name,
+              //email,
               setEmailSigningIn,
               setIsVerifying
             )

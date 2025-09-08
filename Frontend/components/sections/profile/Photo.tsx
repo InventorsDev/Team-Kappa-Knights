@@ -1,15 +1,38 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { profile } from "console"
+import { useUserStore } from "@/state/store"
 
 const CLOUD_NAME = "dexchhhbs" 
 const UPLOAD_PRESET = "nextjs_profile_upload" 
 
 const Photo = () => {
-  const [image, setImage] = useState<string | null>(null)
+  //const [image, setImage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const {profilePic, setProfilePic} = useUserStore()
+
+  const toggleEdit = async () => {
+      const token = localStorage.getItem("token");
+
+      try {
+        await fetch("http://34.228.198.154/api/user/me", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            profile_picture_url: profilePic
+          }),
+        });
+      } catch (err) {
+        console.error("save failed:", err);
+      }
+    };
+
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -31,20 +54,24 @@ const Photo = () => {
       )
 
       const data = await res.json()
-      setImage(data.secure_url)
+      setProfilePic(data.secure_url) 
+      await toggleEdit()
+      // setProfilePic(data.profile_picture_url || "");
     } catch (err) {
       console.error("Upload failed:", err)
     } finally {
       setLoading(false)
     }
   }
+  localStorage.setItem('profilepic', profilePic)
+
 
   return (
     <main className="flex flex-col items-center justify-center pt-5">
       <div className="pb-2 w-[160px] h-[160px] overflow-hidden relative rounded-full">
         <Image
-          key={image || "default"}
-          src={image || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+          key={profilePic || "default"}
+          src={profilePic || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
           fill
           alt="Profile Pic"
           className=" object-cover"
