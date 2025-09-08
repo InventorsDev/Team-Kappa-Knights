@@ -17,14 +17,71 @@ import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
 import { query, where, getDocs } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
 import { saveTokens } from "./token";
+import { useUserStore } from "@/state/store";
 // import { useAuthStore } from "@/state/authStore";
 
 // sign in with email and password function
 
+
+// export const handleSignin = async (
+//   e: React.FormEvent<HTMLFormElement>,
+//   email: string,
+//   password: string,
+//   persistence: Persistence,
+//   router: AppRouterInstance,
+//   setLoggingIn: (bool: boolean) => void,
+//   isDone: (bool: boolean) => void
+// ) => {
+//   e.preventDefault();
+//   setLoggingIn(true);
+
+//   try {
+//     // await setPersistence(auth, persistence);
+//     // const userCredential = await signInWithEmailAndPassword(
+//     //   auth,
+//     //   email,
+//     //   password
+//     // );
+//     // await userCredential.user.reload();
+//     // const token = await userCredential.user.getIdToken()
+//     // const user = userCredential.user;
+//     const user = await fetch("http://34.228.198.154/api/auth/login", {
+//       method: "POST",
+//       headers: {
+//         // "Authorization": `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         email,
+//         password: password,
+//       }),
+//     })
+
+//     // if (!user.emailVerified) {
+//     //   await auth.signOut(); // log them out
+//     //   toast.warning("Please verify your email before logging in.");
+//     //   setLoggingIn(false);
+//     //   return;
+//     // }
+//     const resolvedUser = await user.json()
+//     localStorage.setItem("token", resolvedUser.idToken)
+//     console.log(resolvedUser)
+//     toast.success("Logged in successfully");
+//     isDone(true);
+//     router.push('/dashboard')
+//     return user;
+//   } catch (error) {
+//     const message = getFirebaseErrorMessage(error);
+//     toast.error(message);
+//     console.error("signin error:", error);
+//     setLoggingIn(false);
+//   }
+// };
+
+
 export const handleSignin = async (
   e: React.FormEvent<HTMLFormElement>,
-  email: string,
-  password: string,
+  persistence: Persistence,
   router: AppRouterInstance,
   setLoggingIn: (bool: boolean) => void,
   isDone: (bool: boolean) => void
@@ -32,37 +89,38 @@ export const handleSignin = async (
   e.preventDefault();
   setLoggingIn(true);
 
+  // grab both values in one go
+  const { email, password } = useUserStore.getState();
+
   try {
-    // await setPersistence(auth, persistence);
-    // const userCredential = await signInWithEmailAndPassword(
-    //   auth,
-    //   email,
-    //   password
-    // );
-    // await userCredential.user.reload();
-    // const token = await userCredential.user.getIdToken()
-    // const user = userCredential.user;
-    const user = await fetch("http://34.228.198.154/api/auth/login", {
+    // optional: await setPersistence(auth, persistence);
+    //console.log("sending", { email, password });
+
+    const res = await fetch("http://34.228.198.154/api/auth/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password: password,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
     });
-    const resolvedUser = await user.json();
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const resolvedUser = await res.json();
+
+    if (!resolvedUser.idToken) {
+      throw new Error("No idToken returned from API");
+    }
+
     localStorage.setItem("token", resolvedUser.idToken);
-    console.log(resolvedUser);
+
     toast.success("Logged in successfully");
     isDone(true);
     router.push("/dashboard");
-    return user;
-  } catch (error) {
-    const message = getFirebaseErrorMessage(error);
-    toast.error(message);
-    console.error("signin error:", error);
+    return resolvedUser;
+  } catch (err: any) {
+    console.error("signin error:", err);
+    toast.error(err.message || "Login failed");
     setLoggingIn(false);
   }
 };
@@ -149,11 +207,12 @@ export const handleGoogleSignup = async (
 ) => {
   if (signingIn) return;
   setSigningIn(true);
+  // const { email, password } = useUserStore.getState();
   try {
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
 
-    const token = await user.getIdToken();
+    const token = await user.getIdToken()
 
     await fetch("http://34.228.198.154/users/sync-profile", {
       method: "POST",
@@ -185,16 +244,17 @@ export const handleGoogleSignup = async (
 
 export const handleCreateAccount = async (
   e: React.FormEvent<HTMLFormElement>,
-  password: string,
+  //password: string,
   setError: (error: string) => void,
   router: AppRouterInstance,
-  name: string,
-  email: string,
+  //name: string,
+  //email: string,
   setSigningIn: (bool: boolean) => void,
   setIsVerifying: (bool: boolean) => void
 ) => {
   e.preventDefault();
-  const setName = useUsername.getState().setName;
+  //const setName = useUsername.getState().setName;
+  const { name, email, password } = useUserStore.getState();
 
   if (password.length < 8) {
     toast.error("Password must be at least 8 characters long");
@@ -232,7 +292,7 @@ export const handleCreateAccount = async (
       }),
     });
 
-    setName(name);
+    //setName(name);
 
     await sendEmailVerification(user);
     toast.message("Verification email sent. Please check your inbox.");

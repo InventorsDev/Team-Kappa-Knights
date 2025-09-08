@@ -1,54 +1,89 @@
-'use client';
-import { auth } from '@/lib/firebase';
-import { useUsername } from '@/state/usernameStore';
-import React, { useEffect, useState } from 'react';
+'use client'
+import { useUserStore } from '@/state/store'
+import React from 'react'
 
-const FirstName = () => {
-  const [loading, setLoading] = useState(true);
-  const setName = useUsername.getState().setName;
-  const user = useUsername((state) => state.name);
+const UserName = () => {
+  const { name } = useUserStore()
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = await auth.currentUser?.getIdToken();
-        if (!token) {
-          setLoading(false);
-          return;
-        }
+  // grab first token only, then capitalize it
+  const formatFirstName = (raw: string) => {
+    if (!raw) return 'Guest'
+    const first = raw.trim().split(/\s+/)[0]      // first word only
+    return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase()
+  }
 
-        const res = await fetch('http://34.228.198.154/api/user/me', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+  return <span>{formatFirstName(name)}</span>
+}
 
-        if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+export default UserName
 
-        const data = await res.json();
 
-        setName(data.full_name || '');
-      } catch (err) {
-        console.error('Error fetching profile:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchProfile();
-  }, [setName]);
 
-  const getFirstName = (full: string) => {
-    if (!full) return 'Guest';
-    return full.trim().split(' ')[0];
-  };
 
-  return <span>{loading ? 'Guest' : getFirstName(user)}</span>;
-};
 
-export default FirstName;
+
+
+
+
+
+
+
+
+
+// 'use client';
+// import { auth } from '@/lib/firebase';
+// import { useUserStore } from '@/state/store';
+// import { useUsername } from '@/state/usernameStore';
+// import React, { useEffect, useState } from 'react';
+
+// const FirstName = () => {
+//   const [loading, setLoading] = useState(true);
+//   //const setName = useUsername.getState().setName;
+//   //const user = useUsername((state) => state.name);
+//   const {name, setName} = useUserStore()
+
+//   useEffect(() => {
+//     const fetchProfile = async () => {
+//       try {
+//         const token = await auth.currentUser?.getIdToken();
+//         if (!token) {
+//           setLoading(false);
+//           return;
+//         }
+
+//         const res = await fetch('http://34.228.198.154/api/user/me', {
+//           method: 'GET',
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//             'Content-Type': 'application/json',
+//           },
+//         });
+
+//         if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
+
+//         const data = await res.json();
+
+//         setName(data.full_name || '');
+//       } catch (err) {
+//         console.error('Error fetching profile:', err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchProfile();
+//   }, [setName]);
+
+//   const getFirstName = (full: string) => {
+//     if (!full) return 'Guest';
+//     return full.trim().split(' ')[0];
+//   };
+
+//   return <span>{loading ? 'Guest' : getFirstName(name)}</span>;
+// };
+
+// export default FirstName;
 
 
 

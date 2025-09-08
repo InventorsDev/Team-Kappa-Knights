@@ -6,8 +6,8 @@ import Image from "next/image";
 const weekOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // placeholder icons
-const PLACEHOLDER_QUESTION = "/dashboard/question.png"; // add your ? svg/png
-const PLACEHOLDER_DASH = "/dashboard/dash.png";        // add your – svg/png
+const PLACEHOLDER_QUESTION = "/dashboard/question.png"; 
+const PLACEHOLDER_DASH = "/dashboard/dash.png";        
 
 type JournalEntry = {
   mood: string;
@@ -20,7 +20,7 @@ const ThisWeek = () => {
   useEffect(() => {
     const fetchMoods = async () => {
       try {
-        const token = localStorage.getItem("token"); // wherever you saved it
+        const token = localStorage.getItem("token"); 
         const res = await fetch("http://34.228.198.154/journal/", {
           method: "GET",
           headers: {
@@ -35,7 +35,7 @@ const ThisWeek = () => {
         data.forEach((entry) => {
           const d = new Date(entry.created_at);
           // convert to local weekday
-          const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; // JS Sun=0 → index 6
+          const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; 
           mapped[wd] = entry.mood;
         });
         setWeekMoods(mapped);
@@ -78,7 +78,7 @@ const ThisWeek = () => {
             logo = PLACEHOLDER_DASH;
             alt = "future";
           } else {
-            logo = PLACEHOLDER_QUESTION;
+            logo = PLACEHOLDER_DASH;
             alt = "missing";
           }
 

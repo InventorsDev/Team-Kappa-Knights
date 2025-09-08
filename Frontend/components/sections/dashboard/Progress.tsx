@@ -51,13 +51,14 @@ const Progress = () => {
       {/* Header */}
       <div className="flex justify-between items-center pb-5">
         <p className="text-[18px] font-bold md:text-[24px]">Your Progress</p>
+          <Link href="/insights" >
         <div className="flex gap-3 items-center">
-          <Link href="/insights" />
-          <p className="text-[#4A4A4A] text-[14px] md:text-[18px]">
+          <p className="text-[#4A4A4A] text-[14px] md:text-[18px] hover:cursor-pointer">
             View detailed analytics
           </p>
           <Image src={Side} alt="View Analytics" />
         </div>
+        </Link>
       </div>
 
       {/* Metrics */}

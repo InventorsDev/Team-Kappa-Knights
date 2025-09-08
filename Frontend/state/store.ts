@@ -1,18 +1,124 @@
+
+import { profile } from "console";
 import { create } from "zustand";
 
-// username prop
-type userName = {
-  name: string;
-  setName: (name: string) => void;
+export type Activity = {
+  activity: string;
+  time: string;
+};
+
+export type DateParts = {
+  year: string;
+  month: string; // e.g. "March"
+  day: string ;
 };
 
 
-//  state used to handle the username
-export const useUsername = create<userName>((set) => {
-  return {
-    name: "",
-    setName(name) {
-      set({ name: name });
-    },
-  };
-});
+type UserState = {
+  // strings
+  name: string;
+  email: string;
+  gender: string;
+  dob: DateParts;        // ISO or "YYYY-MM-DD"
+  password: string;
+  mood: string;
+  desc: string;
+  profilePic: string;
+
+  // numbers
+  daysActive: number;
+  avgMood: number;
+
+  // array of activities
+  activities: Activity[];
+
+  // setters
+  setName: (name: string) => void;
+  setEmail: (email: string) => void;
+  setGender: (gender: string) => void;
+  setDob: (dob: DateParts) => void;
+  setProfilePic: (profilePic: string) => void
+  setPassword: (password: string) => void;
+  setMood: (mood: string) => void;
+  setDesc: (desc: string) => void;
+  setDaysActive: (days: number) => void;
+  setAvgMood: (score: number) => void;
+
+  setActivities: (acts: Activity[]) => void;
+  addActivity: (act: Activity) => void;
+};
+
+export const useUserStore = create<UserState>((set) => ({
+  // defaults
+  name: "",
+  email: "",
+  gender: "",
+  dob: { day: '', month: "", year: ""},
+  password: "",
+  profilePic: '',
+  mood: "",
+  desc: "",
+
+  daysActive: 0,
+  avgMood: 0,
+
+  activities: [],
+
+  // setters
+  setName: (name) => set({ name }),
+  setEmail: (email) => set({ email }),
+  setGender: (gender) => set({ gender }),
+  setDob: (dob) => set({ dob }),
+  setProfilePic: (profilePic) => set({profilePic}),
+  setPassword: (password) => set({ password }),
+  setMood: (mood) => set({ mood }),
+  setDesc: (desc) => set({ desc }),
+  setDaysActive: (days) => set({ daysActive: days }),
+  setAvgMood: (score) => set({ avgMood: score }),
+
+  setActivities: (acts) => set({ activities: acts }),
+  addActivity: (act) =>
+    set((state) => ({ activities: [...state.activities, act] })),
+}));
+
+
+
+
+
+
+
+
+
+
+// import { create } from "zustand";
+
+// // username prop
+// type userName = {
+//   name: string;
+//   setName: (name: string) => void;
+// };
+
+// type userEmail = {
+//   email: string;
+//   setEmail: (email: string) => void;
+// };
+
+// //  state used to handle the username
+// export const useUsername = create<userName>((set) => {
+//   return {
+//     name: "",
+//     setName(name) {
+//       set({ name: name });
+//     },
+//   };
+// });
+
+// export const useUserEmail = create<userEmail>((set) => {
+//   return {
+//     email: "",
+//     setEmail(email) {
+//       set({ email: email });
+//     },
+//   };
+// });
+
