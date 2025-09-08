@@ -17,34 +17,77 @@ type JournalEntry = {
 const ThisWeek = () => {
   const [weekMoods, setWeekMoods] = useState<Record<string, string | null>>({});
 
-  useEffect(() => {
-    const fetchMoods = async () => {
-      try {
-        const token = localStorage.getItem("token"); 
-        const res = await fetch("http://34.228.198.154/journal/", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) throw new Error(`Failed ${res.status}`);
-        const data: JournalEntry[] = await res.json();
+  // useEffect(() => {
+  //   const fetchMoods = async () => {
+  //     try {
+  //       const token = localStorage.getItem("token"); 
+  //       const res = await fetch("http://34.228.198.154/journal/", {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       if (!res.ok) throw new Error(`Failed ${res.status}`);
+  //       const data: JournalEntry[] = await res.json();
 
-        // Map mood entries by weekday string
-        const mapped: Record<string, string> = {};
-        data.forEach((entry) => {
+  //       // Map mood entries by weekday string
+  //       const mapped: Record<string, string> = {};
+  //       data.forEach((entry) => {
+  //         const d = new Date(entry.created_at);
+  //         // convert to local weekday
+  //         const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; 
+  //         mapped[wd] = entry.mood;
+  //       });
+  //       setWeekMoods(mapped);
+  //     } catch (err) {
+  //       console.error("fetch mood error", err);
+  //     }
+  //   };
+  //   fetchMoods();
+  // }, []);
+
+  useEffect(() => {
+  const fetchMoods = async () => {
+    try {
+      const token = localStorage.getItem("token"); 
+      const res = await fetch("http://34.228.198.154/journal/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error(`Failed ${res.status}`);
+      const data: JournalEntry[] = await res.json();
+
+      // --- figure out start of current ISO week (Mon 00:00 local)
+      const now = new Date();
+      const jsDay = now.getDay();           // 0=Sun
+      const daysSinceMonday = jsDay === 0 ? 6 : jsDay - 1; 
+      const mondayStart = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - daysSinceMonday,
+        0, 0, 0, 0
+      );
+
+      // only include entries >= mondayStart
+      const mapped: Record<string, string> = {};
+      data
+        .filter(e => new Date(e.created_at) >= mondayStart)
+        .forEach((entry) => {
           const d = new Date(entry.created_at);
-          // convert to local weekday
-          const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; 
+          const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1];
           mapped[wd] = entry.mood;
         });
-        setWeekMoods(mapped);
-      } catch (err) {
-        console.error("fetch mood error", err);
-      }
-    };
-    fetchMoods();
-  }, []);
+
+      setWeekMoods(mapped);
+    } catch (err) {
+      console.error("fetch mood error", err);
+    }
+  };
+  fetchMoods();
+}, []);
+
 
   // figure out what weekday "today" is
   const todayIdx = (() => {

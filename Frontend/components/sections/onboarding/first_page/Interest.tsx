@@ -10,6 +10,7 @@ import Loader from "@/components/common/loader/Loader";
 import { useRouter } from "next/navigation";
 import { getCurrentUserFromFirestore } from "@/lib/auth";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
+import { useUserStore } from "@/state/store";
 
 interface Tags {
   id: string;
@@ -33,6 +34,7 @@ function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // const {selectedTags, setSelectedTags} = useUserStore()
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Profile from "@/public/dashboard/profile.png";
 import SidebarIcon from "@/public/dashboard/sideFrame.png";
@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import { pages } from "@/lib/pages";
 import back from "@/public/SVGs/back.svg";
 import MobileNav from "./dashboard/MobileNav";
+import { useUserStore } from "@/state/store";
 
 const mobileNavItems = [
   {
@@ -63,9 +64,38 @@ const Navbar = () => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const pathname = usePathname();
   const isDashboard = pathname.includes("/dashboard");
+  const { name, profilePic, setName, setProfilePic } = useUserStore()
   const currentPage =
     pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   console.log(currentPage);
+
+  const parts = name.trim().split(/\s+/)
+  const first = parts[0] || ''
+  const firstName = first ? first.charAt(0).toUpperCase() : ''
+  const second = parts[1] || ''
+  const secondName = second ? second.charAt(0).toUpperCase() : ''
+
+    useEffect(() => {
+      const fetchData = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      try {
+        const res = await fetch("http://34.228.198.154/api/user/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) return;
+  
+        const data = await res.json();
+        setName(data.full_name || '')
+        setProfilePic(data.profile_picture_url || '')
+      } catch (err) {
+        console.error("fetch user failed:", err);
+      }
+    };
+        fetchData()
+  }, [])
+
 
   return (
     <main>
@@ -81,14 +111,19 @@ const Navbar = () => {
               <div className={`flex justify-between w-full md:justify-end items-center ${ isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
                 <section className="md:flex items-center gap-6">
                   <div className="hidden md:block">
-                    <Image src={Search} alt="" />
+                    {/* <Image src={Search} alt="" /> */}
                   </div>
                   <section className="flex gap-2 md:gap-4 items-center">
-                    { isDashboard && (
-                    <div>
-                      <Image src={Profile} width={48} alt="Profile picture" />
+                    { profilePic === '' ? (
+                    <div className="w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] flex justify-center items-center">
+                      {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
+                      <p>{firstName}{secondName}</p>
                     </div>
-                    )}
+                    ) : (
+                    <div className="">
+                      <Image src={profilePic} width={48} height={48} alt="Profile picture" className="rounded-full w-12 h-12 object-cover" />
+                    </div>
+                  )}
                     { isDashboard && (
                     <div className="md:hidden">
                       <p className="text-[20px] font-bold">
@@ -103,7 +138,7 @@ const Navbar = () => {
                       <p className="text-[24px] font-bold">
                         <UserName />
                       </p>
-                      <p className="text-[18px] text-[#4A4A4A]">Admin</p>
+                      {/* <p className="text-[18px] text-[#4A4A4A]">Admin</p> */}
                     </div>
                   </section>
                 </section>

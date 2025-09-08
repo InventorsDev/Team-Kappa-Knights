@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useUserStore } from "@/state/store";
 import Photo from "./Photo";
 import Image from "next/image";
-import Delete from "@/public/dashboard/deleteIcon.png";
+import LogOut from "@/public/dashboard/logOutBig.png";
 import Back from "@/public/dashboard/xButtonBlack.png";
 import {
   Select,
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useRouter } from "next/navigation";
 
 const months = [
   "January","February","March","April","May","June",
@@ -21,8 +22,9 @@ const months = [
 const PersonalInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
+  const router = useRouter()
 
-  const { name, setName, email, setEmail, gender, setGender, dob, setDob } =
+  const { name, setName, email, setEmail, gender, setGender, dob, setDob, profilePic, setProfilePic } =
     useUserStore();
 
     useEffect(() => {
@@ -40,11 +42,12 @@ const PersonalInfo = () => {
 
       setName(data.full_name || "");
       setEmail(data.email || "");
-      setGender(data.gender || "");
+      setGender(data.gender || ""); 
+      //setProfilePic(data.profile_picture_url || "")
 
       // hydrate dob
-      if (data.dob) {
-        const [year, monthIdx, day] = data.dob.split("-");
+      if (data.date_of_birth) {
+        const [year, monthIdx, day] = data.date_of_birth.split("-");
         setDob({
           day,
           month: months[parseInt(monthIdx, 10) - 1] || "",
@@ -110,7 +113,9 @@ const PersonalInfo = () => {
             full_name: name.trim(),
             email,
             gender,
-            dob: iso,
+            date_of_birth: iso,
+            profile_picture_url: profilePic
+
           }),
         });
       } catch (err) {
@@ -119,10 +124,26 @@ const PersonalInfo = () => {
     }
     setIsEditing((v) => !v);
   };
-  localStorage.setItem('gender', gender)
-  localStorage.setItem('dayob', dob.day)
-  localStorage.setItem('monthob', dob.month)
-  localStorage.setItem('yearob', dob.year)
+  // localStorage.setItem('gender', gender)
+  // localStorage.setItem('dayob', dob.day)
+  // localStorage.setItem('monthob', dob.month)
+  // localStorage.setItem('yearob', dob.year)
+
+  const handleLogout = async() => {
+      const token = localStorage.getItem("token");
+      try {
+        await fetch("http://34.228.198.154/api/user/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+        router.push('/')
+      } catch (err){
+        console.log(err)
+      }
+    }
 
   return (
     <main className="md:border rounded-2xl md:p-7 md:mt-8 select-none">
@@ -131,21 +152,21 @@ const PersonalInfo = () => {
         <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
             <div className="flex w-full justify-end">
-              <button onClick={() => setIsClicked(false)} className="p-1">
+              <button onClick={() => setIsClicked(false)} className="p-1 hover:cursor-pointer">
                 <Image src={Back} alt="Exit" width={10} height={10} />
               </button>
             </div>
             <section className="flex flex-col justify-center items-center text-center pt-6">
-              <Image src={Delete} alt="Delete" width={60} height={60} />
+              <Image src={LogOut} alt="Log Out" width={60} height={60} />
               <p className="text-[24px] font-bold">Log Out</p>
               <p className="text-[#4A4A4A] pb-8">
                 Are you sure you want to log out?
               </p>
               <section className="flex flex-col gap-2 w-full">
-                <button className=" bg-[#FF6665] rounded-xl py-3 text-white font-semibold">
-                  Don&apos;t Log Out
+                <button onClick={() => setIsClicked(false)} className=" bg-[#FF6665] rounded-xl py-3 text-white font-semibold hover:cursor-pointer">
+                  Cancel
                 </button>
-                <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                <button onClick={handleLogout} className="bg-[#FFF3F3] rounded-xl py-3  font-semibold hover:cursor-pointer">
                   Log Out
                 </button>
               </section>

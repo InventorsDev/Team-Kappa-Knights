@@ -13,6 +13,48 @@ export type DateParts = {
   day: string ;
 };
 
+// export type CourseData = {
+//   course_id: number,
+// "title": "Introduction to Python",
+// "description": "Learn the basics of Python programming.",
+// "created_at": "2025-08-22T10:00:00Z",
+// "updated_at": "2025-08-22T10:00:00Z",
+// "course_url": "https://example.com/python",
+// "difficulty": "beginner",
+// "rating": 4.5,
+// "tags": [
+// { "tag_id": 1, "name": "python" }
+// ]
+
+// }
+
+
+export type CourseDataType = {
+  id: number
+  title: string
+  description: string
+  tutor: string
+  duration: string
+  progress: number
+  overview: string
+  index: number
+  levelsCompleted: number
+  levelTotal: number
+  levelsArray: {
+    id: number
+    levelTitle: string
+    levelContent: string
+    levelTime: number
+    levelStatusIcon: string
+    levelStatus: string
+  }[]
+  instructor: string
+  instructorRole: string
+  instructorCourses: string
+  instructorStudents: string
+  instructorRatings: number
+}
+
 
 type UserState = {
   // strings
@@ -31,6 +73,8 @@ type UserState = {
 
   // array of activities
   activities: Activity[];
+  selectedTags: string[]
+  courses: CourseDataType[]
 
   // setters
   setName: (name: string) => void;
@@ -45,7 +89,9 @@ type UserState = {
   setAvgMood: (score: number) => void;
 
   setActivities: (acts: Activity[]) => void;
+  setSelectedTags: (selectedTags: string[]) => void
   addActivity: (act: Activity) => void;
+  setCourses: (newCourses: CourseDataType[]) => void
 };
 
 export const useUserStore = create<UserState>((set) => ({
@@ -63,6 +109,8 @@ export const useUserStore = create<UserState>((set) => ({
   avgMood: 0,
 
   activities: [],
+  selectedTags: [],
+   courses: [],
 
   // setters
   setName: (name) => set({ name }),
@@ -77,8 +125,10 @@ export const useUserStore = create<UserState>((set) => ({
   setAvgMood: (score) => set({ avgMood: score }),
 
   setActivities: (acts) => set({ activities: acts }),
+  setSelectedTags: (selected) => set({ selectedTags: selected}),
   addActivity: (act) =>
     set((state) => ({ activities: [...state.activities, act] })),
+  setCourses: (newCourses) => set({ courses: newCourses }),
 }));
 
 

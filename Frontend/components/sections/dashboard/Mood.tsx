@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import FirstName from "@/components/common/names/FirstName";
 import { auth } from "@/lib/firebase";
 import { apiFetch } from "@/lib/apiClient";
+import { useUserStore } from "@/state/store";
 
 const moods = [
   {
@@ -51,8 +52,9 @@ const moods = [
 ];
 
 function Mood() {
-  const [mood, setMood] = useState("");
-  const [desc, setDesc] = useState("");
+  // const [mood, setMood] = useState("");
+  // const [desc, setDesc] = useState("");
+  const {mood, setMood, desc, setDesc} = useUserStore()
   const [isRouting, setIsRouting] = useState(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const router = useRouter();
@@ -78,15 +80,15 @@ function Mood() {
   //   handleFetch()
   // }, [])
 
-  const handleRoute = () => {
-    if (!mood) {
-      toast.error("please select your mood");
-      return;
-    }
+  // const handleRoute = () => {
+  //   if (!mood) {
+  //     toast.error("please select your mood");
+  //     return;
+  //   }
 
-    setIsRouting(true);
-    router.push("/onboarding/support");
-  };
+  //   setIsRouting(true);
+  //   router.push("/onboarding/support");
+  // };
 
 
   // const handleClick = () => {
@@ -122,6 +124,8 @@ function Mood() {
     if (!res.ok) throw new Error(`Server said ${res.status}`);
     setIsClicked(true); // pop the modal
     toast.success("Mood logged!");
+    setMood(" ")
+    setDesc(" ")
   } catch (err) {
     console.error("Save failed:", err);
     toast.error("Couldn’t save mood, try again");

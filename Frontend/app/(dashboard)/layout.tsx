@@ -1,4 +1,5 @@
 "use client";
+import ProtectedLayout from "@/components/layout/ProtectedLayout";
 import Navbar from "@/components/sections/Navbar";
 import Sidebar from "@/components/sections/Sidebar";
 import { useEffect, useState } from "react";
@@ -22,7 +23,9 @@ export default function DashboardLayout({
 
       {/* Main content */}
       <main className="row-start-2 col-span-1 md:col-start-2 px-5 md:px-10">
+        <ProtectedLayout >
         {children}
+        </ProtectedLayout>
       </main>
     </div>
   );
