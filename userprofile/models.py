@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
@@ -21,14 +22,14 @@ from django.db import models
 
 class UserProfile(models.Model):
     user_id = models.CharField(primary_key=True)
-    interests = models.TextField(blank=True, null=True)
-    skills = models.TextField(blank=True, null=True)
+    interests = ArrayField(models.CharField(max_length=255), blank=True, null=True, default=list)
+    skills = ArrayField(models.CharField(max_length=255), blank=True, null=True, default=list)
     bio = models.TextField(blank=True, null=True)
     full_name = models.CharField(max_length=255, blank=True, null=True)
     email = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        db_table = 'user_profiles'  # Exact table name in the DB
+        db_table = 'user_profiles'
         managed = False
     def __str__(self):
         return f"{self.full_name} with ({self.bio})"

@@ -24,8 +24,8 @@ class Courses(models.Model):
     #course_type = models.CharField(choices=COURSES_TYPE, max_length=50, null=True, default='')
     title = models.CharField(max_length=200, blank=False, null=False)
     description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
     course_url = models.URLField(blank=False, default='')
     difficulty = models.CharField(max_length=50, choices=[
         ('beginner', 'Beginner'),
@@ -83,13 +83,18 @@ class CourseContent(models.Model):
     roadmap = models.ForeignKey(CourseRoadmap, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     content_type = models.CharField(max_length=50)  # e.g., 'video', 'article', 'quiz'
+    sequence = models.IntegerField(default=1)
     content_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    done = models.BooleanField(default=False)
+    status = models.CharField(choices=[
+        ('completed', 'Completed'),
+        ('in-progress', 'In-progress'),
+        ('not-started', 'Not-started')
+    ], default='not-started')
 
     def __str__(self):
-        return f"{self.title} ({self.content_type})"
+        return f"{self.title} ({self.sequence})"
 
 
 

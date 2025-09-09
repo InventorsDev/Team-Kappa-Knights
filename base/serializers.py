@@ -18,7 +18,7 @@ class CourseRoadmapSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseRoadmap
         fields = '__all__'
-        read_only_fields = ['roadmap_id']
+        read_only_fields = ['roadmap_id', 'created_at', 'updated_at']
 
 class CourseContentSerializer(serializers.ModelSerializer):
     class Meta:

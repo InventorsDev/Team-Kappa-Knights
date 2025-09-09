@@ -1,4 +1,15 @@
 [
+  {"model": "base.tag", "fields": {"name": "Python"}},
+  {"model": "base.tag", "fields": {"name": "Django"}},
+  {"model": "base.tag", "fields": {"name": "Machine Learning"}},
+  {"model": "base.tag", "fields": {"name": "React"}},
+  {"model": "base.tag", "fields": {"name": "FastAPI"}},
+  {"model": "base.tag", "fields": {"name": "Git"}},
+  {"model": "base.tag", "fields": {"name": "AWS"}},
+  {"model": "base.tag", "fields": {"name": "UI/UX"}},
+  {"model": "base.tag", "fields": {"name": "DevOps"}},
+  {"model": "base.tag", "fields": {"name": "Pandas"}},
+  {"model": "base.tag", "fields": {"name": "Machine learning"}},  
   {"model": "base.tag", "fields": {"name": "IT"}},
   {"model": "base.tag", "fields": {"name": "Health"}},
   {"model": "base.tag", "fields": {"name": "Business"}},
@@ -10,4 +21,3 @@
   {"model": "base.tag", "fields": {"name": "Engineering"}},
   {"model": "base.tag", "fields": {"name": "Education"}}
 ]
-
