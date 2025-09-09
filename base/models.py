@@ -35,7 +35,7 @@ class Courses(models.Model):
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     tags = models.ManyToManyField(Tag)
     progress = models.FloatField(default=0.0)  
-    duration = models.DurationField(null=True, blank=True)  
+    duration = models.CharField(null=True, blank=True)  
     tutor_academy = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
