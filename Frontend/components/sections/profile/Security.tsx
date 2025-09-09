@@ -101,8 +101,8 @@ const Security = () => {
           </div>
 
           <div className='flex justify-center md:justify-end gap-3 pt-7'>
-            <div className='w-[45%] md:w-full'>
-              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-5 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
+            <div className='w-[45%]  md:w-full'>
+              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-15 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
             </div>
           </div>
 

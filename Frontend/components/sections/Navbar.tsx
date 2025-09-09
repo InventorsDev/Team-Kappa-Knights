@@ -113,7 +113,7 @@ const Navbar = () => {
                   <div className="hidden md:block">
                     {/* <Image src={Search} alt="" /> */}
                   </div>
-                  <section className={`${isDashboard ? 'flex' : ' hidden'}  gap-2 md:gap-4 items-center`}>
+                  <section className={`${isDashboard ? 'flex' : ' hidden md:flex'}  gap-2 md:gap-4 items-center`}>
                     { profilePic === '' ? (
                     <div className={`${isDashboard ? 'flex' : ' hidden'}  w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] justify-center items-center `}>
                       {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
