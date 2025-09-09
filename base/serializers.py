@@ -57,6 +57,7 @@ class CoursesSerializers(serializers.ModelSerializer):
             'tags',
             'progress',
             'duration',
+            'tutor_academy',
         ]
         read_only_fields = ['course_id', 'created_at', 'updated_at']
 

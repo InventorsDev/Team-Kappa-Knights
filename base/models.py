@@ -36,6 +36,7 @@ class Courses(models.Model):
     tags = models.ManyToManyField(Tag)
     progress = models.FloatField(default=0.0)  
     duration = models.DurationField(null=True, blank=True)  
+    tutor_academy = models.CharField(max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.title
