@@ -34,6 +34,7 @@ class Courses(models.Model):
     ], default='beginner')
     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
     tags = models.ManyToManyField(Tag)
+    progress = models.FloatField(default=0.0)  # New field to track progress percentage
 
     def __str__(self):
         return self.title

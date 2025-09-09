@@ -55,6 +55,7 @@ class CoursesSerializers(serializers.ModelSerializer):
             'difficulty',
             'rating',
             'tags'
+            'progress'
         ]
         read_only_fields = ['course_id', 'created_at', 'updated_at']
 
