@@ -10,7 +10,8 @@ export default function ProtectedLayout({ children }: Props) {
   useEffect(() => {
     const token = localStorage.getItem('token')
     if (!token) {
-      router.replace('/')   // yeet them back home
+      router.replace('/')
+      localStorage.setItem('token', '')   // yeet them back home
     }
   }, [router])
 

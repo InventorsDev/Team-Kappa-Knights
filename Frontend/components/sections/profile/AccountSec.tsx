@@ -38,7 +38,7 @@ const AccountSec = () => {
     }
 
     try {
-      const res = await fetch("http://34.228.198.154/api/user/password", {
+      const res = await fetch("http://34.228.198.154/api/user/p", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

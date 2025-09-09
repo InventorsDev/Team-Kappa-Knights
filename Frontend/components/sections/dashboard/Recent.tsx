@@ -16,12 +16,26 @@ const Recent = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
 
   // define this BEFORE useEffect so it's in scope
+  // const formatRelative = (iso: string) => {
+  //   const days = Math.floor(
+  //     (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24)
+  //   );
+  //   return days === 0 ? "Today" : `${days} day${days > 1 ? "s" : ""} ago`;
+  // };
+
   const formatRelative = (iso: string) => {
-    const days = Math.floor(
-      (Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return days === 0 ? "Today" : `${days} day${days > 1 ? "s" : ""} ago`;
-  };
+  const created = Date.parse(iso) // always UTC timestamp
+  const diffMs = Date.now() - created
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffMinutes < 1) return "Just now"
+  if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes > 1 ? "s" : ""} ago`
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`
+  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`
+}
+
 
   useEffect(() => {
     const fetchJournal = async () => {
@@ -67,9 +81,9 @@ const Recent = () => {
       <p className="text-[18px] md:text-[24px] font-bold pb-5">Recent Activity</p>
       <div className="space-y-4 divide-y divide-gray-300">
         {activities.map((item, idx) => (
-          <div key={idx} className="flex justify-between items-center p-[16px]">
-            <p className="text-[18px]">{item.activity}</p>
-            <p className="text-[18px]">{item.time}</p>
+          <div key={idx} className="flex justify-between items-center md:p-[16px] space-y-4 text-[14px] md:text-[18px]">
+            <p className="">{item.activity}</p>
+            <p className="">{item.time}</p>
           </div>
         ))}
       </div>

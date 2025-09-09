@@ -113,15 +113,15 @@ const Navbar = () => {
                   <div className="hidden md:block">
                     {/* <Image src={Search} alt="" /> */}
                   </div>
-                  <section className="flex gap-2 md:gap-4 items-center">
+                  <section className={`${isDashboard ? 'flex' : ' hidden'}  gap-2 md:gap-4 items-center`}>
                     { profilePic === '' ? (
-                    <div className="w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] flex justify-center items-center">
+                    <div className={`${isDashboard ? 'flex' : ' hidden'}  w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] justify-center items-center `}>
                       {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
                       <p>{firstName}{secondName}</p>
                     </div>
                     ) : (
                     <div className="">
-                      <Image src={profilePic} width={48} height={48} alt="Profile picture" className="rounded-full w-12 h-12 object-cover" />
+                      <Image src={profilePic} width={100} height={100} alt="Profile picture" className="rounded-full w-12 h-12 object-cover" />
                     </div>
                   )}
                     { isDashboard && (
