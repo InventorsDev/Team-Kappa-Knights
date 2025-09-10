@@ -33,8 +33,8 @@ interface user {
 function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  // const {selectedTags, setSelectedTags} = useUserStore()
+  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const {selectedTags, setSelectedTags} = useUserStore()
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);

@@ -52,6 +52,7 @@ const ThisWeek = () => {
         const token = localStorage.getItem("token");
         const res = await fetch("http://34.228.198.154/journal/", {
           method: "GET",
+          cache: 'no-store',
           headers: {
             Authorization: `Bearer ${token}`,
           },

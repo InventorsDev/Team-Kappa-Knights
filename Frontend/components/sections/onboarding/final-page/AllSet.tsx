@@ -7,9 +7,11 @@ import CheckCircle from "@/public/images/check-circle.png";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { useUsername } from "@/state/usernameStore";
+import { useUserStore } from "@/state/store";
 
 const AllSet = () => {
-  const name = useUsername((state) => state.name);
+ // const name = useUsername((state) => state.name);
+ const {name} = useUserStore()
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 

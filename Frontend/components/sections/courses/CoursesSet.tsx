@@ -2,10 +2,12 @@
 import React, { useEffect } from 'react'
 import CourseCard from './ui/CourseCard'
 import { useUserStore, CourseDataType  } from '@/state/store'
+import Loading from '@/app/loading'
+import { stringify } from 'querystring'
 // import { useCourseStore, CourseDataType } from '@/state/store'
 
 const CoursesSet = () => {
-  const { courses, setCourses } = useUserStore()
+  const { courses, setCourses, selectedSkillLevel, selectedTags } = useUserStore()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -18,9 +20,44 @@ const CoursesSet = () => {
             'Content-Type': 'application/json',
           },
         })
+
+
+        // const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
+        //   method: 'POST',
+        //   headers: {
+        //     // Authorization: `Bearer ${token}`,
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     skill_level: selectedSkillLevel,
+        //     interests: selectedTags
+        //   })
+        // })
+
+
         if (!res.ok) throw new Error('Failed to fetch courses')
         const data: CourseDataType[] = await res.json()
         setCourses(data)
+
+
+//         console.log(selectedTags)
+//         const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
+//   method: 'POST',
+//   headers: {
+//     'Content-Type': 'application/json',
+//     // Authorization: `Bearer ${token}`, // if required
+//   },
+//   body: JSON.stringify({
+//     skill_level: selectedSkillLevel,
+//     interests: selectedTags
+//   })
+// })
+
+// if (!res.ok) throw new Error(`Failed: ${res.status}`)
+
+// const payload = await res.json()
+// setCourses(payload.recommendations || [])
+
       } catch (err) {
         console.error(err)
       }
@@ -30,23 +67,26 @@ const CoursesSet = () => {
 
   // If no API courses yet, you could show placeholders
   const displayCourses = courses.length > 0 ? courses : []
+      if (courses.length === 0) return <Loading /> 
 
   return (
     <div className="pt-3 flex flex-col md:grid grid-cols-3 gap-4">
       {displayCourses.map((item, idx) => (
-        <div key={idx}>
+        <div key={idx} className="flex">
           <CourseCard
             props={{
               title: item.title,
               content: item.description,
-              tutor: item.tutor,
+              tutor: item.tutor || 'Code Academy',
               duration: item.duration,
               progress: item.progress,
               index: idx,
             }}
+            className="flex-1"
           />
         </div>
       ))}
+      {/* {} */}
     </div>
   )
 }

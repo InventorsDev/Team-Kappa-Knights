@@ -1,5 +1,5 @@
 import { auth, provider } from "@/lib/firebase";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   setPersistence,
   signInWithEmailAndPassword,
@@ -388,37 +388,100 @@ interface user {
   verified: boolean;
 }
 
+
+
+
+// lib/auth.ts
 export async function getCurrentUserFromFirestore() {
-  try {
-    const currentUser = auth.currentUser;
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error("No user logged in.");
 
-    if (!currentUser) {
-      throw new Error("No user is currently logged in.");
-    }
+  const userRef = doc(db, "users", currentUser.uid);
+  const userSnap = await getDoc(userRef);
 
-    const email = currentUser.email;
-    if (!email) {
-      throw new Error("Logged in user has no email associated.");
-    }
+  if (!userSnap.exists()) return null;
 
-    const usersRef = collection(db, "users"); // 👈 your Firestore collection
-    const q = query(usersRef, where("email", "==", email));
-    const querySnapshot = await getDocs(q);
-
-    if (querySnapshot.empty) {
-      return null; // no matching user found in Firestore
-    }
-
-    // Assuming unique email → return first match
-    const userDoc = querySnapshot.docs[0];
-    const data = userDoc.data() as Omit<user, "id">; // cast the Firestore doc
-    const setName = useUsername.getState().setName;
-    setName(data.name);
-  } catch (error) {
-    console.error("Error fetching current user from Firestore:", error);
-    throw error;
-  }
+  return userSnap.data() as { name: string; email: string };
 }
+
+
+
+
+// export async function getCurrentUserFromFirestore() {
+//   const currentUser = auth.currentUser;
+//   if (!currentUser) throw new Error("No user logged in.");
+
+//   const userRef = doc(db, "users", currentUser.uid);
+//   const userSnap = await getDoc(userRef);
+
+//   if (!userSnap.exists()) return null;
+
+//   const data = userSnap.data() as Omit<user, "id">;
+//   const { setName } = useUserStore();
+//   setName(data.name);
+//   return data;
+// }
+
+// export async function getCurrentUserFromFirestore() {
+//   try {
+//     const currentUser = auth.currentUser;
+
+//     if (!currentUser) {
+//       throw new Error("No user is currently logged in.");
+//     }
+
+//     const email = currentUser.email;
+//     if (!email) {
+//       throw new Error("Logged in user has no email associated.");
+//     }
+
+//     const usersRef = collection(db, "users"); // 👈 your Firestore collection
+//     const q = query(usersRef, where("email", "==", email));
+//     const querySnapshot = await getDocs(q);
+
+//     if (querySnapshot.empty) {
+//       return null; // no matching user found in Firestore
+//     }
+
+//     // Assuming unique email → return first match
+//     const userDoc = querySnapshot.docs[0];
+//     const data = userDoc.data() as Omit<user, "id">; // cast the Firestore doc
+//     //const setName = useUsername.getState().setName;
+//     const { name, setName} = useUserStore()
+//     setName(data.name);
+//   } catch (error) {
+//     console.error("Error fetching current user from Firestore:", error);
+//     throw error;
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -21,8 +21,9 @@ const Progress = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("http://34.228.198.154/journal/", {
+        const res = await fetch("http://34.228.198.154/journal/",{
           headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store'
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
