@@ -2,17 +2,7 @@ from rest_framework import serializers
 
 from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent, Tag
 
-# class CoursesSerializers(serializers.ModelSerializer):
-#     class Meta:
-#         model = Courses
-#         fields = ['course_id', 'title', 'description','description', 'difficulty', 'rating']
-#         read_only_fields = ['course_id']
 
-class CourseEnrollmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CourseEnrollment
-        fields = ['enrollment', 'user', 'course']
-        read_only_fields = ['enrollment', 'enrolled_at']
 
 class CourseRoadmapSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,14 +17,6 @@ class CourseContentSerializer(serializers.ModelSerializer):
 
 
 
-# class RecommendationInputSerializer(serializers.Serializer):   
-#     skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
-#     interests = serializers.ListField(child=serializers.CharField(), allow_empty=False)
-#     #course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
-
-
-
-
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -42,7 +24,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 class CoursesSerializers(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
-    
+    levels = serializers.SerializerMethodField()
+
     class Meta:
         model = Courses
         fields = [
@@ -58,8 +41,14 @@ class CoursesSerializers(serializers.ModelSerializer):
             'progress',
             'duration',
             'tutor_academy',
+            'levels',
         ]
         read_only_fields = ['course_id', 'created_at', 'updated_at']
+
+    def get_levels(self, obj):
+        from .models import CourseContent  
+        return CourseContent.objects.filter(roadmap__course=obj).count()
+
 
 class RecommendationInputSerializer(serializers.Serializer):   
     skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
@@ -79,3 +68,10 @@ class CourseSearchInputSerializer(serializers.Serializer):
         help_text="Filter by difficulty level"
     )
 
+
+class CourseEnrollmentSerializer(serializers.ModelSerializer):
+    course = CoursesSerializers(read_only=True)
+
+    class Meta:
+        model = CourseEnrollment
+        fields = ['enrollment', 'user', 'course', 'enrolled_at', 'completed', 'progress']

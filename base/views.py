@@ -6,6 +6,8 @@ from .serializers import RecommendationInputSerializer
 from .serializers import CoursesSerializers, CourseEnrollmentSerializer, CourseRoadmapSerializer, CourseContentSerializer
 from django.db.models import Q, Count
 from difflib import SequenceMatcher
+from .models import UserCourseContent
+from django.utils import timezone
 
 
 
@@ -290,7 +292,7 @@ def enrollment(request):
     - 400 Bad Request: Invalid data (e.g., missing or incorrect fields)
     - 200 OK: List of all enrollments when using GET
     - 405 Method Not Allowed: For unsupported HTTP methods
-"""
+    """
 
 
     if request.method == 'POST':
@@ -304,3 +306,61 @@ def enrollment(request):
         enrollments = CourseEnrollment.objects.all()
         serializer = CourseEnrollmentSerializer(enrollments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+# for progress update
+from userprofile.models import UserProfile
+def update_course_progress(user_id, course):
+    try:
+        user = UserProfile.objects.get(pk=user_id)
+    except UserProfile.DoesNotExist:
+        return 0  # if user doesn't exist, just return 0
+
+    total_contents = CourseContent.objects.filter(roadmap__course=course).count()
+    completed_contents = UserCourseContent.objects.filter(
+        user_id=user_id, content__roadmap__course=course, completed=True
+    ).count()
+
+    if total_contents > 0:
+        percentage = (completed_contents / total_contents) * 100
+    else:
+        percentage = 0
+
+    enrollment, created = CourseEnrollment.objects.get_or_create(user=user, course=course)
+    enrollment.progress = percentage
+    enrollment.completed = (percentage == 100)
+    enrollment.save()
+
+    return percentage
+
+
+
+@api_view(['POST'])
+def complete_content(request, content_id):
+    user_id = request.data.get("user_id")   #get user from request body
+    if not user_id:
+        return Response({"error": "user_id required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        user = UserProfile.objects.get(pk=user_id)
+    except UserProfile.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        content = CourseContent.objects.get(pk=content_id)
+    except CourseContent.DoesNotExist:
+        return Response({"error": "Content not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Mark content as completed
+    ucc, created = UserCourseContent.objects.get_or_create(user=user, content=content)
+    ucc.completed = True
+    ucc.completed_at = timezone.now()
+    ucc.save()
+
+    # Update course progress
+    progress = update_course_progress(user, content.roadmap.course)
+
+    return Response({"message": "Content completed", "progress": progress})

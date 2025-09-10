@@ -37,6 +37,8 @@ class Courses(models.Model):
     progress = models.FloatField(default=0.0)  
     duration = models.CharField(null=True, blank=True)  
     tutor_academy = models.CharField(max_length=200, blank=True, null=True)
+    overview = models.CharField(max_length=500, blank=True, null=True)
+    
 
     def __str__(self):
         return self.title
@@ -62,6 +64,7 @@ class CourseEnrollment(models.Model):
     course = models.ForeignKey(Courses, on_delete=models.CASCADE, to_field='course_id')  # Add to_field parameter
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed = models.BooleanField(default=False)
+    progress = models.FloatField(default=0.0)
     
     class Meta:
         unique_together = ('user', 'course')
@@ -95,15 +98,21 @@ class CourseContent(models.Model):
         ('in-progress', 'In-progress'),
         ('not-started', 'Not-started')
     ], default='not-started')
+    duration = models.CharField(blank= True, null = True)
 
     def __str__(self):
-        return f"{self.title} ({self.sequence})"
+        return f"{self.title} ({self.sequence}) with id of ({self.roadmap_id})"
 
 
+class UserCourseContent(models.Model):
+    user = models.ForeignKey('userprofile.UserProfile', on_delete=models.CASCADE)
+    content = models.ForeignKey(CourseContent, on_delete=models.CASCADE)
+    completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
-# class Onboarding(models.Model):
-#     user = models.OneToOneField('userprofile.UserProfile', on_delete=models.CASCADE, primary_key=True)
-#     completed = models.BooleanField(default=False)
+    class Meta:
+        unique_together = ('user', 'content')
 
-#     def __str__(self):
-#         return f"Onboarding status for {self.user.full_name or self.user.email}"
+    def __str__(self):
+        return f"{self.user.full_name} - {self.content.title} ({'done' if self.completed else 'pending'})"
+
