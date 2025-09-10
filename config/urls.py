@@ -2,7 +2,14 @@
 from django.contrib import admin
 from django.urls import path
 
-from base.views import course_list, roadmap_list, roadmap_detail, course_content_list, recommend_courses, search_courses, enrollment
+from base.views import (course_list, 
+                        roadmap_list, 
+                        roadmap_detail, 
+                        course_content_list, 
+                        recommend_courses, 
+                        search_courses, 
+                        enrollment, 
+                        complete_content)
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -38,6 +45,7 @@ urlpatterns = [
     path('enrollments/', enrollment, name='course-enrollment'),
 
     
+    path("courses/contents/<int:content_id>/complete/", complete_content, name="complete_content"),
     
     
     

@@ -313,6 +313,11 @@ def enrollment(request):
 
 # for progress update
 from userprofile.models import UserProfile
+from django.utils import timezone
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
 def update_course_progress(user_id, course):
     try:
         user = UserProfile.objects.get(pk=user_id)
@@ -337,10 +342,9 @@ def update_course_progress(user_id, course):
     return percentage
 
 
-
 @api_view(['POST'])
 def complete_content(request, content_id):
-    user_id = request.data.get("user_id")   #get user from request body
+    user_id = request.data.get("user_id")   # get user from request body
     if not user_id:
         return Response({"error": "user_id required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -360,7 +364,7 @@ def complete_content(request, content_id):
     ucc.completed_at = timezone.now()
     ucc.save()
 
-    # Update course progress
-    progress = update_course_progress(user, content.roadmap.course)
+    # Update course progress (pass user.id instead of user)
+    progress = update_course_progress(user.user_id, content.roadmap.course)
 
     return Response({"message": "Content completed", "progress": progress})
