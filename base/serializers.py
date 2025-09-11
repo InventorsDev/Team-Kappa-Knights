@@ -28,22 +28,7 @@ class CoursesSerializers(serializers.ModelSerializer):
 
     class Meta:
         model = Courses
-        fields = [
-            'course_id',
-            'title', 
-            'description',
-            'created_at',
-            'updated_at',
-            'course_url',
-            'difficulty',
-            'rating',
-            'tags',
-            'progress',
-            'duration',
-            'tutor_academy',
-            'levels',
-            'overview',
-        ]
+        fields = '__all__'
         read_only_fields = ['course_id', 'created_at', 'updated_at']
 
     def get_levels(self, obj):

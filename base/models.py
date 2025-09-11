@@ -99,6 +99,7 @@ class CourseContent(models.Model):
         ('not-started', 'Not-started')
     ], default='not-started')
     duration = models.CharField(blank= True, null = True)
+    description = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.title} ({self.sequence}) with id of ({self.roadmap_id})"
