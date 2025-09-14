@@ -8,8 +8,9 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import FirstName from "@/components/common/names/FirstName";
-import { auth } from "@/lib/firebase";
-import { apiFetch } from "@/lib/apiClient";
+// import { auth } from "@/lib/firebase";
+// import { apiFetch } from "@/lib/apiClient";
+import { useUserStore } from "@/state/store";
 
 const moods = [
   {
@@ -51,8 +52,9 @@ const moods = [
 ];
 
 function Mood() {
-  const [mood, setMood] = useState("");
-  const [desc, setDesc] = useState("");
+  // const [mood, setMood] = useState("");
+  // const [desc, setDesc] = useState("");
+  const { mood, setMood, desc, setDesc } = useUserStore();
   const [isRouting, setIsRouting] = useState(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const router = useRouter();
@@ -78,15 +80,15 @@ function Mood() {
   //   handleFetch()
   // }, [])
 
-  const handleRoute = () => {
-    if (!mood) {
-      toast.error("please select your mood");
-      return;
-    }
+  // const handleRoute = () => {
+  //   if (!mood) {
+  //     toast.error("please select your mood");
+  //     return;
+  //   }
 
-    setIsRouting(true);
-    router.push("/onboarding/support");
-  };
+  //   setIsRouting(true);
+  //   router.push("/onboarding/support");
+  // };
 
   // const handleClick = () => {
   //   setIsClicked(!desc.trim())
@@ -121,6 +123,8 @@ function Mood() {
       if (!res.ok) throw new Error(`Server said ${res.status}`);
       setIsClicked(true); // pop the modal
       toast.success("Mood logged!");
+      setMood(" ");
+      setDesc(" ");
     } catch (err) {
       console.error("Save failed:", err);
       toast.error("Couldn’t save mood, try again");
@@ -215,6 +219,19 @@ function Mood() {
             >
               What&apos;s on your mind? (Optional)
             </label>
+            {/* <textarea
+              name="extra_info"
+              id="extra_info"
+              cols={30}
+              rows={3}
+              placeholder="Type a short note..."
+              className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px] "
+              value={desc}
+              onChange={(e) => {
+                setDesc(e.target.value);
+              }}
+            /> */}
+
             <textarea
               name="extra_info"
               id="extra_info"
@@ -223,10 +240,15 @@ function Mood() {
               placeholder="Type a short note..."
               className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px]"
               value={desc}
+              maxLength={150} // 👈 built-in clamp
               onChange={(e) => {
                 setDesc(e.target.value);
               }}
             />
+
+            <p className="text-right text-sm text-gray-500 mt-1">
+              {desc.length}/150 · Max limit 150 chars
+            </p>
           </div>
 
           <div className="md:flex justify-center md:w-full">

@@ -3,15 +3,17 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Side from "@/public/dashboard/sideArrow.png";
+import { useUserStore } from "@/state/store";
 
 type JournalEntry = {
-  created_at: string;        // e.g. "2019-08-24T14:15:22Z"
-  sentiment_score: number;   // 0–1
+  created_at: string;        
+  sentiment_score: number;   
 };
 
 const Progress = () => {
-  const [daysActive, setDaysActive] = useState(0);
-  const [avgMood, setAvgMood] = useState(0);
+  // const [daysActive, setDaysActive] = useState(0);
+  // const [avgMood, setAvgMood] = useState(0);
+  const {daysActive, setDaysActive, avgMood, setAvgMood} = useUserStore()
 
   useEffect(() => {
     const fetchProgress = async () => {
@@ -19,12 +21,14 @@ const Progress = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("http://34.228.198.154/journal/", {
+        const res = await fetch("http://34.228.198.154/journal/",{
           headers: { Authorization: `Bearer ${token}` },
+          cache: 'no-store'
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const data: JournalEntry[] = await res.json();
+        console.log("Raw sentiment scores:", data.map(d => d.sentiment_score))
 
         // count unique YYYY-MM-DD values
         const uniqueDays = new Set<string>();
@@ -38,6 +42,7 @@ const Progress = () => {
 
         setDaysActive(uniqueDays.size);
         setAvgMood(data.length ? scoreSum / data.length : 0);
+
       } catch (err) {
         console.error("progress fetch error", err);
       }
@@ -69,7 +74,7 @@ const Progress = () => {
             <p className="text-[#886CFF] text-[24px] md:text-[40px] font-bold">
               {daysActive}
             </p>
-            <p className="text-[13px] md:text-[18px] font-bold">Days Active</p>
+            <p className="text-[13px] md:text-[18px] font-bold">Day{ daysActive == 1 ? (<span></span>) : (<span>s</span>)} Active</p>
           </div>
 
           {/* Courses Completed (hard-coded) */}

@@ -7,6 +7,33 @@ import Back from '@/public/dashboard/xButtonBlack.png'
 const Security = () => {
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+
+  const handleDisable = async() => {
+    const token = localStorage.getItem('token')
+    try {
+      await fetch('http://34.228.198.154/api/user/disable-me', {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",}})
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const handleDelete = async() => {
+    const token = localStorage.getItem('token')
+    try {
+      await fetch('http://34.228.198.154/api/user/me', {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",}})
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   return (
     <main className='mb-10 md:border rounded-2xl md:p-7 md:mt-8 select-none '>
       {isClicked && (
@@ -24,10 +51,10 @@ const Security = () => {
                 Are you sure you want to delete your account?
               </p>
               <section className="flex flex-col gap-2 w-full">
-                <button className="bg-[#00B5A5] rounded-xl py-3 text-white font-semibold">
+                <button onClick={handleDisable} className="bg-[#00B5A5] rounded-xl py-3 text-white font-semibold">
                   Disable Account
                 </button>
-                <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                <button onClick={handleDelete}  className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
                   Delete Account
                 </button>
               </section>
@@ -74,8 +101,8 @@ const Security = () => {
           </div>
 
           <div className='flex justify-center md:justify-end gap-3 pt-7'>
-            <div className='w-[45%] md:w-full'>
-              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-5 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
+            <div className='w-[45%]  md:w-full'>
+              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-15 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
             </div>
           </div>
 

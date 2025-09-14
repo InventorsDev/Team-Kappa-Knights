@@ -36,7 +36,7 @@ const Profile = () => {
         <AccountSec />
         <TwoFactor />
       </div>
-      <Preference />
+      {/* <Preference /> */}
       <Security />
     </main>
   );

@@ -5,6 +5,7 @@ import logo from "@/public//images/logo.png";
 import AuthButton from "@/components/common/button/Button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/state/store";
 
 const goals = [
   {
@@ -36,7 +37,8 @@ const goals = [
 
 function Goals() {
   const [isRouting, setIsRouting] = useState(false);
-  const [goal, setGoal] = useState("");
+  // const [goal, setGoal] = useState("");
+  const {goal, setGoal} = useUserStore()
   const router = useRouter();
   const handleRouting = () => {
     if (goal === "") {
@@ -59,7 +61,7 @@ function Goals() {
           alt="logo"
         />
         <h1 className="text-[20px] md:text-[40px] font-[700] text-[#212121]">
-          What’s your main learning goal right now?
+          What&middot;s your main learning goal right now?
         </h1>
         <p className="text-[#4A4A4A] md:text-[24px] max-w-[500px] m-auto font-[400]">
           Choose the one that best fits your current focus.

@@ -6,8 +6,8 @@ import Image from "next/image";
 const weekOrder = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 // placeholder icons
-const PLACEHOLDER_QUESTION = "/dashboard/question.png"; 
-const PLACEHOLDER_DASH = "/dashboard/dash.png";        
+const PLACEHOLDER_QUESTION = "/dashboard/question.png";
+const PLACEHOLDER_DASH = "/dashboard/dash.png";
 
 type JournalEntry = {
   mood: string;
@@ -17,12 +17,42 @@ type JournalEntry = {
 const ThisWeek = () => {
   const [weekMoods, setWeekMoods] = useState<Record<string, string | null>>({});
 
+  // useEffect(() => {
+  //   const fetchMoods = async () => {
+  //     try {
+  //       const token = localStorage.getItem("token"); 
+  //       const res = await fetch("http://34.228.198.154/journal/", {
+  //         method: "GET",
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
+  //       if (!res.ok) throw new Error(`Failed ${res.status}`);
+  //       const data: JournalEntry[] = await res.json();
+
+  //       // Map mood entries by weekday string
+  //       const mapped: Record<string, string> = {};
+  //       data.forEach((entry) => {
+  //         const d = new Date(entry.created_at);
+  //         // convert to local weekday
+  //         const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; 
+  //         mapped[wd] = entry.mood;
+  //       });
+  //       setWeekMoods(mapped);
+  //     } catch (err) {
+  //       console.error("fetch mood error", err);
+  //     }
+  //   };
+  //   fetchMoods();
+  // }, []);
+
   useEffect(() => {
     const fetchMoods = async () => {
       try {
-        const token = localStorage.getItem("token"); 
+        const token = localStorage.getItem("token");
         const res = await fetch("http://34.228.198.154/journal/", {
           method: "GET",
+          cache: 'no-store',
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -30,21 +60,59 @@ const ThisWeek = () => {
         if (!res.ok) throw new Error(`Failed ${res.status}`);
         const data: JournalEntry[] = await res.json();
 
-        // Map mood entries by weekday string
-        const mapped: Record<string, string> = {};
-        data.forEach((entry) => {
-          const d = new Date(entry.created_at);
-          // convert to local weekday
-          const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1]; 
-          mapped[wd] = entry.mood;
-        });
-        setWeekMoods(mapped);
+        // --- figure out start of current ISO week (Mon 00:00 local)
+        const now = new Date();
+        const jsDay = now.getDay();           // 0=Sun
+        const daysSinceMonday = jsDay === 0 ? 6 : jsDay - 1;
+        const mondayStart = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() - daysSinceMonday,
+          0, 0, 0, 0
+        );
+
+        // only include entries >= mondayStart
+        // const mapped: Record<string, string> = {};
+        // data
+        //   .filter(e => new Date(e.created_at) >= mondayStart)
+        //   .forEach((entry) => {
+        //     const d = new Date(entry.created_at);
+        //     const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1];
+        //     mapped[wd] = entry.mood;
+        //   });
+
+        // setWeekMoods(mapped);
+
+
+        const mapped: Record<string, { mood: string; time: number }> = {};
+
+        data
+          .filter(e => new Date(e.created_at) >= mondayStart)
+          .forEach((entry) => {
+            const d = new Date(entry.created_at);
+            const wd = weekOrder[d.getDay() === 0 ? 6 : d.getDay() - 1];
+            const ts = d.getTime();
+
+            // if this weekday doesn’t exist yet, or this entry is newer → replace
+            if (!mapped[wd] || ts > mapped[wd].time) {
+              mapped[wd] = { mood: entry.mood, time: ts };
+            }
+          });
+
+        // flatten to just mood
+        const final: Record<string, string> = {};
+        for (const [day, val] of Object.entries(mapped)) {
+          final[day] = val.mood;
+        }
+        setWeekMoods(final);
+
       } catch (err) {
         console.error("fetch mood error", err);
       }
     };
     fetchMoods();
   }, []);
+
 
   // figure out what weekday "today" is
   const todayIdx = (() => {

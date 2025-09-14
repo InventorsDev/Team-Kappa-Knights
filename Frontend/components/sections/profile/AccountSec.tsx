@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState } from "react"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { toast } from "sonner"
 
 const AccountSec = () => {
@@ -39,7 +38,7 @@ const AccountSec = () => {
     }
 
     try {
-      const res = await fetch("http://34.228.198.154/api/user/password", {
+      const res = await fetch("http://34.228.198.154/api/user/p", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -95,7 +94,7 @@ const AccountSec = () => {
               className="ml-2 text-[#00B5A5]"
               onClick={() => setShowPassword(prev => !prev)}
             >
-              {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
+              {/* {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />} */}
             </button>
           </div>
         </div>

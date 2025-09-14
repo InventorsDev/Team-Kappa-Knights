@@ -68,9 +68,9 @@ const Suggested = () => {
           );
         })}
       </section>
-      <Link href={'/courses'}>
+      <Link href={'/courses'} className="text-[14px] md:text-[16px]">
       <AuthButton
-        text="View all recommendations"
+        text="View Course Recommendations"
         action={isRouting}
         textWhileActionIsTakingPlace="..."
         isAuth={false}

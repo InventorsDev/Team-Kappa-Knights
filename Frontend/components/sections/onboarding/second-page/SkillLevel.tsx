@@ -7,6 +7,7 @@ import { useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useUserStore } from "@/state/store";
 
 const skills = [
   {
@@ -24,7 +25,8 @@ const skills = [
 ];
 
 function SkillLevel() {
-  const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
+  // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
+  const {selectedSkillLevel, setSelectedSkillLevel} = useUserStore()
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const router = useRouter();
 

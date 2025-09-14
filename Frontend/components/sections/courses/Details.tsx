@@ -2,6 +2,7 @@ import Image, { StaticImageData } from 'next/image'
 import React, { ReactNode } from 'react'
 import Icon from '@/public/dashboard/greenVector.png'
 import Resume from '@/public/dashboard/courses/sideArrow.png'
+import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
 
 type DetailsProps = {
@@ -9,6 +10,9 @@ type DetailsProps = {
     content: string
     overview: string
     progress: number
+    difficulty: string
+    duration: string
+    rating: number
     index: number
     levelsCompleted: number
     levelTotal: number
@@ -33,6 +37,15 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
             <section className='pb-4'>
                 <p className='font-semibold text-[18px] md:text-[20px] pb-2 text-[#212121]'>Course Overview</p>
                 <p className=' text-[16px] pb-4 md:text-[18px]'>{props.overview}</p>
+                <div className='flex  py-2 text-[14px] md:text-[16px]'>
+                    {props.difficulty}  &middot;  
+                    {props.levelTotal} Levels  &middot;  
+                    {props.duration} weeks  &middot;  
+                    <div className='flex gap-1 items-center px-1'>
+                        <Image src={Star} width={40} height={40} alt='' className='w-4 '/>
+                        <p>{props.rating}/5</p>
+                    </div>
+                </div>
                 <div className='flex justify-between '>
                     <p className='font-semibold text-[#212121] md:text-[20px]'>Your Progress</p>
                     <p>{props.progress}%</p>
