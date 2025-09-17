@@ -3,6 +3,12 @@ from sqlalchemy.orm import declarative_base, relationship
 from datetime import datetime
 from app.core.database import Base
 from sqlalchemy import Date
+
+
+
+
+
+
 from enum import Enum
 
 class SkillLevel(str, Enum):
@@ -34,7 +40,7 @@ class UserProfileModel(Base):
     profile_picture_url = Column(String, nullable=True)  # Cloudinary URL
     gender = Column(String, nullable=True)
     date_of_birth = Column(Date, nullable=True)
-    
+    phone = Column(String, nullable=True)
     # Existing fields
     interests = Column(ARRAY(String), default=[])
     skills = Column(ARRAY(String), default=[])

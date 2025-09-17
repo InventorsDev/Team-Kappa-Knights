@@ -12,7 +12,8 @@ from app.core.config import settings
 from typing import Optional
 from datetime import datetime
 from sqlalchemy import select
-
+from app.core.security import get_current_user_uid
+from pydantic import BaseModel, field_validator, ValidationInfo, model_validator
 
 
 router = APIRouter()
@@ -158,3 +159,95 @@ async def register_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered",
         )
+
+
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+    
+    @field_validator('current_password')
+    @classmethod
+    def current_password_not_empty(cls, v: str) -> str:
+        if not v or v.strip() == '':
+            raise ValueError('Current password is required')
+        return v
+
+    @field_validator('new_password')
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
+        if len(v) < 6:
+            raise ValueError('New password must be at least 6 characters long')
+        return v
+
+    @field_validator('confirm_password')
+    @classmethod
+    def passwords_match(cls, v: str, info: ValidationInfo) -> str:
+        new_password = info.data.get('new_password')
+        if new_password and v != new_password:
+            raise ValueError('New password and confirm password do not match')
+        return v
+
+    @model_validator(mode='after')
+    def check_new_password_differs(self):
+        """Check that new password is different from current password"""
+        if self.current_password == self.new_password:
+            raise ValueError('New password must be different from the current password')
+        return self
+
+
+
+@router.put("/password", status_code=status.HTTP_200_OK)
+async def change_password(
+    password_change: ChangePasswordRequest,
+    decoded_token: dict = Depends(verify_firebase_token),
+    current_user_uid: str = Depends(get_current_user_uid)
+):
+    """
+    Change user password - requires current password verification
+    """
+    user_email = decoded_token.get('email')
+    if not user_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unable to retrieve user email from token"
+        )
+    
+    # Step 1: Verify current password by attempting to sign in
+    verify_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    # For production: f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_WEB_API_KEY}"
+    
+    verify_payload = {
+        "email": user_email,
+        "password": password_change.current_password,
+        "returnSecureToken": False
+    }
+    
+    verify_response = requests.post(verify_url, json=verify_payload)
+    
+    if verify_response.status_code != 200:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect"
+        )
+    
+    # Step 2: Update password using Firebase Admin SDK
+    try:
+        auth.update_user(
+            current_user_uid,
+            password=password_change.new_password
+        )
+        # Revoke tokens to force sign-out
+        auth.revoke_refresh_tokens(current_user_uid)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update password: {str(e)}"
+        )
+    
+    return {
+        "message": "Password successfully updated",
+        "timestamp": datetime.utcnow().isoformat()
+    }

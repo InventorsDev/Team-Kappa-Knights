@@ -192,7 +192,7 @@ async def update_user_profile(
 
 
 
-# Upload image endpoint
+# Upload image endpoint would go here
 
 @router.post("/upload-profile-picture")
 async def upload_profile_picture(
@@ -297,6 +297,13 @@ async def disable_user_account(
     
     await db.commit()
     
+    # Attempt to revoke tokens but don't fail if it errors
+    try:
+        auth.revoke_refresh_tokens(current_user_uid)
+    except Exception as e:
+        # Log the error but don't raise HTTPException to avoid failing the whole request
+        print(f"Failed to revoke tokens for user {current_user_uid}: {e}")
+    
     # Return response indicating successful deactivation
     # The client should handle the logout after receiving this response
     return {
@@ -319,6 +326,12 @@ async def delete_user_profile(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     await db.delete(user_obj)
     await db.commit()
+    
+    # Attempt to revoke Firebase tokens, but don’t block on failure
+    try:
+        auth.revoke_refresh_tokens(current_user_uid)
+    except Exception as e:
+        print(f"Failed to revoke tokens for user {current_user_uid}: {e}")
     return None
 
 
