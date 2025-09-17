@@ -21,7 +21,7 @@ class UserProfileUpdate(BaseModel):
     interests: Optional[List[str]] = None
     skills: Optional[List[str]] = None
     bio: Optional[str] = None
-    phone_number: Optional[str] = None
+    phone: Optional[str] = None
     skill_level: Optional[SkillLevel] = None
     learning_goal: Optional[LearningGoal] = None
     support_style: Optional[SupportStyle] = None
@@ -47,7 +47,7 @@ class UserProfileResponse(BaseModel):
     interests: List[str]
     skills: List[str]
     bio: Optional[str]
-    phone_number: Optional[str] = None
+    phone: Optional[str] = None
     skill_level: Optional[SkillLevel]
     learning_goal: Optional[LearningGoal]
     support_style: Optional[SupportStyle]
