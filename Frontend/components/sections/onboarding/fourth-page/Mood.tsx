@@ -50,7 +50,7 @@ const moods = [
 function Mood() {
   const [mood, setMood] = useState("");
   const [desc, setDesc] = useState("");
-  const [itemLogo, setItemLogo] = useState("")
+  const [itemLogo, setItemLogo] = useState("");
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
@@ -61,22 +61,49 @@ function Mood() {
     }
 
     const token = await auth.currentUser?.getIdToken();
-    await fetch('http://34.228.198.154/api/user/complete-onboarding', {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(
+    if (!token) {
+      console.error("No Firebase token found, user not authenticated");
+      return;
+    }
+
+    const body = {
+      skill_level: "beginner",
+      learning_goal: "career_switch",
+      support_style: null, // or a valid enum if available
+      interests: "", // ✅ required field
+    };
+
+    try {
+      const res = await fetch(
+        "http://34.228.198.154/api/user/complete-onboarding",
         {
-          content: desc,
-          title: itemLogo,
-          mood: mood
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
         }
-      ),
-    });
-    setIsRouting(true);
-    router.push("/onboarding/support");
+      );
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(
+          `Failed onboarding: ${res.status} ${
+            res.statusText
+          } → ${JSON.stringify(data)}`
+        );
+      }
+
+      console.log("Onboarding success:", data);
+      // setIsRouting(true);
+      // router.push("/support");
+    } catch (err) {
+      console.error("Onboarding error:", err);
+    }
+
+    // setIsRouting(true);
+    // router.push("/support");
   };
   return (
     <div className="py-8 px-4 text-[#212121]">
@@ -111,8 +138,9 @@ function Mood() {
                       : "none",
                 }}
                 onClick={() => {
-                  setMood(item.title)
-                  setItemLogo(item.logo)}}
+                  setMood(item.title);
+                  setItemLogo(item.logo);
+                }}
               >
                 <div className="w-[50px]">
                   <Image

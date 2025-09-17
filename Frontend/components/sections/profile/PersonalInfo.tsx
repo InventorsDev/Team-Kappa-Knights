@@ -144,6 +144,7 @@ const PersonalInfo = () => {
                 onClick={() => setIsClicked(false)}
                 className="p-1 hover:cursor-pointer"
               >
+                {}
                 <Image src={Back} alt="Exit" width={10} height={10} />
               </button>
             </div>
@@ -190,6 +191,7 @@ const PersonalInfo = () => {
             </label>
             {isEditing ? (
               <input
+                title="name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -209,6 +211,7 @@ const PersonalInfo = () => {
             </label>
             {isEditing ? (
               <input
+                title="email"
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

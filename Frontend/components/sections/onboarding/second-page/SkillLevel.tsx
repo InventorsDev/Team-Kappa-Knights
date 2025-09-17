@@ -26,7 +26,7 @@ const skills = [
 
 function SkillLevel() {
   // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
-  const {selectedSkillLevel, setSelectedSkillLevel} = useUserStore()
+  const { selectedSkillLevel, setSelectedSkillLevel } = useUserStore();
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const router = useRouter();
 
@@ -37,7 +37,7 @@ function SkillLevel() {
     }
     setIsRouting(true);
     localStorage.setItem("skill_level", selectedSkillLevel);
-    router.push("/onboarding/goals");
+    router.push("/goals");
   };
 
   return (

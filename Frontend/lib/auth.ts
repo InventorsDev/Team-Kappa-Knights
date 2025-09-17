@@ -18,8 +18,13 @@ import { query, where, getDocs } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
 import { saveTokens } from "./token";
 import { useUserStore } from "@/state/store";
-// import { useAuthStore } from "@/state/authStore";
-
+// import { signInWithEmailAndPassword } from "firebase/auth";
+interface FirestoreUser {
+  email: string;
+  name: string;
+  verified: boolean;
+  isOnboarded: boolean;
+}
 export const handleSignin = async (
   e: React.FormEvent<HTMLFormElement>,
   persistence: Persistence,
@@ -30,13 +35,10 @@ export const handleSignin = async (
   e.preventDefault();
   setLoggingIn(true);
 
-  // grab both values in one go
   const { email, password } = useUserStore.getState();
 
   try {
-    // optional: await setPersistence(auth, persistence);
-    //console.log("sending", { email, password });
-
+    // STEP 1: login to backend
     const res = await fetch("http://34.228.198.154/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -44,7 +46,7 @@ export const handleSignin = async (
     });
 
     if (!res.ok) {
-      throw new Error(`HTTP ${res.status}`);
+      throw new Error(`Backend login failed (HTTP ${res.status})`);
     }
 
     const resolvedUser = await res.json();
@@ -53,12 +55,33 @@ export const handleSignin = async (
       throw new Error("No idToken returned from API");
     }
 
-    localStorage.setItem("token", resolvedUser.idToken);
+    // STEP 2: login to Firebase
+    // optional: await setPersistence(auth, persistence);
+    const fbUser = await signInWithEmailAndPassword(auth, email, password);
 
-    toast.success("Logged in successfully");
-    isDone(true);
-    router.push("/dashboard");
-    return resolvedUser;
+    // STEP 3: store backend token
+    localStorage.setItem("token", resolvedUser.idToken);
+    console.log(resolvedUser.idToken);
+
+    // STEP 4: check Firestore for onboarding status
+    const userRef = doc(db, "users", fbUser.user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      throw new Error("User not found in Firestore");
+    }
+
+    const userData = userSnap.data() as FirestoreUser;
+    console.log(userData);
+
+    if (!userData.isOnboarded) {
+      isDone(true);
+    } else {
+      toast.success("Logged in successfully");
+      router.push("/dashboard");
+    }
+
+    return { backend: resolvedUser, firebase: fbUser.user };
   } catch (err: any) {
     console.error("signin error:", err);
     toast.error(err.message || "Login failed");
@@ -109,18 +132,22 @@ export const handleGoogleSignup = async (
   }
 };
 
+// import { createUserWithEmailAndPassword } from "firebase/auth";
+// import { doc, setDoc } from "firebase/firestore";
+// import { auth, db } from "@/lib/firebase";
+// import { getFirebaseErrorMessage } from "@/lib/firebaseErrors";
+// import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+// import { toast } from "react-hot-toast";
+// import { useUserStore } from "@/store/userStore";
+
 export const handleCreateAccount = async (
   e: React.FormEvent<HTMLFormElement>,
-  //password: string,
   setError: (error: string) => void,
   router: AppRouterInstance,
-  //name: string,
-  //email: string,
-  setSigningIn: (bool: boolean) => void,
-  setIsVerifying: (bool: boolean) => void
+  setSigningIn: (bool: boolean) => void
 ) => {
   e.preventDefault();
-  //const setName = useUsername.getState().setName;
+
   const { name, email, password } = useUserStore.getState();
 
   if (password.length < 8) {
@@ -137,6 +164,7 @@ export const handleCreateAccount = async (
   setError("");
 
   try {
+    // STEP 1: Create user in Firebase
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -144,38 +172,52 @@ export const handleCreateAccount = async (
     );
     const user = userCredential.user;
 
-    const token = await user.getIdToken();
+    // STEP 2: Get Firebase ID token
+    const idToken = await user.getIdToken();
 
-    await fetch("http://34.228.198.154/api/user/sync-profile", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email,
-        password,
-        full_name: name,
-      }),
-    });
+    // STEP 3: Send Firebase token + profile info to backend
+    const backendRes = await fetch(
+      "http://34.228.198.154/api/user/sync-profile",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          full_name: name,
+        }),
+      }
+    );
 
-    //setName(name);
+    if (!backendRes.ok) {
+      const backendError = await backendRes.text();
+      throw new Error(`Backend error: ${backendError}`);
+    }
 
-    await sendEmailVerification(user);
-    toast.message("Verification email sent. Please check your inbox.");
-
+    // STEP 4: Save user in Firestore (optional if backend already handles it)
     await setDoc(doc(db, "users", user.uid), {
       email,
       name,
       verified: false,
+      isOnboarded: false,
     });
 
-    setIsVerifying(true);
+    // STEP 5: Store token locally (for API calls)
+    localStorage.setItem("token", idToken);
+
+    // STEP 6: Navigate away
+    toast.success("Account created successfully");
+    router.replace("/interests");
+
     return user;
-  } catch (error) {
+  } catch (error: any) {
     const message = getFirebaseErrorMessage(error);
-    toast.error(message); // 🚀 user-friendly message now
-    console.error("signin error:", error); // log raw error for debugging
+    toast.error(message);
+    console.error("signup error:", error);
+    setError(message);
     setSigningIn(false);
   }
 };

@@ -38,17 +38,17 @@ const goals = [
 function Goals() {
   const [isRouting, setIsRouting] = useState(false);
   // const [goal, setGoal] = useState("");
-  const {goal, setGoal} = useUserStore()
+  const { goal, setGoal } = useUserStore();
   const router = useRouter();
   const handleRouting = () => {
     if (goal === "") {
       toast.error("Please select a goal");
       return;
     }
-    
-     localStorage.setItem("learning_goal", goal);
+
+    localStorage.setItem("learning_goal", goal);
     setIsRouting(true);
-    router.push("/onboarding/mood");
+    router.push("/mood");
   };
   return (
     <div>

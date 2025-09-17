@@ -16,21 +16,17 @@ const options = [
   " I’m still figuring it out",
 ];
 
-
-
-
 function Support() {
   const [support, setSupport] = useState("");
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
   const handleRoute = async () => {
-
     if (!support) {
       return toast.error("please choose one");
     }
 
-    localStorage.setItem('support_style', support)
+    localStorage.setItem("support_style", support);
 
     const email = localStorage.getItem("email");
     const password = localStorage.getItem("password");
@@ -43,29 +39,32 @@ function Support() {
       password,
       skill_level,
       learning_goal,
-      support_style
+      support_style,
     };
 
     try {
       const token = await auth.currentUser?.getIdToken();
-      const res = await fetch("http://34.228.198.154/api/user/complete-onboarding", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "http://34.228.198.154/api/user/complete-onboarding",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
       if (!res.ok) throw new Error("Onboarding failed");
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong completing onboarding");
     }
 
-    router.push("/onboarding/final");
+    router.push("/final");
   };
   const handleSkip = () => {
-    router.push("/onboarding/final");
+    router.push("/final");
   };
   return (
     <div>
@@ -90,8 +89,9 @@ function Support() {
           return (
             <div
               key={index}
-              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${support === item && "border-2 border-[#00BFA5]"
-                }`}
+              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${
+                support === item && "border-2 border-[#00BFA5]"
+              }`}
               onClick={() => setSupport(item)}
             >
               {support === item ? (
@@ -107,10 +107,7 @@ function Support() {
         })}
       </div>
 
-      <div
-        className="max-w-[550px] m-auto flex flex-col gap-4"
-
-      >
+      <div className="max-w-[550px] m-auto flex flex-col gap-4">
         <div onClick={handleRoute}>
           <AuthButton
             text="Continue"

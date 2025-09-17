@@ -13,6 +13,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { pages } from "@/lib/pages";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 const mobileNavItems = [
   {
@@ -64,31 +65,32 @@ const Navbar = () => {
   const pathname = usePathname();
   const isDashboard = pathname.includes("/dashboard");
 
-  const { name, profilePic, setName, setProfilePic } = useUserStore();
+  // const { name, profilePic, setName, setProfilePic } = useUserStore();
+  const { profile } = useUserProfileStore();
 
   const currentPage =
     pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) return;
 
-      try {
-        const res = await fetch("http://34.228.198.154/api/user/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) return;
+  //     try {
+  //       const res = await fetch("http://34.228.198.154/api/user/me", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (!res.ok) return;
 
-        const data = await res.json();
-        setName(data.full_name || "");
-        setProfilePic(data.profile_picture_url || "");
-      } catch (err) {
-        console.error("fetch user failed:", err);
-      }
-    };
-    fetchData();
-  }, [setName, setProfilePic]);
+  //       const data = await res.json();
+  //       setName(data.full_name || "");
+  //       setProfilePic(data.profile_picture_url || "");
+  //     } catch (err) {
+  //       console.error("fetch user failed:", err);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [setName, setProfilePic]);
 
   return (
     <main>
@@ -126,7 +128,9 @@ const Navbar = () => {
                   {isDashboard && (
                     <div>
                       <Image
-                        src={profilePic || Profile}
+                        src={
+                          profile?.profile_picture_url || "/blank-profile.webp"
+                        }
                         width={48}
                         height={48}
                         alt="Profile picture"

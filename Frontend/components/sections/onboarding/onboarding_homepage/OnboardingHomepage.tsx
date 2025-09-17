@@ -11,7 +11,7 @@ function OnboardingHomepage() {
 
   const handleRoute = () => {
     setIsRouting(true);
-    router.push("/onboarding/interests");
+    router.push("/interests");
   };
   return (
     <section className="text-[#212121] md:flex md:items-center">

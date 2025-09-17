@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { profile } from "console";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 const CLOUD_NAME = "dexchhhbs";
 const UPLOAD_PRESET = "nextjs_profile_upload";
@@ -13,6 +14,7 @@ const Photo = () => {
   //const [image, setImage] = useState<string | null>(null)
   const [loading, setLoading] = useState(false);
   const { name, profilePic, setProfilePic } = useUserStore();
+  const { setProfilePicture, profile } = useUserProfileStore();
 
   const parts = name.trim().split(/\s+/);
   const first = parts[0] || "";
@@ -20,27 +22,27 @@ const Photo = () => {
   const second = parts[1] || "";
   const secondName = second ? second.charAt(0).toUpperCase() : "";
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) return;
 
-      try {
-        const res = await fetch("http://34.228.198.154/api/user/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) return;
+  //     try {
+  //       const res = await fetch("http://34.228.198.154/api/user/me", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (!res.ok) return;
 
-        const data = await res.json();
+  //       const data = await res.json();
 
-        setProfilePic(data.profile_picture_url);
-      } catch (err) {
-        console.error("fetch user failed:", err);
-      }
-    };
+  //       setProfilePicture(data.profile_picture_url);
+  //     } catch (err) {
+  //       console.error("fetch user failed:", err);
+  //     }
+  //   };
 
-    fetchData();
-  }, [setProfilePic]);
+  //   fetchData();
+  // }, [setProfilePicture]);
 
   const toggleEdit = async () => {
     const token = localStorage.getItem("token");
@@ -81,7 +83,7 @@ const Photo = () => {
       );
 
       const data = await res.json();
-      setProfilePic(data.secure_url);
+      setProfilePicture(data.secure_url);
       await toggleEdit();
       //setProfilePic(data.profile_picture_url || "");
     } catch (err) {
@@ -97,9 +99,9 @@ const Photo = () => {
       {profilePic ? (
         <div className="pb-2 w-[160px] h-[160px] overflow-hidden relative rounded-full">
           <Image
-            key={profilePic}
+            //! why ?? ---> key={}
             src={
-              profilePic ||
+              profile?.profile_picture_url ||
               "https://cdn-icons-png.flaticon.com/512/149/149071.png"
             }
             fill

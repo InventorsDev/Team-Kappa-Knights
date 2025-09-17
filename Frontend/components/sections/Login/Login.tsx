@@ -26,7 +26,7 @@ type prop = {
 const Login = ({ isDone }: prop) => {
   // const [email, setEmail] = useState("");
   // const [password, setPassword] = useState("");
-  const{ email, setEmail, password, setPassword} = useUserStore()
+  const { email, setEmail, password, setPassword } = useUserStore();
   const [signingIn, setSigningIn] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +36,7 @@ const Login = ({ isDone }: prop) => {
   //   ? browserLocalPersistence
   //   : browserSessionPersistence;
 
-  const persistence = browserLocalPersistence
+  const persistence = browserLocalPersistence;
 
   const forgotPassword = async () => {
     if (!email) {
@@ -206,7 +206,7 @@ const Login = ({ isDone }: prop) => {
                   action={loggingIn}
                   text="Log in"
                   textWhileActionIsTakingPlace="Logging in"
-                  isAuth={true}
+                  isAuth={false}
                 />
                 <div className="mt-[12px] mb-[20px]">
                   <p className="text-center">
