@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/favicon.ico";
 import AuthButton from "@/components/common/button/Button";
-import { addDoc, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import Loader from "@/components/common/loader/Loader";
@@ -11,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { getCurrentUserFromFirestore } from "@/lib/auth";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
 import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 interface Tags {
   id: string;
@@ -20,7 +27,7 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
-  createdBy?: string 
+  createdBy?: string;
 }
 
 interface user {
@@ -34,16 +41,19 @@ function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
   // const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const {selectedTags, setSelectedTags} = useUserStore()
+  const { selectedTags, setSelectedTags } = useUserStore();
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const { setInterests, interests, addInterest } = useOnboardingStore();
   const router = useRouter();
   // const [limit, setLimit] = useState(0);
 
   useEffect(() => {
     console.log(selectedTags);
-  }, [selectedTags]);
+    setInterests(selectedTags);
+    console.log(interests);
+  }, [selectedTags, interests]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -118,52 +128,51 @@ function Interest() {
   //   setIsClosed(true);
   // };
 
-// ...
+  // ...
 
-const handleAdd = async () => {
-  if (!name) {
-    toast.message("Please add a skill");
-    return;
-  }
+  const handleAdd = async () => {
+    if (!name) {
+      toast.message("Please add a skill");
+      return;
+    }
 
-  const user = auth.currentUser;
-  if (!user) {
-    toast.error("You must be signed in to add a skill");
-    return;
-  }
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("You must be signed in to add a skill");
+      return;
+    }
 
-  try {
-    const newTag = {
-      name,
-      bg: "rgb(173, 216, 230)",
-      border: "rgb(30, 144, 255)",
-      text: "rgb(0, 51, 102)",
-      icon: "Writing",
-      createdBy: user.uid, // 🔑 for rules
-    };
+    try {
+      const newTag = {
+        name,
+        bg: "rgb(173, 216, 230)",
+        border: "rgb(30, 144, 255)",
+        text: "rgb(0, 51, 102)",
+        icon: "Writing",
+        createdBy: user.uid, // 🔑 for rules
+      };
 
-    // Write to Firestore
-    const docRef = await addDoc(collection(db, "tags"), newTag);
+      // Write to Firestore
+      const docRef = await addDoc(collection(db, "tags"), newTag);
 
-    // Update local state so UI refreshes immediately
-    setFirestoreTags((prev) => [
-      ...prev,
-      { id: docRef.id, ...newTag, custom: false },
-    ]);
+      // Update local state so UI refreshes immediately
+      setFirestoreTags((prev) => [
+        ...prev,
+        { id: docRef.id, ...newTag, custom: false },
+      ]);
 
-    // Auto-select the tag
-    setSelectedTags((prev) => [...prev, newTag.name]);
+      // Auto-select the tag
+      setSelectedTags((prev) => [...prev, newTag.name]);
+      addInterest(newTag.name);
 
-    setName("");
-    setIsClosed(true);
-    toast.success("Skill added!");
-  } catch (err) {
-    console.error("Error adding tag:", err);
-    toast.error(getFirebaseErrorMessage(err));
-  }
-};
-
-
+      setName("");
+      setIsClosed(true);
+      toast.success("Skill added!");
+    } catch (err) {
+      console.error("Error adding tag:", err);
+      toast.error(getFirebaseErrorMessage(err));
+    }
+  };
 
   const handleDelete = async (id: string, custom?: boolean) => {
     try {

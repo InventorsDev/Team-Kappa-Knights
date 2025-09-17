@@ -1,100 +1,116 @@
+// src/components/common/graphs/LineChart.tsx
 "use client";
 
-import { Line } from "react-chartjs-2";
+import React, { useMemo } from "react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  ResponsiveContainer,
+  LineChart as ReChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
-  ChartOptions,
-} from "chart.js";
+} from "recharts";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+type Dataset = {
+  label: string;
+  data: (number | null)[];
+  borderColor?: string;
+  backgroundColor?: string;
+};
 
 type LineChartProps = {
-  labels: string[]; // pass ISO strings like "2025-09-07T07:45:00Z"
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor?: string;
-    backgroundColor?: string;
-  }[];
+  labels: string[]; // ISO datetimes
+  datasets: Dataset[];
   title?: string;
 };
 
-const LineChart = ({ labels, datasets, title }: LineChartProps) => {
-  const data = {
-    labels,
-    datasets: datasets.map((ds) => ({
-      ...ds,
-      fill: false,
-      tension: 0.3,
-      borderColor: ds.borderColor || "rgb(75, 192, 192)",
-      backgroundColor: ds.backgroundColor || "rgba(75, 192, 192, 0.2)",
-    })),
+// moods ranked worst → best
+const moodLabelsMap = [
+  "frustrated",
+  "stressed",
+  "tired",
+  "okay",
+  "excited",
+  "motivated",
+];
+
+const LineChart: React.FC<LineChartProps> = ({ labels, datasets, title }) => {
+  // build array of { x: label, d0: number, d1: number, ... }
+  const data = useMemo(() => {
+    return labels.map((label, i) => {
+      const point: Record<string, any> = { x: label };
+      datasets.forEach((ds, idx) => {
+        point[`d${idx}`] = ds.data[i] ?? null;
+      });
+      return point;
+    });
+  }, [labels, datasets]);
+
+  // custom tooltip that translates numeric mood -> text
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (!active || !payload || payload.length === 0) return null;
+    return (
+      <div className="bg-white p-2 rounded shadow">
+        <div className="font-semibold text-sm">
+          {new Date(label).toLocaleString()}
+        </div>
+        {payload.map((p: any) => {
+          const val = p.value;
+          const moodText =
+            typeof val === "number" ? moodLabelsMap[val] ?? val : val;
+          return (
+            <div key={p.dataKey} className="text-sm">
+              <span className="mr-1">{p.name ?? p.dataKey}:</span>
+              <strong>{moodText}</strong>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
-  // moods ranked worst → best
-  const moodLabelsMap = [
-    "frustrated", // 0
-    "stressed", // 1
-    "tired", // 2
-    "okay", // 3
-    "excited", // 4
-    "motivated", // 5
-  ];
-
-  const options: ChartOptions<"line"> = {
-    responsive: true,
-    plugins: {
-      legend: { display: false, position: "top" },
-      title: { display: !!title, text: title },
-      tooltip: {
-        callbacks: {
-          label: (context) => {
-            const moodIndex = context.parsed.y as number;
-            const moodText = moodLabelsMap[moodIndex] ?? moodIndex;
-            return `${context.dataset.label}: ${moodText}`;
-          },
-          title: (context) => {
-            const idx = context[0].dataIndex;
-            const date = new Date(labels[idx]); // now a valid ISO string
-            return date.toLocaleString(undefined, {
-              weekday: "short", // e.g. Sun
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            });
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: { display: false }, // hide bottom labels
-      },
-      y: {
-        ticks: {
-          stepSize: 1,
-          callback: (value) => moodLabelsMap[value as number] ?? value,
-        },
-      },
-    },
-  };
-
-  return <Line data={data} options={options} />;
+  return (
+    <div>
+      {title && <div className="mb-2 font-semibold">{title}</div>}
+      <ResponsiveContainer width="100%" height={300}>
+        <ReChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey="x"
+            tickFormatter={(val: string) => {
+              const d = new Date(val);
+              return d.toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              });
+            }}
+            minTickGap={20}
+          />
+          <YAxis
+            width={90}
+            domain={[0, 5]}
+            ticks={[0, 1, 2, 3, 4, 5]}
+            tickFormatter={(v: number) => moodLabelsMap[v as number] ?? v}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          {datasets.map((ds, idx) => (
+            <Line
+              key={idx}
+              type="monotone"
+              dataKey={`d${idx}`}
+              name={ds.label}
+              stroke={ds.borderColor ?? undefined}
+              dot={true}
+              activeDot={{ r: 5 }}
+              connectNulls={false}
+            />
+          ))}
+        </ReChart>
+      </ResponsiveContainer>
+    </div>
+  );
 };
 
 export default LineChart;

@@ -6,6 +6,7 @@ import AuthButton from "@/components/common/button/Button";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const goals = [
   {
@@ -37,16 +38,18 @@ const goals = [
 
 function Goals() {
   const [isRouting, setIsRouting] = useState(false);
+  const { setLearningGoal, learningGoal } = useOnboardingStore();
   // const [goal, setGoal] = useState("");
-  const { goal, setGoal } = useUserStore();
+  // const { goal, setGoal } = useUserStore();
   const router = useRouter();
   const handleRouting = () => {
-    if (goal === "") {
+    if (learningGoal === "") {
       toast.error("Please select a goal");
       return;
     }
 
-    localStorage.setItem("learning_goal", goal);
+    // setLearningGoal(goal);
+    console.log(learningGoal);
     setIsRouting(true);
     router.push("/mood");
   };
@@ -73,11 +76,11 @@ function Goals() {
             <div
               key={index}
               className={`flex  items-center gap-2 border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${
-                goal === item.title
+                learningGoal === item.title
                   ? "border-2 border-[#00BFA5]"
                   : "border-1 border-[#CCCCCC]"
               }`}
-              onClick={() => setGoal(item.title)}
+              onClick={() => setLearningGoal(item.title)}
             >
               <Image
                 src={`/images/${item.logo}.png`}

@@ -8,6 +8,7 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const skills = [
   {
@@ -28,6 +29,7 @@ function SkillLevel() {
   // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
   const { selectedSkillLevel, setSelectedSkillLevel } = useUserStore();
   const [isRouting, setIsRouting] = useState<boolean>(false);
+  const { setSkillLevel, skillLevel } = useOnboardingStore();
   const router = useRouter();
 
   const handleRouting = () => {
@@ -36,7 +38,8 @@ function SkillLevel() {
       return;
     }
     setIsRouting(true);
-    localStorage.setItem("skill_level", selectedSkillLevel);
+    setSkillLevel(selectedSkillLevel);
+    console.log(skillLevel);
     router.push("/goals");
   };
 

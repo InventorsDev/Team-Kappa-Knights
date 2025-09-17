@@ -7,6 +7,7 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { auth } from "@/lib/firebase";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const moods = [
   {
@@ -50,8 +51,10 @@ const moods = [
 function Mood() {
   const [mood, setMood] = useState("");
   const [desc, setDesc] = useState("");
+  const { interests, learningGoal, skillLevel } = useOnboardingStore();
   const [itemLogo, setItemLogo] = useState("");
   const [isRouting, setIsRouting] = useState(false);
+
   const router = useRouter();
 
   const handleRoute = async () => {
@@ -67,10 +70,12 @@ function Mood() {
     }
 
     const body = {
-      skill_level: "beginner",
+      skill_level: skillLevel.toLowerCase(),
       learning_goal: "career_switch",
       support_style: null, // or a valid enum if available
-      interests: "", // ✅ required field
+      interests: interests, // ✅ required field
+      mood: mood,
+      extra_info: desc,
     };
 
     try {

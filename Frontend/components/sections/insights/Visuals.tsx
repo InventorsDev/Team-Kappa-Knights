@@ -94,7 +94,7 @@ const Visuals = () => {
       <p className="pb-3 font-bold text-[20px] md:text-[24px]">
         Learning Visuals
       </p>
-      <div className=" space-y-3 md:grid grid-cols-2 gap-x-10 gap-y-8">
+      <div className=" space-y-3 gap-x-10 gap-y-8">
         {/* <div className="relative border ">
           <VisualCards
             props={{

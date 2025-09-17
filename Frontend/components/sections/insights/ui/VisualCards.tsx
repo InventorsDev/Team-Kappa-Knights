@@ -18,7 +18,7 @@ const VisualCards = ({
         <p className="font-semibold md:text-[20px]">{props.title}</p>
         <p className="text-[#4A4A4A] md:text-[18px]">{props.subtitle}</p>
       </div>
-      <div className="w-full border h-full">{children}</div>
+      <div className="w-full h-full">{children}</div>
     </div>
   );
 };

@@ -1,25 +1,15 @@
 "use client";
 
-import { Bar } from "react-chartjs-2";
+import React, { useMemo } from "react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
+  BarChart as ReBarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
-  Legend,
-  ChartOptions,
-} from "chart.js";
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+  ResponsiveContainer,
+} from "recharts";
 
 type BarChartProps = {
   labels: string[];
@@ -27,61 +17,39 @@ type BarChartProps = {
   title?: string;
 };
 
-const BarChart = ({ labels, dataValues, title }: BarChartProps) => {
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Completion Rate (%)",
-        data: dataValues,
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-    ],
-  };
+const BarChart: React.FC<BarChartProps> = ({ labels, dataValues, title }) => {
+  // format data for recharts
+  const data = useMemo(
+    () =>
+      labels.map((label, i) => ({
+        name: label,
+        value: dataValues[i],
+      })),
+    [labels, dataValues]
+  );
 
-  const options: ChartOptions<"bar"> = {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      title: {
-        display: !!title,
-        text: title,
-      },
-      tooltip: {
-        callbacks: {
-          title: (context) => {
-            // Show full label in tooltip
-            return context[0].label;
-          },
-          label: (context) => {
-            return `Completion Rate: ${context.formattedValue}%`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        ticks: {
-          display: false, // 🚫 hide long labels on x-axis
-        },
-      },
-      y: {
-        beginAtZero: true,
-        max: 100,
-        ticks: {
-          callback: (value) => value + "%",
-        },
-      },
-    },
-    animation: {
-      duration: 1200,
-      easing: "easeOutBounce",
-    },
-  };
-
-  return <Bar data={data} options={options} />;
+  return (
+    <div className="w-full">
+      {title && <div className="mb-2 font-semibold">{title}</div>}
+      <ResponsiveContainer width="100%" height={300}>
+        <ReBarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          barCategoryGap="20%" // 👈 no gap between bars, they stretch full width
+          barGap="10%" // 👈 no gap between bars, they stretch full width
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="name" tick={false} />
+          <YAxis domain={[0, 100]} tickFormatter={(val: number) => `${val}%`} />
+          <Tooltip
+            formatter={(value: number) => [`Completion Rate: ${value}%`, ""]}
+            labelFormatter={(label: string) => label}
+          />
+          <Bar dataKey="value" fill="rgba(75, 192, 192, 0.6)" />
+        </ReBarChart>
+      </ResponsiveContainer>
+    </div>
+  );
 };
 
 export default BarChart;
