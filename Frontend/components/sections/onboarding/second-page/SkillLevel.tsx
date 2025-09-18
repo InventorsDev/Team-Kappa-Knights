@@ -26,15 +26,34 @@ const skills = [
 
 function SkillLevel() {
   // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
-  const {selectedSkillLevel, setSelectedSkillLevel} = useUserStore()
+  const { selectedSkillLevel, setSelectedSkillLevel } = useUserStore()
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const router = useRouter();
 
-  const handleRouting = () => {
+  const handleRouting = async () => {
     if (selectedSkillLevel === "") {
       toast.error("Please select a skill level");
       return;
     }
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          skills: selectedSkillLevel,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server said ${res.status}`);
+    } catch (err) {
+      console.log(err)
+    }
+
+
     setIsRouting(true);
     localStorage.setItem("skill_level", selectedSkillLevel);
     router.push("/onboarding/goals");
@@ -63,9 +82,8 @@ function SkillLevel() {
           return (
             <div
               key={index}
-              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${
-                selectedSkillLevel === item.name && "border-2 border-[#00BFA5]"
-              }`}
+              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${selectedSkillLevel === item.name && "border-2 border-[#00BFA5]"
+                }`}
               onClick={() => setSelectedSkillLevel(item.name)}
             >
               {selectedSkillLevel === item.name ? (

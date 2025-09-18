@@ -21,8 +21,8 @@ const DetailCards = ({props}: {props: DetailCardsProps}) => {
                     {props.levelTime} mins
                 </button>
             </div>
-            <div className='flex gap-2'>
-                <Image src={`${props.levelStatusIcon}`} width={16} height={16} alt={`${props.levelStatus}`}/>
+            <div className='flex gap-2 items-center'>
+                <Image src={props.levelStatusIcon} width={16} height={16} alt={`${props.levelStatus}`} className='w-4 h-4'/>
                 <p className='text-[#00BFA5]'>{props.levelStatus}</p>
             </div>
         </div>

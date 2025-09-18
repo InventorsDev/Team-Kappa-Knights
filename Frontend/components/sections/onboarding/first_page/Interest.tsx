@@ -20,7 +20,7 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
-  createdBy?: string 
+  createdBy?: string
 }
 
 interface user {
@@ -34,7 +34,7 @@ function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
   // const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const {selectedTags, setSelectedTags} = useUserStore()
+  const { selectedTags, setSelectedTags } = useUserStore()
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,6 @@ function Interest() {
     fetchUser();
   }, []);
 
-  // Load Firestore tags once
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -118,50 +117,50 @@ function Interest() {
   //   setIsClosed(true);
   // };
 
-// ...
+  // ...
 
-const handleAdd = async () => {
-  if (!name) {
-    toast.message("Please add a skill");
-    return;
-  }
+  const handleAdd = async () => {
+    if (!name) {
+      toast.message("Please add a skill");
+      return;
+    }
 
-  const user = auth.currentUser;
-  if (!user) {
-    toast.error("You must be signed in to add a skill");
-    return;
-  }
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("You must be signed in to add a skill");
+      return;
+    }
 
-  try {
-    const newTag = {
-      name,
-      bg: "rgb(173, 216, 230)",
-      border: "rgb(30, 144, 255)",
-      text: "rgb(0, 51, 102)",
-      icon: "Writing",
-      createdBy: user.uid, // 🔑 for rules
-    };
+    try {
+      const newTag = {
+        name,
+        bg: "rgb(173, 216, 230)",
+        border: "rgb(30, 144, 255)",
+        text: "rgb(0, 51, 102)",
+        icon: "Writing",
+        createdBy: user.uid, // 🔑 for rules
+      };
 
-    // Write to Firestore
-    const docRef = await addDoc(collection(db, "tags"), newTag);
+      // Write to Firestore
+      const docRef = await addDoc(collection(db, "tags"), newTag);
 
-    // Update local state so UI refreshes immediately
-    setFirestoreTags((prev) => [
-      ...prev,
-      { id: docRef.id, ...newTag, custom: false },
-    ]);
+      // Update local state so UI refreshes immediately
+      setFirestoreTags((prev) => [
+        ...prev,
+        { id: docRef.id, ...newTag, custom: false },
+      ]);
 
-    // Auto-select the tag
-    setSelectedTags((prev) => [...prev, newTag.name]);
+      // Auto-select the tag
+      setSelectedTags((prev) => [...prev, newTag.name]);
 
-    setName("");
-    setIsClosed(true);
-    toast.success("Skill added!");
-  } catch (err) {
-    console.error("Error adding tag:", err);
-    toast.error(getFirebaseErrorMessage(err));
-  }
-};
+      setName("");
+      setIsClosed(true);
+      toast.success("Skill added!");
+    } catch (err) {
+      console.error("Error adding tag:", err);
+      toast.error(getFirebaseErrorMessage(err));
+    }
+  };
 
 
 
@@ -196,7 +195,7 @@ const handleAdd = async () => {
     }
   };
 
-  const handleLimit = () => {
+  const handleLimit = async () => {
     if (selectedTags.length > 5) {
       toast.message("The skills selected exceed the limit");
       return;
@@ -205,6 +204,29 @@ const handleAdd = async () => {
       toast.message("The skills selected do not meet the limit.");
       return;
     }
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast('no token')
+        return
+      }
+      const res = await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interests: selectedTags,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server said ${res.status}`);
+
+    } catch (err) {
+      console.log(err)
+    }
+
     localStorage.clear();
     router.push("./skill-level");
   };

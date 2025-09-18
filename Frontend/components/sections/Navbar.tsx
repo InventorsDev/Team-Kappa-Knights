@@ -96,6 +96,10 @@ const Navbar = () => {
         fetchData()
   }, [])
 
+  useEffect(() => {
+      console.log(`the profile pic: ${profilePic}`)
+    }, [profilePic])
+
 
   return (
     <main>

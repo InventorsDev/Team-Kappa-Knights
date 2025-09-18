@@ -209,7 +209,7 @@ const PersonalInfo = () => {
           {/* Email */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <label className="w-32 md:text-[16px] md:font-semibold">Email</label>
-            {isEditing ? (
+            {/* {isEditing ? (
               <input
                 type="text"
                 value={email}
@@ -220,7 +220,10 @@ const PersonalInfo = () => {
               <div className="md:py-4 p-2 rounded-lg border border-[#CCCCCC] flex-1">
                 {email}
               </div>
-            )}
+            )} */}
+            <div className="md:py-4 p-2 rounded-lg border border-[#CCCCCC] flex-1">
+                {email}
+              </div>
           </div>
 
           {/* Gender */}

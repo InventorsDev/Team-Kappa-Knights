@@ -45,7 +45,7 @@ export default function DetailsPage({ params }: Props) {
           else if (item.status === 'not-started') statusIcon = Locked
 
           return {
-            id: item.content_id,
+            id: item.sequence,
             levelTitle: item.title,
             levelContent: item.content_url,
             levelTime: 0,
@@ -56,7 +56,7 @@ export default function DetailsPage({ params }: Props) {
 
         setCourseItems(formatted)
 
-        setCourseItems(formatted)
+        //setCourseItems(formatted)
       } catch (err) {
         console.error(err)
       }

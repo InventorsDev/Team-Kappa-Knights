@@ -21,6 +21,7 @@ const CoursesSet = () => {
           },
         })
 
+        // console.log(selectedTags)
 
         // const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
         //   method: 'POST',
@@ -40,7 +41,6 @@ const CoursesSet = () => {
         setCourses(data)
 
 
-//         console.log(selectedTags)
 //         const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
 //   method: 'POST',
 //   headers: {
