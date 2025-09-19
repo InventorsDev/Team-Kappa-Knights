@@ -32,11 +32,29 @@ function SkillLevel() {
   const { setSkillLevel, skillLevel } = useOnboardingStore();
   const router = useRouter();
 
-  const handleRouting = () => {
+  const handleRouting = async () => {
     if (selectedSkillLevel === "") {
       toast.error("Please select a skill level");
       return;
     }
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          skills: selectedSkillLevel,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server said ${res.status}`);
+    } catch (err) {
+      console.log(err);
+    }
+
     setIsRouting(true);
     setSkillLevel(selectedSkillLevel);
     console.log(skillLevel);

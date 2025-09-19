@@ -37,10 +37,10 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
             <section className='pb-4'>
                 <p className='font-semibold text-[18px] md:text-[20px] pb-2 text-[#212121]'>Course Overview</p>
                 <p className=' text-[16px] pb-4 md:text-[18px]'>{props.overview}</p>
-                <div className='flex  py-2 text-[14px] md:text-[16px]'>
-                    {props.difficulty}  &middot;  
-                    {props.levelTotal} Levels  &middot;  
-                    {props.duration} weeks  &middot;  
+                <div className='flex space-x-2  py-2 text-[14px] capitalize md:text-[16px]'>
+                    <p>{props.difficulty} </p> <p>&middot; </p> 
+                    <p>{props.levelTotal} Levels </p> <p>&middot; </p>  
+                    <p>{props.duration}</p> <p>&middot; </p> 
                     <div className='flex gap-1 items-center px-1'>
                         <Image src={Star} width={40} height={40} alt='' className='w-4 '/>
                         <p>{props.rating}/5</p>

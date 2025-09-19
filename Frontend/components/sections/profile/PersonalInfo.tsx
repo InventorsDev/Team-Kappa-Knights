@@ -222,6 +222,9 @@ const PersonalInfo = () => {
                 {email}
               </div>
             )}
+            <div className="md:py-4 p-2 rounded-lg border border-[#CCCCCC] flex-1">
+              {email}
+            </div>
           </div>
 
           {/* Gender */}

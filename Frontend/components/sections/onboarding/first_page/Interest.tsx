@@ -63,7 +63,6 @@ function Interest() {
     fetchUser();
   }, []);
 
-  // Load Firestore tags once
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -205,7 +204,7 @@ function Interest() {
     }
   };
 
-  const handleLimit = () => {
+  const handleLimit = async () => {
     if (selectedTags.length > 5) {
       toast.message("The skills selected exceed the limit");
       return;
@@ -214,6 +213,28 @@ function Interest() {
       toast.message("The skills selected do not meet the limit.");
       return;
     }
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast("no token");
+        return;
+      }
+      const res = await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interests: selectedTags,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server said ${res.status}`);
+    } catch (err) {
+      console.log(err);
+    }
+
     localStorage.clear();
     router.push("./skill-level");
   };
