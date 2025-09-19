@@ -18,6 +18,7 @@ import { getCurrentUserFromFirestore } from "@/lib/auth";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
 import { useUserStore } from "@/state/store";
 import { useOnboardingStore } from "@/state/useOnboardingData";
+import { clearNonAuthStorage } from "@/lib/token";
 
 interface Tags {
   id: string;
@@ -215,8 +216,10 @@ function Interest() {
     }
     try {
       const token = localStorage.getItem("token");
+      console.log('Interest handleLimit - checking token:', token ? 'FOUND' : 'NOT FOUND');
       if (!token) {
         toast("no token");
+        console.error('No token found in Interest page!');
         return;
       }
       const res = await fetch("http://34.228.198.154/api/user/me", {
@@ -235,7 +238,14 @@ function Interest() {
       console.log(err);
     }
 
-    localStorage.clear();
+    // Safe clearing that preserves authentication tokens
+    clearNonAuthStorage(['newTags']); // Only clear specific non-auth items
+    
+    // Verify token is still there before navigation
+    const tokenAfterClear = localStorage.getItem("token");
+    console.log('After safe clearing, token still exists:', tokenAfterClear ? 'YES' : 'NO');
+    console.log('Navigating to skill-level, token preserved');
+    
     router.push("./skill-level");
   };
 

@@ -60,23 +60,44 @@ export const handleSignin = async (
     const fbUser = await signInWithEmailAndPassword(auth, email, password);
 
     // STEP 3: store backend token
+    console.log('Storing token from backend login:', resolvedUser.idToken);
     localStorage.setItem("token", resolvedUser.idToken);
-    console.log(resolvedUser.idToken);
+    
+    // Also get Firebase token as backup
+    const firebaseToken = await fbUser.user.getIdToken();
+    console.log('Firebase token:', firebaseToken);
 
     // STEP 4: check Firestore for onboarding status
     const userRef = doc(db, "users", fbUser.user.uid);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      throw new Error("User not found in Firestore");
+      console.warn("User not found in Firestore, assuming not onboarded");
+      // Create user document with default values
+      await setDoc(userRef, {
+        email: fbUser.user.email,
+        name: fbUser.user.displayName || email,
+        verified: fbUser.user.emailVerified,
+        isOnboarded: false,
+      });
+      console.log("User needs onboarding - starting onboarding flow");
+      setLoggingIn(false); // Reset loading state
+      isDone(true); // Start onboarding flow
+      return { backend: resolvedUser, firebase: fbUser.user };
     }
 
     const userData = userSnap.data() as FirestoreUser;
-    console.log(userData);
+    console.log('User Firebase profile:', userData);
+    console.log('Onboarding status:', userData.isOnboarded);
 
+    // Check onboarding status and route accordingly
     if (!userData.isOnboarded) {
-      isDone(true);
+      console.log("User needs onboarding - starting onboarding flow");
+      setLoggingIn(false); // Reset loading state
+      isDone(true); // ✅ Only set to true when user hasn't completed onboarding
     } else {
+      console.log("User has completed onboarding - redirecting to dashboard");
+      setLoggingIn(false); // Reset loading state
       toast.success("Logged in successfully");
       router.push("/dashboard");
     }
@@ -206,6 +227,7 @@ export const handleCreateAccount = async (
     });
 
     // STEP 5: Store token locally (for API calls)
+    console.log('Storing token from account creation:', idToken);
     localStorage.setItem("token", idToken);
 
     // STEP 6: Navigate away
@@ -240,4 +262,57 @@ export async function getCurrentUserFromFirestore() {
   if (!userSnap.exists()) return null;
 
   return userSnap.data() as { name: string; email: string };
+}
+
+// Check user's onboarding status from Firestore
+export async function getUserOnboardingStatus(): Promise<{ isOnboarded: boolean; userData: FirestoreUser | null }> {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      return { isOnboarded: false, userData: null };
+    }
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      console.warn('User document does not exist in Firestore');
+      return { isOnboarded: false, userData: null };
+    }
+
+    const userData = userSnap.data() as FirestoreUser;
+    return { isOnboarded: userData.isOnboarded || false, userData };
+  } catch (error) {
+    console.error("Failed to check onboarding status:", error);
+    return { isOnboarded: false, userData: null };
+  }
+}
+
+// Update user's onboarding status in Firestore
+export async function updateUserOnboardingStatus(isOnboarded: boolean = true) {
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("No user logged in.");
+    }
+
+    const userRef = doc(db, "users", currentUser.uid);
+    await setDoc(userRef, { isOnboarded }, { merge: true });
+    
+    console.log(`User onboarding status updated to: ${isOnboarded}`);
+    return true;
+  } catch (error) {
+    console.error("Failed to update onboarding status:", error);
+    throw error;
+  }
+}
+
+// Debug function to check current user's onboarding status (can be called from browser console)
+export async function debugUserOnboardingStatus() {
+  console.log('=== USER ONBOARDING STATUS DEBUG ===');
+  const { isOnboarded, userData } = await getUserOnboardingStatus();
+  console.log('Is Onboarded:', isOnboarded);
+  console.log('User Data:', userData);
+  console.log('=====================================');
+  return { isOnboarded, userData };
 }

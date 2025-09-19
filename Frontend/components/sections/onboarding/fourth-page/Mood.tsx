@@ -62,53 +62,8 @@ function Mood() {
       toast.error("please select your mood");
       return;
     }
-
-    const token = await auth.currentUser?.getIdToken();
-    if (!token) {
-      console.error("No Firebase token found, user not authenticated");
-      return;
-    }
-
-    const body = {
-      skill_level: skillLevel.toLowerCase(),
-      learning_goal: "career_switch",
-      support_style: null, // or a valid enum if available
-      interests: interests, // ✅ required field
-      mood: mood,
-      extra_info: desc,
-    };
-
-    try {
-      const res = await fetch(
-        "http://34.228.198.154/api/user/complete-onboarding",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-        }
-      );
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(
-          `Failed onboarding: ${res.status} ${
-            res.statusText
-          } → ${JSON.stringify(data)}`
-        );
-      }
-
-      console.log("Onboarding success:", data);
-      // setIsRouting(true);
-      // router.push("/support");
-    } catch (err) {
-      console.error("Onboarding error:", err);
-    }
-
-    // setIsRouting(true);
-    // router.push("/support");
+    setIsRouting(true);
+    router.push("/support");
   };
   return (
     <div className="py-8 px-4 text-[#212121]">
