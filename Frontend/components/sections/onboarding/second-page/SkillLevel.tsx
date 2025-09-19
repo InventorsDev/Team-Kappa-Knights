@@ -3,7 +3,7 @@ import Image from "next/image";
 import logo from "@/public//images/logo.png";
 import unselected from "@/public/SVGs/checkbox_unselected.svg";
 import selected from "@/public/SVGs/checkbox_selected.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -26,10 +26,13 @@ const skills = [
 
 function SkillLevel() {
   // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
-  const { selectedSkillLevel, setSelectedSkillLevel } = useUserStore()
+  const { selectedSkillLevel, setSelectedSkillLevel, selectedTags } = useUserStore()
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const router = useRouter();
 
+  useEffect(() => {
+    console.log(selectedTags)
+  }, [])
   const handleRouting = async () => {
     if (selectedSkillLevel === "") {
       toast.error("Please select a skill level");
