@@ -8,59 +8,49 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const skills = [
   {
-    name: "Beginner",
+    name: "beginner",
     desc: "Just starting out, learning the basics",
   },
   {
-    name: "Intermediate",
+    name: "intermediate",
     desc: "Comfortable with the fundamentals",
   },
   {
-    name: "Advanced",
+    name: "advanced",
     desc: "Experienced and looking for challenges",
   },
 ];
 
 function SkillLevel() {
   // const [selectedSkillLevel, setSelectedSkillLevel] = useState<string>("");
-  const { selectedSkillLevel, setSelectedSkillLevel, selectedTags } = useUserStore()
+  const { selectedSkillLevel, setSelectedSkillLevel, selectedTags } =
+    useUserStore();
   const [isRouting, setIsRouting] = useState<boolean>(false);
+  const { setSkillLevel, skillLevel } = useOnboardingStore();
   const router = useRouter();
 
   useEffect(() => {
-    console.log(selectedTags)
-  }, [])
+    console.log(selectedTags);
+  }, []);
   const handleRouting = async () => {
-    if (selectedSkillLevel === "") {
+    if (skillLevel === "") {
       toast.error("Please select a skill level");
       return;
     }
-    try {
-      const token = localStorage.getItem('token');
-      const res = await fetch("http://34.228.198.154/api/user/me", {
-        method: "PUT",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          skills: selectedSkillLevel,
-        }),
-      });
-
-      if (!res.ok) throw new Error(`Server said ${res.status}`);
-    } catch (err) {
-      console.log(err)
-    }
-
 
     setIsRouting(true);
-    localStorage.setItem("skill_level", selectedSkillLevel);
-    router.push("/onboarding/goals");
+
+    console.log(skillLevel);
+    router.push("/goals");
   };
+
+  useEffect(() => {
+    console.log(skillLevel);
+  }, [skillLevel]);
 
   return (
     <div className="py-8">
@@ -85,11 +75,12 @@ function SkillLevel() {
           return (
             <div
               key={index}
-              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${selectedSkillLevel === item.name && "border-2 border-[#00BFA5]"
-                }`}
-              onClick={() => setSelectedSkillLevel(item.name)}
+              className={`flex  items-center gap-2  text-[15px] border w-[100%] m-auto rounded-[16px] py-4 px-2 cursor-default ${
+                skillLevel === item.name && "border-2 border-[#00BFA5]"
+              }`}
+              onClick={() => setSkillLevel(item.name)}
             >
-              {selectedSkillLevel === item.name ? (
+              {skillLevel === item.name ? (
                 <Image src={selected} alt="checkbox" width={30} height={30} />
               ) : (
                 <Image src={unselected} alt="checkbox" width={30} height={30} />

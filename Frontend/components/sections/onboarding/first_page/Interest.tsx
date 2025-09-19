@@ -3,7 +3,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/favicon.ico";
 import AuthButton from "@/components/common/button/Button";
-import { addDoc, collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import Loader from "@/components/common/loader/Loader";
@@ -11,6 +17,8 @@ import { useRouter } from "next/navigation";
 import { getCurrentUserFromFirestore } from "@/lib/auth";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
 import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
+import { clearNonAuthStorage } from "@/lib/token";
 
 interface Tags {
   id: string;
@@ -20,7 +28,7 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
-  createdBy?: string
+  createdBy?: string;
 }
 
 interface user {
@@ -34,16 +42,19 @@ function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
   // const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const { selectedTags, setSelectedTags } = useUserStore()
+  const { selectedTags, setSelectedTags } = useUserStore();
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const { setInterests, interests, addInterest } = useOnboardingStore();
   const router = useRouter();
   // const [limit, setLimit] = useState(0);
 
   useEffect(() => {
     console.log(selectedTags);
-  }, [selectedTags]);
+    setInterests(selectedTags);
+    console.log(interests);
+  }, [selectedTags, interests]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -152,6 +163,7 @@ function Interest() {
 
       // Auto-select the tag
       setSelectedTags((prev) => [...prev, newTag.name]);
+      addInterest(newTag.name);
 
       setName("");
       setIsClosed(true);
@@ -161,8 +173,6 @@ function Interest() {
       toast.error(getFirebaseErrorMessage(err));
     }
   };
-
-
 
   const handleDelete = async (id: string, custom?: boolean) => {
     try {
@@ -205,15 +215,17 @@ function Interest() {
       return;
     }
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+      console.log('Interest handleLimit - checking token:', token ? 'FOUND' : 'NOT FOUND');
       if (!token) {
-        toast('no token')
-        return
+        toast("no token");
+        console.error('No token found in Interest page!');
+        return;
       }
       const res = await fetch("http://34.228.198.154/api/user/me", {
         method: "PUT",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -222,12 +234,18 @@ function Interest() {
       });
 
       if (!res.ok) throw new Error(`Server said ${res.status}`);
-
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
 
-    localStorage.clear();
+    // Safe clearing that preserves authentication tokens
+    clearNonAuthStorage(['newTags']); // Only clear specific non-auth items
+    
+    // Verify token is still there before navigation
+    const tokenAfterClear = localStorage.getItem("token");
+    console.log('After safe clearing, token still exists:', tokenAfterClear ? 'YES' : 'NO');
+    console.log('Navigating to skill-level, token preserved');
+    
     router.push("./skill-level");
   };
 

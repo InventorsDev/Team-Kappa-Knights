@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/common/loader/Loader";
 
 export default function ClientLayoutWrapper({
   children,
@@ -23,7 +24,7 @@ export default function ClientLayoutWrapper({
     return () => unsubscribe();
   }, []);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <Loader />;
   if (!user) {
     router.push("/");
     return;

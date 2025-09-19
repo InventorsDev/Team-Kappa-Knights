@@ -8,10 +8,11 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { useUsername } from "@/state/usernameStore";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 const AllSet = () => {
- // const name = useUsername((state) => state.name);
- const {name} = useUserStore()
+  // const name = useUsername((state) => state.name);
+  const { profile } = useUserProfileStore();
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
@@ -22,7 +23,7 @@ const AllSet = () => {
 
   const handleRoute = () => {
     setIsRouting(true);
-    router.push("/");
+    router.push("/dashboard");
   };
   return (
     <main className="relative">
@@ -38,7 +39,7 @@ const AllSet = () => {
             />
           </div>
           <p className="text-[24px] font-[500]">
-            You&apos;re all set, {getFirstName(name)}
+            You&apos;re all set, {getFirstName(profile?.full_name)}
           </p>
           <p className="text-gray-500 pb-10">
             We&apos;ve personalised your learning experience based on your

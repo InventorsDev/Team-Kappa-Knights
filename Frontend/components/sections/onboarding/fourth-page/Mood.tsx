@@ -7,6 +7,7 @@ import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { auth } from "@/lib/firebase";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const moods = [
   {
@@ -50,8 +51,10 @@ const moods = [
 function Mood() {
   const [mood, setMood] = useState("");
   const [desc, setDesc] = useState("");
-  const [itemLogo, setItemLogo] = useState("")
+  const { interests, learningGoal, skillLevel } = useOnboardingStore();
+  const [itemLogo, setItemLogo] = useState("");
   const [isRouting, setIsRouting] = useState(false);
+
   const router = useRouter();
 
   const handleRoute = async () => {
@@ -59,24 +62,8 @@ function Mood() {
       toast.error("please select your mood");
       return;
     }
-
-    const token = await auth.currentUser?.getIdToken();
-    await fetch('http://34.228.198.154/api/user/complete-onboarding', {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(
-        {
-          content: desc,
-          title: itemLogo,
-          mood: mood
-        }
-      ),
-    });
     setIsRouting(true);
-    router.push("/onboarding/support");
+    router.push("/support");
   };
   return (
     <div className="py-8 px-4 text-[#212121]">
@@ -111,8 +98,9 @@ function Mood() {
                       : "none",
                 }}
                 onClick={() => {
-                  setMood(item.title)
-                  setItemLogo(item.logo)}}
+                  setMood(item.title);
+                  setItemLogo(item.logo);
+                }}
               >
                 <div className="w-[50px]">
                   <Image
