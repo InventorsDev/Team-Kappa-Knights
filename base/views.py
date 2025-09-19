@@ -122,12 +122,12 @@ from .serializers import CoursesSerializers, RecommendationInputSerializer
 @api_view(['POST'])
 def recommend_courses(request):
     """
-    Recommend courses based on skill level and interests (tags)
-    
-    Expected input:
+    Recommend courses based on optional skill level and required interests (tags)
+
+    Example request body:
     {
-        "skill_level": "beginner",
-        "interests": ["Machine Learning", "Python"]
+        "skill_level": "beginner",       # optional
+        "interests": ["Machine Learning", "Python"]   # required, non-empty list
     }
     """
     try:
@@ -138,50 +138,49 @@ def recommend_courses(request):
                 'error': 'Invalid input data',
                 'details': input_serializer.errors
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Extract validated data
         validated_data = input_serializer.validated_data
-        skill_level = validated_data['skill_level']
+        skill_level = validated_data.get('skill_level')   # now optional
         interests = validated_data['interests']
-        
-        # Build the query
-        courses_query = Courses.objects.filter(difficulty=skill_level)
-        
-        if interests:
-            # Filter courses that have tags matching the interests
-            # Using case-insensitive matching for better UX
-            tag_query = Q()
-            for interest in interests:
-                tag_query |= Q(tags__name__icontains=interest.strip())
-            
-            courses_query = courses_query.filter(tag_query).distinct()
-            
-            # Annotate with the number of matching tags for better sorting
-            courses_query = courses_query.annotate(
-                matching_tags_count=Count('tags', filter=tag_query)
-            ).order_by('-matching_tags_count', '-rating', '-created_at')
-        else:
-            # If no specific interests, order by rating and creation date
-            courses_query = courses_query.order_by('-rating', '-created_at')
-        
-        # Limit results to top 10 recommendations
+
+        # Start with all courses
+        courses_query = Courses.objects.all()
+
+        # Filter by skill level only if provided
+        if skill_level:
+            courses_query = courses_query.filter(difficulty=skill_level)
+
+        # Filter by interests (tags)
+        tag_query = Q()
+        for interest in interests:
+            tag_query |= Q(tags__name__icontains=interest.strip())
+
+        courses_query = courses_query.filter(tag_query).distinct()
+
+        # Annotate with matching tag count for better ranking
+        courses_query = courses_query.annotate(
+            matching_tags_count=Count('tags', filter=tag_query)
+        ).order_by('-matching_tags_count', '-rating', '-created_at')
+
+        # Limit results to top 10
         recommended_courses = courses_query[:10]
-        
+
         # Serialize the courses
         output_serializer = CoursesSerializers(recommended_courses, many=True)
-        
+
         # Prepare response
         response_data = {
             'recommendations': output_serializer.data,
             'total_found': len(output_serializer.data),
             'filters_applied': {
-                'skill_level': skill_level,
+                'skill_level': skill_level if skill_level else "not specified",
                 'interests': interests
             }
         }
-        
+
         return Response(response_data, status=status.HTTP_200_OK)
-        
+
     except Exception as e:
         return Response({
             'error': 'An error occurred while processing your request',

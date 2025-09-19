@@ -37,7 +37,7 @@ class CoursesSerializers(serializers.ModelSerializer):
 
 
 class RecommendationInputSerializer(serializers.Serializer):   
-    skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')])
+    skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], allow_blank=True, required=False)
     interests = serializers.ListField(child=serializers.CharField(), allow_empty=False)
     #course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
 
@@ -61,3 +61,16 @@ class CourseEnrollmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseEnrollment
         fields = ['enrollment', 'user', 'course', 'enrolled_at', 'completed', 'progress']
+
+
+class ExternalCourseSerializer(serializers.Serializer):
+    course_id = serializers.IntegerField()
+    title = serializers.CharField()
+    description = serializers.CharField(allow_blank=True, required=False)
+    course_url = serializers.URLField()
+    difficulty = serializers.CharField()
+    rating = serializers.DecimalField(max_digits=3, decimal_places=2, required=False)
+    progress = serializers.FloatField(required=False)
+    duration = serializers.CharField(required=False, allow_blank=True)
+    tutor_academy = serializers.CharField(required=False, allow_blank=True)
+    overview = serializers.CharField(required=False, allow_blank=True)
