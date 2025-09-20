@@ -43,13 +43,15 @@ class RecommendationInputSerializer(serializers.Serializer):
 
 # Input validation serializer for course search
 class CourseSearchInputSerializer(serializers.Serializer):
-    query = serializers.CharField(
-        max_length=500,
+    interest = serializers.ListField(
+        child=serializers.CharField(max_length=100),
         required=True,
-        help_text="Search term to look for in course title, description, and tags"
+        help_text="List of interests to look for in course title, description, and tags"
     )
     skill_level = serializers.ChoiceField(
-        choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')],
+        choices=[('beginner', 'Beginner'),
+                 ('intermediate', 'Intermediate'),
+                 ('advanced', 'Advanced')],
         required=False,
         help_text="Filter by difficulty level"
     )

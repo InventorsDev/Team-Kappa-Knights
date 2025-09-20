@@ -86,12 +86,12 @@ class RecommendAllCoursesView(APIView):
     """
     POST:
     {
-        "query": "python machine learning",   # required search term
-        "skill_level": "beginner"             # optional difficulty filter
+        "interest": ["python", "machine learning"],   # required list of interests
+        "skill_level": "beginner"                     # optional difficulty filter
     }
 
     Logic:
-    1. Search database courses by query/skill_level.
+    1. Search database courses by interests/skill_level.
     2. If <4 results → fetch external recommendations and merge.
     3. If >=4 results → return DB results only.
     """
@@ -110,7 +110,7 @@ class RecommendAllCoursesView(APIView):
                 )
 
             validated = input_serializer.validated_data
-            query = validated.get("query", "").strip()
+            interests = [i.strip() for i in validated.get("interest", []) if i.strip()]
             skill_level = validated.get("skill_level")
 
             # Step 2 – Build database query
@@ -118,12 +118,14 @@ class RecommendAllCoursesView(APIView):
             if skill_level:
                 courses_qs = courses_qs.filter(difficulty=skill_level)
 
-            if query:
-                search_filter = (
-                    Q(title__icontains=query) |
-                    Q(description__icontains=query) |
-                    Q(tags__name__icontains=query)
-                )
+            if interests:
+                search_filter = Q()
+                for word in interests:
+                    search_filter |= (
+                        Q(title__icontains=word) |
+                        Q(description__icontains=word) |
+                        Q(tags__name__icontains=word)
+                    )
                 courses_qs = courses_qs.filter(search_filter)
 
             db_courses = (
@@ -137,10 +139,9 @@ class RecommendAllCoursesView(APIView):
 
             # Step 4 – If fewer than 4 results, fetch external
             if len(db_serialized) < 4:
-                tags_for_external = query.split() if query else []
                 service = Nuroki()
                 external_courses = service.recommend_courses_m(
-                    tags=tags_for_external,
+                    tags=interests,
                     difficulty=skill_level or "beginner"
                 )
 
@@ -157,7 +158,7 @@ class RecommendAllCoursesView(APIView):
                     "courses": recommendations,
                     "total_returned": len(recommendations),
                     "search_info": {
-                        "query": query,
+                        "interest": interests,
                         "skill_level": skill_level,
                         "searched_fields": ["title", "description", "tags"]
                     }
