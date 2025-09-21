@@ -81,14 +81,20 @@ const Sidebar = () => {
       </div>
 
       {/* Logout at bottom */}
-      <div className="flex flex-col items-center justify-center mb-6">
+      <div className={`flex flex-col items-center justify-center mb-6  ${
+                pathname === '/logout'
+                  ? "text-[#FF6665] bg-[#FFF3F3] border-r-3 border-[#FF6665]"
+                  : "text-[#212121] bg-white"
+              }`}>
+        
+        <Link href={'/logout'}>
         <Image
           src="/dashboard/logout.png"
           width={32}
           height={32}
           alt="Log Out"
-        />
-        <p className="text-[16px] text-[#EA4335]">Log Out</p>
+        /><p className="text-[16px] text-[#EA4335] hover:cursor-pointer">Log Out</p>
+        </Link>
       </div>
     </aside>
   );

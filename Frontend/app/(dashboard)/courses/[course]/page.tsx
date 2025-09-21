@@ -28,7 +28,7 @@ export default function DetailsPage({ params }: Props) {
       try {
         const res = await fetch(
           // ${courseItem.id}
-          `https://nuroki-backend.onrender.com/roadmaps/1/contents/`,
+          `https://nuroki-backend.onrender.com/roadmaps/${courseItem.id}/contents/`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },

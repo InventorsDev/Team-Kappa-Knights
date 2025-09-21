@@ -28,8 +28,8 @@ const Profile = () => {
         </div>
         <hr className="border border-[#CCCCCC]/30 w-full" />
       </section>
-      <div className="md:flex block md:border rounded-2xl md:p-7 md:mt-8 select-none gap-8 items-center">
-        <Photo />
+      <div className="md:flex block rounded-2xl md:mt-8 select-none gap-8 items-center">
+        {/* <Photo /> */}
         <PersonalInfo />
       </div>
       <div className="md:border rounded-2xl md:p-7 md:mt-8">

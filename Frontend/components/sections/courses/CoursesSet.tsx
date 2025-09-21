@@ -13,29 +13,29 @@ const CoursesSet = () => {
     const token = localStorage.getItem('token')
     const fetchCourses = async () => {
       try {
-        const res = await fetch('https://nuroki-backend.onrender.com/courses/', {
-          method: 'GET',
-          headers: {
-            // Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        })
-
-        // console.log(selectedTags)
-
-        // const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
-        //   method: 'POST',
+        // const res = await fetch('https://nuroki-backend.onrender.com/courses/', {
+        //   method: 'GET',
         //   headers: {
         //     // Authorization: `Bearer ${token}`,
         //     'Content-Type': 'application/json',
         //   },
-        //   body: JSON.stringify({
-        //     skill_level: selectedSkillLevel,
-        //     interests: selectedTags
-        //   })
         // })
 
+        // console.log(selectedTags)
 
+        const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
+          method: 'POST',
+          headers: {
+            // Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            // skill_level: selectedSkillLevel,
+            interests: selectedTags
+          })
+        })
+
+        console.log(res)
         if (!res.ok) throw new Error('Failed to fetch courses')
         const data: CourseDataType[] = await res.json()
         setCourses(data)
