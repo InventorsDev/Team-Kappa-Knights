@@ -4,10 +4,14 @@ import { useRouter } from "next/navigation";
 import { useUserProfileStore } from "@/state/user";
 import { UserProfile } from "@/types/user";
 import Loader from "@/components/common/loader/Loader";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 type Props = { children: ReactNode };
 
-const getCurrentUser = async (token: string): Promise<UserProfile | null> => {
+const getCurrentUser = async (
+  token: string,
+  router: AppRouterInstance
+): Promise<UserProfile | null> => {
   try {
     const res = await fetch("http://34.228.198.154/api/user/me", {
       method: "GET",
@@ -19,6 +23,7 @@ const getCurrentUser = async (token: string): Promise<UserProfile | null> => {
 
     if (!res.ok) {
       console.error("Failed to fetch user:", res.statusText);
+      router.replace("/");
       return null;
     }
 
@@ -43,7 +48,7 @@ export default function ProtectedLayout({ children }: Props) {
     }
 
     (async () => {
-      const user = await getCurrentUser(token);
+      const user = await getCurrentUser(token, router);
       if (user) {
         setProfile(user); // ✅ save user into Zustand store
       } else {

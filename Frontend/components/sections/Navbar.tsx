@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Profile from "@/public/dashboard/profile.png";
 import SidebarIcon from "@/public/dashboard/sideFrame.png";
@@ -12,7 +12,6 @@ import X from "@/public/dashboard/xButton.png";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { pages } from "@/lib/pages";
-import { useUserStore } from "@/state/store";
 import { useUserProfileStore } from "@/state/user";
 
 const mobileNavItems = [
@@ -65,43 +64,21 @@ const Navbar = () => {
   const pathname = usePathname();
   const isDashboard = pathname.includes("/dashboard");
 
-  // const { name, profilePic, setName, setProfilePic } = useUserStore();
   const { profile } = useUserProfileStore();
 
   const currentPage =
     pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) return;
-
-  //     try {
-  //       const res = await fetch("http://34.228.198.154/api/user/me", {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-  //       if (!res.ok) return;
-
-  //       const data = await res.json();
-  //       setName(data.full_name || "");
-  //       setProfilePic(data.profile_picture_url || "");
-  //     } catch (err) {
-  //       console.error("fetch user failed:", err);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [setName, setProfilePic]);
-
   return (
     <main>
       <nav className="select-none top-0 px-3 md:pr-8 bg-white md:py-[1%] md:border-b md:border-gray-600">
         <div className="flex justify-between md:justify-start items-center">
-          {/* Logo */}
+          {/* Logo (desktop only) */}
           <div className="hidden md:flex w-[8%] justify-center">
             <Image src={Logo} width={25} height={25} alt="Logo" />
           </div>
 
-          {/* Page title */}
+          {/* Page title (desktop only) */}
           <div className="hidden md:block pl-2">
             <p className="text-[24px] w-full">{currentPage}</p>
           </div>
@@ -112,20 +89,21 @@ const Navbar = () => {
               isDashboard ? "flex" : "block"
             } justify-between w-full items-center`}
           >
-            <div
-              className={`flex justify-between w-full md:justify-end items-center ${
-                isDashboard ? "py-4" : "py-0"
-              } md:py-0`}
-            >
-              <section className="md:flex items-center gap-6">
-                {/* Search (desktop only) */}
-                <div className="hidden md:block">
-                  <Image src={Search} alt="Search" />
-                </div>
+            {isDashboard ? (
+              /* DASHBOARD NAVBAR */
+              <div
+                className={`flex justify-between w-full md:justify-end items-center ${
+                  isDashboard ? "py-4" : "py-0"
+                } md:py-0`}
+              >
+                <section className="md:flex items-center gap-6">
+                  {/* Search (desktop only) */}
+                  <div className="hidden md:block">
+                    <Image src={Search} alt="Search" />
+                  </div>
 
-                {/* User info */}
-                <section className="flex gap-2 md:gap-4 items-center">
-                  {isDashboard && (
+                  {/* User info */}
+                  <section className="flex gap-2 md:gap-4 items-center">
                     <div>
                       <Image
                         src={
@@ -137,8 +115,6 @@ const Navbar = () => {
                         className="rounded-full"
                       />
                     </div>
-                  )}
-                  {isDashboard && (
                     <div className="md:hidden">
                       <p className="text-[20px] font-bold">
                         Hello, <FirstName />!
@@ -147,32 +123,40 @@ const Navbar = () => {
                         Here's to steady growth.
                       </p>
                     </div>
-                  )}
-                  <div className="hidden md:block">
-                    <p className="text-[24px] font-bold capitalize">
-                      <UserName />
-                    </p>
-                    <p className="text-[18px] text-[#4A4A4A]">Admin</p>
-                  </div>
+                    <div className="hidden md:block">
+                      <p className="text-[24px] font-bold capitalize">
+                        <UserName />
+                      </p>
+                      <p className="text-[18px] text-[#4A4A4A]">Admin</p>
+                    </div>
+                  </section>
                 </section>
-              </section>
 
-              {/* Mobile menu button */}
-              <div
-                className="block md:hidden cursor-pointer"
-                onClick={() => setIsClicked(true)}
-              >
-                <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                {/* Mobile menu button */}
+                <div
+                  className="block md:hidden cursor-pointer"
+                  onClick={() => setIsClicked(true)}
+                >
+                  <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                </div>
               </div>
-            </div>
+            ) : (
+              /* NON-DASHBOARD NAVBAR (mobile only) */
+              <div className="flex items-center justify-between w-full py-4 md:hidden">
+                {/* Back button */}
 
-            {/* Non-dashboard menu button */}
-            {!isDashboard && (
-              <div
-                className="block md:hidden cursor-pointer"
-                onClick={() => setIsClicked(true)}
-              >
-                <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                <Image src="/SVGs/back.svg" width={15} height={15} alt="Back" />
+
+                {/* Page Title */}
+                <p className="text-[20px] font-bold">{currentPage}</p>
+
+                {/* Sidebar button */}
+                <div
+                  className="cursor-pointer"
+                  onClick={() => setIsClicked(true)}
+                >
+                  <Image src={SidebarIcon} width={24} height={24} alt="menu" />
+                </div>
               </div>
             )}
           </section>

@@ -7,9 +7,9 @@ import selected from "@/public/SVGs/checkbox_selected.svg";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { auth } from "@/lib/firebase";
+// import { auth } from "@/lib/firebase";
 import { useOnboardingStore } from "@/state/useOnboardingData";
-import { getToken, debugTokens } from "@/lib/token";
+import { getToken } from "@/lib/token";
 import { updateUserOnboardingStatus } from "@/lib/auth";
 
 const options = [
@@ -18,7 +18,6 @@ const options = [
   " I want full control. Just guide me when I ask",
   " I’m still figuring it out",
 ];
-
 
 function Support() {
   // const [support, setSupport] = useState("");
@@ -30,7 +29,7 @@ function Support() {
   // Check token on component mount
   useEffect(() => {
     const token = getToken();
-    
+
     if (!token) {
       console.log("No token found on mount, redirecting to login");
       toast.error("Authentication expired. Please log in again.");
@@ -45,7 +44,9 @@ function Support() {
 
     const token = getToken();
     if (!token) {
-      console.error("CRITICAL: Token is null when trying to complete onboarding!");
+      console.error(
+        "CRITICAL: Token is null when trying to complete onboarding!"
+      );
       toast.error("No authentication token found. Please log in again.");
       router.push("/");
       return;
@@ -81,16 +82,19 @@ function Support() {
       const data = await res.json();
 
       console.log("Backend onboarding success:", data);
-      
+
       // Update Firebase onboarding status
       try {
         await updateUserOnboardingStatus(true);
-        console.log('Firebase onboarding status updated successfully');
+        console.log("Firebase onboarding status updated successfully");
       } catch (error) {
-        console.warn('Firebase onboarding status update failed, but continuing...', error);
+        console.warn(
+          "Firebase onboarding status update failed, but continuing...",
+          error
+        );
         // Don't throw here - we don't want to fail the entire onboarding for this
       }
-      
+
       toast.success("Onboarding completed successfully!");
       router.push("/final");
     } catch (err) {
