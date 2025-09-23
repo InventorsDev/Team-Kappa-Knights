@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import React, { useEffect } from "react";
 import Mood from "./Mood";
 import LearningJourney from "./LearningJourney";
@@ -8,25 +8,24 @@ import ThisWeek from "./ThisWeek";
 import Recent from "./Recent";
 
 const Dashboard = () => {
+  //   useEffect(() => {
+  //     const fetchData = async () => {
+  //     const token = localStorage.getItem("token");
+  //     if (!token) return;
 
-  useEffect(() => {
-    const fetchData = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+  //     try {
+  //       const res = await fetch("http://34.228.198.154/api/user/me", {
+  //         headers: { Authorization: `Bearer ${token}` },
+  //       });
+  //       if (!res.ok) return;
 
-    try {
-      const res = await fetch("http://34.228.198.154/api/user/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-
-      const data = await res.json();
-      fetchData()
-    } catch (err) {
-      console.error("fetch user failed:", err);
-    }
-  };
-}, [])
+  //       const data = await res.json();
+  //       fetchData()
+  //     } catch (err) {
+  //       console.error("fetch user failed:", err);
+  //     }
+  //   };
+  // }, [])
   return (
     // <div>
     //   <Mood />
@@ -73,8 +72,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
 
 // import React, { useState } from "react";
 // import Mood from "./Mood";

@@ -47,8 +47,8 @@ const renderedWellnessData = wellnessData.map((item, index) => {
 
 function JournalPage() {
   return (
-    <div>
-      <div className="flex gap-4 px-1 border items-center rounded-lg">
+    <div className="flex flex-col gap-4">
+      <div className="flex gap-4 px-1 border items-center rounded-lg my-4">
         <div className="h-[80px] w-[50px] flex items-center justify-center">
           <Image src={journal} alt="journal" width={30} height={30} />
         </div>
@@ -60,7 +60,7 @@ function JournalPage() {
         </div>
       </div>
       <section>
-        <h1 className=" text-[#212121] text-[1.2em]  font-semibold">
+        <h1 className=" text-[#212121] text-[1.2em] my-4  font-semibold">
           How Journaling Helps;{" "}
         </h1>
         <section className="flex flex-col gap-4">
@@ -77,13 +77,15 @@ function JournalPage() {
             isAuth={false}
           />
         </Link>
-        <AuthButton
-          // isSecondary
-          text="Start Writing"
-          textWhileActionIsTakingPlace="Loading"
-          action={false}
-          isAuth={false}
-        />
+        <Link href="/journals/create-journal">
+          <AuthButton
+            isSecondary={true}
+            text="Start Writing"
+            textWhileActionIsTakingPlace="Loading"
+            action={false}
+            isAuth={false}
+          />
+        </Link>
       </section>
     </div>
   );

@@ -80,7 +80,7 @@ const Navbar = () => {
 
           {/* Page title (desktop only) */}
           <div className="hidden md:block pl-2">
-            <p className="text-[24px] w-full">{currentPage}</p>
+            <p className="text-[24px] w-full whitespace-nowrap">{currentPage}</p>
           </div>
 
           {/* Right section */}
@@ -148,7 +148,7 @@ const Navbar = () => {
                 <Image src="/SVGs/back.svg" width={15} height={15} alt="Back" />
 
                 {/* Page Title */}
-                <p className="text-[20px] font-bold">{currentPage}</p>
+                <p className="text-[20px] font-bold whitespace-nowrap">{currentPage}</p>
 
                 {/* Sidebar button */}
                 <div

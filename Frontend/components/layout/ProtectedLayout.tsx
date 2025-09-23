@@ -23,7 +23,6 @@ const getCurrentUser = async (
 
     if (!res.ok) {
       console.error("Failed to fetch user:", res.statusText);
-      router.replace("/");
       return null;
     }
 
@@ -47,16 +46,25 @@ export default function ProtectedLayout({ children }: Props) {
       return;
     }
 
-    (async () => {
+    let interval: NodeJS.Timeout;
+
+    const checkUser = async () => {
       const user = await getCurrentUser(token, router);
       if (user) {
-        setProfile(user); // ✅ save user into Zustand store
+        setProfile(user);
       } else {
-        router.replace("/"); // optional: kick out if fetch failed
+        localStorage.removeItem("token"); // clear bad token
+        router.replace("/");
       }
       setLoader(false);
-    })();
+    };
+
+    checkUser(); // run immediately
+    interval = setInterval(checkUser, 60_000); // run every 60s
+
+    return () => clearInterval(interval);
   }, [router, setProfile]);
+
   if (loader)
     return (
       <div className="h-screen w-screen flex items-center justify-center">

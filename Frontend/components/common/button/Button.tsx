@@ -18,11 +18,11 @@ function AuthButton({
     <button
       className={` ${
         isAuth
-          ? "bg-gradient-to-r from-[#00BFA5] via-[#00BFA5] to-[rgba(0,89,77,0.8)]"
+          ? "bg-gradient-to-r from-[#00BFA5] via-[#00BFA5] to-[rgba(0,89,77,0.8)] text-white"
           : isSecondary
-          ? "bg-[#EBFFFC] text-"
-          : "bg-[#00BFA5]"
-      }  text-white rounded-xl md:rounded-2xl py-[12px] w-full md:py-[15px] text-xl hover:cursor-pointer`}
+          ? "bg-[#EBFFFC] text-[#212121]"
+          : "bg-[#00BFA5] text-white"
+      } rounded-xl md:rounded-2xl py-[12px] w-full md:py-[15px] text-xl hover:cursor-pointer`}
       type="submit"
     >
       {action ? textWhileActionIsTakingPlace : text}
