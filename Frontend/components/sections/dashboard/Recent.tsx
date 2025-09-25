@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 type Journal = {
   content: string;
@@ -23,58 +23,85 @@ const Recent = () => {
   //   return days === 0 ? "Today" : `${days} day${days > 1 ? "s" : ""} ago`;
   // };
 
-  const formatRelative = (iso: string) => {
-  const created = Date.parse(iso) // always UTC timestamp
-  const diffMs = Date.now() - created
-  const diffMinutes = Math.floor(diffMs / (1000 * 60))
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  const formatTime = (iso: string) => {
+    try {
+      const date = new Date(iso);
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Invalid date";
+      }
+      
+      // Format time as HH:MM (24-hour format)
+      const timeString = date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+      
+      // Format date as abbreviated month and day
+      const dateString = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      return `${timeString} - ${dateString}`;
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return "Invalid date";
+    }
+  };
 
-  if (diffMinutes < 1) return "Just now"
-  if (diffMinutes < 60) return `${diffMinutes} min${diffMinutes > 1 ? "s" : ""} ago`
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`
-  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`
-}
 
+  const fetchJournal = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://34.228.198.154/journal", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!res.ok) throw new Error(`Failed to fetch journals: ${res.status}`);
+      const data: Journal[] = await res.json();
+
+      const mapped = data
+        .sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+        .slice(0, 3)
+        .map((entry) => ({
+          // prefer mood if present, else use some snippet of content
+          activity: entry.mood
+            ? `Logged Mood: ${entry.mood}`
+            : entry.content
+            ? `Journal: ${entry.content.slice(0, 30)}...`
+            : "Journal Entry",
+            time: formatTime(entry.created_at),
+        }));
+
+      setActivities(mapped);
+    } catch (err) {
+      console.error("recent activity error:", err);
+    }
+  }, []);
 
   useEffect(() => {
-    const fetchJournal = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://34.228.198.154/journal", {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!res.ok) throw new Error(`Failed to fetch journals: ${res.status}`);
-        const data: Journal[] = await res.json();
-
-        const mapped = data
-          .sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-          )
-          .slice(0, 3)
-          .map((entry) => ({
-            // prefer mood if present, else use some snippet of content
-            activity: entry.mood
-              ? `Logged Mood: ${entry.mood}`
-              : entry.content
-              ? `Journal: ${entry.content.slice(0, 30)}...`
-              : "Journal Entry",
-            time: formatRelative(entry.created_at),
-          }));
-
-        setActivities(mapped);
-      } catch (err) {
-        console.error("recent activity error:", err);
-      }
-    };
-
     fetchJournal();
-  }, []);
+
+    // Poll for updates every 10 seconds to auto-refresh recent activity
+    const interval = setInterval(fetchJournal, 10000);
+    return () => clearInterval(interval);
+  }, [fetchJournal]);
+
+  // Expose a custom event to trigger refresh immediately after mood logging
+  useEffect(() => {
+    const handler = () => fetchJournal();
+    window.addEventListener("journal:updated", handler);
+    return () => window.removeEventListener("journal:updated", handler);
+  }, [fetchJournal]);
 
   return (
     <main className="border border-[#CCC] w-full p-4 mt-10 rounded-[16px]">

@@ -4,10 +4,14 @@ import { useRouter } from "next/navigation";
 import { useUserProfileStore } from "@/state/user";
 import { UserProfile } from "@/types/user";
 import Loader from "@/components/common/loader/Loader";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 type Props = { children: ReactNode };
 
-const getCurrentUser = async (token: string): Promise<UserProfile | null> => {
+const getCurrentUser = async (
+  token: string,
+  router: AppRouterInstance
+): Promise<UserProfile | null> => {
   try {
     const res = await fetch("http://34.228.198.154/api/user/me", {
       method: "GET",
@@ -42,16 +46,25 @@ export default function ProtectedLayout({ children }: Props) {
       return;
     }
 
-    (async () => {
-      const user = await getCurrentUser(token);
+    let interval: NodeJS.Timeout;
+
+    const checkUser = async () => {
+      const user = await getCurrentUser(token, router);
       if (user) {
-        setProfile(user); // ✅ save user into Zustand store
+        setProfile(user);
       } else {
-        router.replace("/"); // optional: kick out if fetch failed
+        localStorage.removeItem("token"); // clear bad token
+        router.replace("/");
       }
       setLoader(false);
-    })();
+    };
+
+    checkUser(); // run immediately
+    interval = setInterval(checkUser, 60_000); // run every 60s
+
+    return () => clearInterval(interval);
   }, [router, setProfile]);
+
   if (loader)
     return (
       <div className="h-screen w-screen flex items-center justify-center">

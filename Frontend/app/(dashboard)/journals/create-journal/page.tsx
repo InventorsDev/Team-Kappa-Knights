@@ -52,8 +52,9 @@ const moods = [
   },
 ];
 
-function Mood() {
+function CreateJournalPage() {
   const { mood, setMood, desc, setDesc } = useUserStore();
+  const [title, setTitle] = useState("");
   const [isRouting, setIsRouting] = useState(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
@@ -81,7 +82,7 @@ function Mood() {
         },
         body: JSON.stringify({
           content: desc,
-          title: "Untitled",
+          title: title ? title : "Untitled",
           mood: mood,
         }),
       });
@@ -138,17 +139,26 @@ function Mood() {
           </div>
         </section>
       )}
-      <div className="md:block hidden pb-7">
-        <p className="text-[20px] font-bold">
-          Hello, <FirstName />!
-        </p>
-        <p className="text-[16px] text-[#4A4A4A]">
-          Here&apos;s to steady growth.
-        </p>
+      <div className="flex flex-col gap-2 my-4">
+        <label
+          htmlFor="title"
+          className="text-[20px]  font-semibold text-[#212121]"
+        >
+          Title
+        </label>
+        <input
+          type="text"
+          name="title"
+          id="title"
+          placeholder="Give your entry a title..."
+          className="p-2 md:py-3 md:text-[18px] border rounded-lg text-[16px] focus:outline-none focus:shadow-none"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
       </div>
       <section className=" md:border-2 md:border-gray-300 rounded-3xl md:p-6">
         <header className="flex flex-col text-[16px] gap-2">
-          <h1 className="text-[20px] font-semibold text-[#212121]">
+          <h1 className="text-[20px]  font-semibold text-[#212121]">
             How are you feeling right now?
           </h1>
           <p className="text-[#4A4A4A] md:text-[20px] max-w-[500px] font-[400] md:hidden">
@@ -189,30 +199,18 @@ function Mood() {
           <div className="flex flex-col gap-4 py-4">
             <label
               htmlFor="extra_info"
-              className="text-[#212121] text-[20px] font-[500]"
+              className="text-[#212121] text-[20px]  font-[500]"
             >
               What&apos;s on your mind? (Optional)
             </label>
-            {/* <textarea
-              name="extra_info"
-              id="extra_info"
-              cols={30}
-              rows={3}
-              placeholder="Type a short note..."
-              className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px] "
-              value={desc}
-              onChange={(e) => {
-                setDesc(e.target.value);
-              }}
-            /> */}
 
             <textarea
               name="extra_info"
               id="extra_info"
               cols={30}
-              rows={3}
+              rows={4}
               placeholder="Type a short note..."
-              className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px]"
+              className="border border-[#CCCCCCCC] w-full p-4 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 "
               value={desc}
               maxLength={150} // 👈 built-in clamp
               onChange={(e) => {
@@ -227,7 +225,7 @@ function Mood() {
 
           <div className="md:flex justify-center md:w-full">
             <div
-              className="md:flex justify-center md:w-[40%] md:text-[24px] md:py-[10px]"
+              className="md:flex justify-center md:w-[40%] md:text-[20px] md:py-[10px]"
               onClick={handleClick}
             >
               <AuthButton
@@ -244,4 +242,4 @@ function Mood() {
   );
 }
 
-export default Mood;
+export default CreateJournalPage;
