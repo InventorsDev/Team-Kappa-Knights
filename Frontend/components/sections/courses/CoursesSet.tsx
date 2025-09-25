@@ -23,7 +23,7 @@ const CoursesSet = () => {
 
         // console.log(selectedTags)
 
-        const res = await fetch('https://nuroki-backend.onrender.com/recommend/', {
+        const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
           method: 'POST',
           headers: {
             // Authorization: `Bearer ${token}`,
@@ -31,11 +31,12 @@ const CoursesSet = () => {
           },
           body: JSON.stringify({
             // skill_level: selectedSkillLevel,
-            interests: selectedTags
+            interest: selectedTags
           })
         })
 
         console.log(res)
+         console.log(selectedTags)
         if (!res.ok) throw new Error('Failed to fetch courses')
         const data: CourseDataType[] = await res.json()
         setCourses(data)
