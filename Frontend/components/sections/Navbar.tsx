@@ -9,11 +9,12 @@ import UserName from "../common/names/UserName";
 import FirstName from "@/components/common/names/FirstName";
 import X from "@/public/dashboard/xButton.png";
 import { motion, AnimatePresence } from "framer-motion";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { pages } from "@/lib/pages";
 import back from "@/public/SVGs/back.svg";
 import MobileNav from "./dashboard/MobileNav";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 const mobileNavItems = [
   {
@@ -63,8 +64,11 @@ const mobileNavItems = [
 const Navbar = () => {
   const [isClicked, setIsClicked] = useState<boolean>(false);
   const pathname = usePathname();
+  const router = useRouter()
   const isDashboard = pathname.includes("/dashboard");
   const { name, profilePic, setName, setProfilePic } = useUserStore()
+  const { profile } = useUserProfileStore()
+  const navbarPic = profile?.profile_picture_url || profilePic || ''
   const currentPage =
     pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   console.log(currentPage);
@@ -114,14 +118,14 @@ const Navbar = () => {
                     {/* <Image src={Search} alt="" /> */}
                   </div>
                   <section className={`${isDashboard ? 'flex' : ' hidden md:flex'}  gap-2 md:gap-4 items-center`}>
-                    { profilePic === '' ? (
-                    <div className={`${isDashboard ? 'flex' : ' hidden'}  w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] justify-center items-center `}>
+                    { (navbarPic ?? '') === '' ? (
+                    <div className={`flex w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] justify-center items-center `}>
                       {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
                       <p>{firstName}{secondName}</p>
                     </div>
                     ) : (
                     <div className="">
-                      <Image src={profilePic} width={100} height={100} alt="Profile picture" className="rounded-full w-12 h-12 object-cover" />
+                      <Image src={navbarPic} width={100} height={100} alt="Profile picture" className="rounded-full w-12 h-12 object-cover" />
                     </div>
                   )}
                     { isDashboard && (
@@ -153,7 +157,7 @@ const Navbar = () => {
               </div>
               { !isDashboard && (
                <div className="flex justify-between items-center w-full md:hidden py-4">
-                <div className="w-[10px] h-[10px]">
+                <div className="w-[10px] h-[10px]" onClick={() => router.back()}>
                   <Image src={back} alt="back" width={20} height={20} />
                 </div>
                 <p className="font-[500] text-[24px]">{currentPage}</p>

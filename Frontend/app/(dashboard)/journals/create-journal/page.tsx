@@ -12,6 +12,7 @@ import FirstName from "@/components/common/names/FirstName";
 // import { apiFetch } from "@/lib/apiClient";
 import { useUserStore } from "@/state/store";
 import Link from "next/link";
+import { Lightbulb } from "lucide-react";
 
 const moods = [
   {
@@ -105,13 +106,13 @@ function CreateJournalPage() {
   };
 
   return (
-    <div className=" text-[#212121] select-none pt-4">
+    <div className=" text-[#212121] select-none pt-4" style={{ fontFamily: 'var(--font-nunito)' }}>
       {isClicked && (
         <section className="fixed inset-0 z-50 flex justify-center items-center bg-black/60">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-lg">
             <div className="flex w-full justify-end">
               <button onClick={() => setIsClicked(false)} className="p-1">
-                {}
+                { }
                 <Image src={Back} alt="Exit" width={10} height={10} />
               </button>
             </div>
@@ -159,7 +160,7 @@ function CreateJournalPage() {
       <section className=" md:border-2 md:border-gray-300 rounded-3xl md:p-6">
         <header className="flex flex-col text-[16px] gap-2">
           <h1 className="text-[20px]  font-semibold text-[#212121]">
-            How are you feeling right now?
+            How are you feeling?
           </h1>
           <p className="text-[#4A4A4A] md:text-[20px] max-w-[500px] font-[400] md:hidden">
             Select one that best describes your current mood.
@@ -199,9 +200,9 @@ function CreateJournalPage() {
           <div className="flex flex-col gap-4 py-4">
             <label
               htmlFor="extra_info"
-              className="text-[#212121] text-[20px]  font-[500]"
+              className="text-[#212121] text-[20px]  font-[600]"
             >
-              What&apos;s on your mind? (Optional)
+              Your Thoughts
             </label>
 
             <textarea
@@ -223,13 +224,28 @@ function CreateJournalPage() {
             </p>
           </div>
 
+          <div className="bg-[#EBFFFC] p-6 mb-3 rounded-2xl">
+            <div className="flex gap-2 mb-2">
+              <Lightbulb className="text-[#00BFA5]"/>
+              <p className="text-[#212121] text-[20px]  font-[600]">Writing Tips</p>
+            </div>
+              <div>
+                <ul className="list-disc list-inside pl-2 text-[#4A4A4A] text-sm md:text-base">
+                  <li>Be honest and authentic with your feelings</li>
+                  <li>Write about what you&apos;re grateful for</li>
+                  <li>Note any pattern in your moods or behaviour</li>
+                  <li>Set intentions for tomorrow</li>
+                </ul>
+              </div>
+          </div>
+
           <div className="md:flex justify-center md:w-full">
             <div
               className="md:flex justify-center md:w-[40%] md:text-[20px] md:py-[10px]"
               onClick={handleClick}
             >
               <AuthButton
-                text="Save Today's Entry"
+                text="Update Entry"
                 action={loading}
                 textWhileActionIsTakingPlace="Saving..."
                 isAuth={false}

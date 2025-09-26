@@ -77,10 +77,10 @@ const Progress = () => {
             <p className="text-[13px] md:text-[18px] font-bold">Day{ daysActive == 1 ? (<span></span>) : (<span>s</span>)} Active</p>
           </div>
 
-          {/* Courses Completed (hard-coded) */}
+          
           <div className="text-center space-y-2">
             <p className="text-[#FF6665] text-[24px] md:text-[40px] font-bold">
-              8
+              0
             </p>
             <p className="text-[13px] md:text-[18px] font-bold">
               Courses Completed

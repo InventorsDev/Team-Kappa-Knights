@@ -6,20 +6,25 @@ import DetailCards from '@/components/sections/courses/ui/DetailCards'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Back from '@/public/dashboard/backArrow.png'
-import { use, useEffect } from 'react'
+import { use, useEffect, useState } from 'react'
 import Locked from '@/public/dashboard/courses/locked.png'
 import Completed from '@/public/dashboard/courses/completed.png'
 import Ongoing from '@/public/dashboard/courses/unlocked.png'
+import { useParams } from 'next/navigation'
+import Loader from '@/components/common/loader/Loader'
 
 type Props = {
   params: Promise<{ course: string }>
 }
 
-export default function DetailsPage({ params }: Props) {
-  const { course } = use(params)
+export default function DetailsPage() {
+  // const { course } = use(params)
   const { courses, courseItems, setCourseItems } = useUserStore()
+  const [courseContent, setCourseContent] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const params = useParams()
+  const course = params.course
   const router = useRouter()
-
   const idx = Number(course)
   const courseItem = courses[idx] // top-level course info (title, desc, etc)
 
@@ -28,7 +33,7 @@ export default function DetailsPage({ params }: Props) {
       try {
         const res = await fetch(
           // ${courseItem.id}
-          `https://nuroki-backend.onrender.com/roadmaps/${courseItem.id}/contents/`,
+          `https://nuroki-backend.onrender.com/roadmaps/${idx}/contents/`,
           {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -54,17 +59,18 @@ export default function DetailsPage({ params }: Props) {
           }
         })
 
-        setCourseItems(formatted)
-
-        //setCourseItems(formatted)
+        setCourseContent(formatted)
       } catch (err) {
         console.error(err)
+      } finally{
+        setIsLoading(false)
       }
     }
     fetchCourseItems()
-  }, [idx, setCourseItems])
+  }, [idx, setCourseContent])
 
-  if (!courseItem) return notFound()
+  if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
+  if(!courseContent) return <div>no course found</div>
 
   return (
     <div style={{ fontFamily: 'var(--font-nunito)' }}>

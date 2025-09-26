@@ -51,6 +51,7 @@ export default function ProtectedLayout({ children }: Props) {
     const checkUser = async () => {
       const user = await getCurrentUser(token, router);
       if (user) {
+        // console.log(user)
         setProfile(user);
       } else {
         localStorage.removeItem("token"); // clear bad token

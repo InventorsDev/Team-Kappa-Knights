@@ -137,7 +137,7 @@ export const handleGoogleSignup = async (
       }),
     });
 
-    router.push("login");
+    router.push("dashboard");
     console.log(user);
   } catch (error) {
     if (typeof error === "object" && error !== null && "code" in error) {

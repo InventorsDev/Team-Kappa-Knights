@@ -56,11 +56,13 @@ export const useUserProfileStore = create<UserProfileStore>((set) => ({
     })),
 
   setProfilePicture: (url) =>
-    set((state) => ({
-      profile: state.profile
-        ? { ...state.profile, profile_picture_url: url }
-        : null,
-    })),
+  set((state) => ({
+    profile: {
+      ...(state.profile ?? {}), // keep old or start fresh
+      profile_picture_url: url,
+    } as UserProfile,
+  })),
+
 
   setInterests: (interests) =>
     set((state) => ({

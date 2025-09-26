@@ -3,11 +3,13 @@ import React, { useEffect } from 'react'
 import CourseCard from './ui/CourseCard'
 import { useUserStore, CourseDataType  } from '@/state/store'
 import Loading from '@/app/loading'
+import { useOnboardingStore } from '@/state/useOnboardingData'
 import { stringify } from 'querystring'
 // import { useCourseStore, CourseDataType } from '@/state/store'
 
 const CoursesSet = () => {
   const { courses, setCourses, selectedSkillLevel, selectedTags } = useUserStore()
+  const {interests, skillLevel} = useOnboardingStore()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -21,7 +23,7 @@ const CoursesSet = () => {
         //   },
         // })
 
-        // console.log(selectedTags)
+        console.log(selectedTags)
 
         const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
           method: 'POST',
@@ -30,15 +32,17 @@ const CoursesSet = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            // skill_level: selectedSkillLevel,
-            interest: selectedTags
+            skill_level: skillLevel,
+            interest: interests,
           })
         })
 
         console.log(res)
-         console.log(selectedTags)
+         console.log('selected tags are:' + selectedTags)
         if (!res.ok) throw new Error('Failed to fetch courses')
-        const data: CourseDataType[] = await res.json()
+          const returnedData = await res.json()
+        const data: CourseDataType[] = returnedData.courses
+      console.log(data)
         setCourses(data)
 
 

@@ -3,10 +3,13 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import edit from "@/public/SVGs/edit.svg";
+import Back from '@/public/dashboard/backArrow.png'
 import trash from "@/public/SVGs/trash.svg";
 import { JournalEntry } from "@/types/journal";
 import Loader from "@/components/common/loader/Loader";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Plus, PlusCircle } from "lucide-react";
 
 const API_BASE = "http://34.228.198.154";
 
@@ -64,6 +67,7 @@ export default function MyJournalsPage() {
 
   const [savingId, setSavingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const router = useRouter()
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -204,7 +208,23 @@ export default function MyJournalsPage() {
   };
 
   return (
-    <div className="py-4 space-y-4">
+    <div className="py-4 space-y-4" style={{ fontFamily: 'var(--font-nunito)'}}>
+       <section className=" hidden md:block">
+              <div className="flex items-center py-3 ">
+                <div onClick={() => router.back()} className="hover:cursor-pointer">
+                  <Image src={Back} alt="" />
+                </div>
+                <div className="w-full flex justify-center">
+                  <div className="flex flex-col justify-center text-center">
+                  <p className="font-semibold md:text-[24px] text-[18px]">My Journals</p>
+                  <p className="text-[#4A4A4A] text-[18px]">{journals.length} entries</p>
+                  </div>
+                </div>
+                <div className="p-3 rounded-full bg-[#E6FBE6] hover:cursor-pointer" onClick={() => router.push('/journals/create-journal')}>
+                  <Plus className="text-[#00BFA5]"/>
+                </div>
+              </div>
+            </section>
       {journals.map((journal, i) => {
         const isEditing = editingId === journal.id;
         const charCount = isEditing
@@ -245,7 +265,7 @@ export default function MyJournalsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
                     transition={{ duration: 0.2 }}
-                    className="font-semibold text-lg"
+                    className="font-semibold md:text-[24px] text-[18px]"
                   >
                     {journal.title}
                   </motion.h2>
@@ -399,7 +419,7 @@ export default function MyJournalsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 5 }}
                     transition={{ duration: 0.2 }}
-                    className="text-gray-700 whitespace-pre-wrap"
+                    className="text-gray-700 whitespace-pre-wrap text-[18px]"
                   >
                     {journal.content}
                   </motion.p>

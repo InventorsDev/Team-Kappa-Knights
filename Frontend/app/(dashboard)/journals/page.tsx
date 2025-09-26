@@ -30,12 +30,12 @@ const renderedWellnessData = wellnessData.map((item, index) => {
       className="p-2 rounded-lg "
       style={{ backgroundColor: item.color }}
     >
-      <div className="flex gap-4 items-center rounded-lg">
+      <div className="flex gap-4 p-3 items-center rounded-lg">
         <div>
           <Image src={item.icon} alt={item.title} width={30} height={30} />
         </div>
         <div>
-          <h1 className=" text-[#212121] text-[1.2em]  font-semibold">
+          <h1 className=" text-[#212121] text-[1.0em]  font-semibold">
             {item.title}
           </h1>
           <p className="text-[0.8em] text-[#4A4A4A]">{item.desc}</p>
@@ -47,31 +47,32 @@ const renderedWellnessData = wellnessData.map((item, index) => {
 
 function JournalPage() {
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex gap-4 px-1 border items-center rounded-lg my-4">
+    <div className="flex flex-col gap-4" style={{ fontFamily: 'var(--font-nunito)'}}>
+      <div className="flex gap-4 p-3 border items-center rounded-2xl my-4">
         <div className="h-[80px] w-[50px] flex items-center justify-center">
           <Image src={journal} alt="journal" width={30} height={30} />
         </div>
         <div>
-          <h1 className=" text-[#212121] text-[1.2em]  font-semibold">
+          <h1 className=" text-[#212121] text-[1.5em]  font-semibold">
             Journal
           </h1>
-          <p className="text-[16px]">Your personal space for reflection</p>
+          <p className="text-[16px] text-[#4A4A4A]">Your personal space for reflection</p>
         </div>
       </div>
       <section>
-        <h1 className=" text-[#212121] text-[1.2em] my-4  font-semibold">
+        <h1 className=" text-[#212121] text-[1.3em] my-4  font-semibold">
           How Journaling Helps;{" "}
         </h1>
         <section className="flex flex-col gap-4">
           {renderedWellnessData}
         </section>
       </section>
-      <section className="py-8 flex flex-col gap-4">
+      <section className="flex justify-center">
+         <section className="py-8 md:w-[30%] w-full flex flex-col gap-4">
         <Link href="/journals/my-journals">
           <AuthButton
             // isSecondary
-            text="View Journals"
+            text="View My Journal"
             textWhileActionIsTakingPlace="Creating Journal"
             action={false}
             isAuth={false}
@@ -87,6 +88,8 @@ function JournalPage() {
           />
         </Link>
       </section>
+      </section>
+     
     </div>
   );
 }

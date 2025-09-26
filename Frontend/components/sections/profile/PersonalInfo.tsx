@@ -39,8 +39,10 @@ const PersonalInfo = () => {
       if (!res.ok) return;
 
       const data = await res.json();
+      // console.log("API returned full_name:", data.full_name);
 
       setName(data.full_name || "");
+      // console.log("API returned full_name:", data.full_name);
       setEmail(data.email || "");
       setGender(data.gender || ""); 
       //setProfilePic(data.profile_picture_url || "")
