@@ -89,7 +89,7 @@ function SignUpForm({ setIsVerifying }: props) {
               //name,
               //email,
               setEmailSigningIn,
-              setIsVerifying
+              // setIsVerifying
             )
           }
         >
