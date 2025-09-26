@@ -110,6 +110,7 @@ function SignUpForm({ setIsVerifying }: props) {
               onChange={(e) => setName(e.target.value)}
               value={name}
             />
+            
           </div>
           <div className="w-full">
             <label
