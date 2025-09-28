@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Side from "@/public/dashboard/sideArrow.png";
@@ -15,41 +15,48 @@ const Progress = () => {
   // const [avgMood, setAvgMood] = useState(0);
   const {daysActive, setDaysActive, avgMood, setAvgMood} = useUserStore()
 
+  const fetchProgress = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res = await fetch("http://34.228.198.154/journal/",{
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store'
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const data: JournalEntry[] = await res.json();
+      console.log("Raw sentiment scores:", data.map(d => d.sentiment_score))
+
+      // count unique YYYY-MM-DD values
+      const uniqueDays = new Set<string>();
+      let scoreSum = 0;
+
+      data.forEach((entry) => {
+        const isoDay = new Date(entry.created_at).toISOString().slice(0, 10);
+        uniqueDays.add(isoDay);
+        scoreSum += entry.sentiment_score * 5; // scale 0–1 → 0–5
+      });
+
+      setDaysActive(uniqueDays.size);
+      setAvgMood(data.length ? scoreSum / data.length : 0);
+
+    } catch (err) {
+      console.error("progress fetch error", err);
+    }
+  }, [setDaysActive, setAvgMood]);
+
   useEffect(() => {
-    const fetchProgress = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const res = await fetch("http://34.228.198.154/journal/",{
-          headers: { Authorization: `Bearer ${token}` },
-          cache: 'no-store'
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data: JournalEntry[] = await res.json();
-        console.log("Raw sentiment scores:", data.map(d => d.sentiment_score))
-
-        // count unique YYYY-MM-DD values
-        const uniqueDays = new Set<string>();
-        let scoreSum = 0;
-
-        data.forEach((entry) => {
-          const isoDay = new Date(entry.created_at).toISOString().slice(0, 10);
-          uniqueDays.add(isoDay);
-          scoreSum += entry.sentiment_score * 5; // scale 0–1 → 0–5
-        });
-
-        setDaysActive(uniqueDays.size);
-        setAvgMood(data.length ? scoreSum / data.length : 0);
-
-      } catch (err) {
-        console.error("progress fetch error", err);
-      }
-    };
-
     fetchProgress();
-  }, []);
+  }, [fetchProgress]);
+
+  // Refresh progress immediately after a mood/journal is logged
+  useEffect(() => {
+    const handler = () => fetchProgress();
+    window.addEventListener("journal:updated", handler);
+    return () => window.removeEventListener("journal:updated", handler);
+  }, [fetchProgress]);
 
   return (
     <main className="h-full flex flex-col justify-between w-full p-4 md:px-8 py-6 rounded-[16px] select-none">

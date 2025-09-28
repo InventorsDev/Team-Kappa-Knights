@@ -109,7 +109,7 @@ function Goals() {
           text="Continue"
           action={isRouting}
           isAuth={false}
-          textWhileActionIsTakingPlace="Routing..."
+          textWhileActionIsTakingPlace="Loading..."
         />
       </div>
     </div>

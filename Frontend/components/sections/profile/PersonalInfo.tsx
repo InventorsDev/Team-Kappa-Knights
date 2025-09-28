@@ -141,7 +141,7 @@ const PersonalInfo = () => {
             "Content-Type": "application/json",
           },
         })
-        localStorage.setItem('token', '')
+        localStorage.clear()
         router.push('/')
       } catch (err){
         console.log(err)

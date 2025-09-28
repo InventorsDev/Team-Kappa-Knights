@@ -3,10 +3,15 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import Delete from '@/public/dashboard/deleteIcon.png'
 import Back from '@/public/dashboard/xButtonBlack.png'
+import { useRouter } from 'next/navigation'
+import { auth, db } from '@/lib/firebase'
+import { deleteUser } from 'firebase/auth'
+import { deleteDoc, doc } from 'firebase/firestore'
 
 const Security = () => {
   const [isRouting, setIsRouting] = useState<boolean>(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const router = useRouter()
 
   const handleDisable = async() => {
     const token = localStorage.getItem('token')
@@ -22,15 +27,45 @@ const Security = () => {
   }
 
   const handleDelete = async() => {
+    setIsRouting(true)
     const token = localStorage.getItem('token')
     try {
+      // 1) Delete from your backend
       await fetch('http://34.228.198.154/api/user/me', {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",}})
+
+      // 2) Delete Firestore user doc (if exists)
+      const current = auth.currentUser
+      if (current) {
+        try {
+          await deleteDoc(doc(db, 'users', current.uid))
+        } catch (e) {
+          console.warn('Could not delete Firestore user doc:', e)
+        }
+
+        // 3) Delete Firebase Auth user
+        try {
+          await deleteUser(current)
+        } catch (e: any) {
+          if (e?.code === 'auth/requires-recent-login') {
+            console.warn('Firebase requires recent login to delete account.')
+          } else {
+            console.error('Failed to delete Firebase Auth user:', e)
+          }
+        }
+      }
+
+      // 4) Cleanup and redirect
+      localStorage.removeItem('token')
+      setIsClicked(false)
+      router.replace('/')
     } catch (err) {
       console.log(err)
+    } finally {
+      setIsRouting(false)
     }
   }
 

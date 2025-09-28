@@ -7,6 +7,7 @@ import {
   signInWithPopup,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  signOut,
 } from "firebase/auth";
 
 import { toast } from "sonner";
@@ -63,41 +64,60 @@ export const handleSignin = async (
     console.log('Storing token from backend login:', resolvedUser.idToken);
     localStorage.setItem("token", resolvedUser.idToken);
     
-    // Also get Firebase token as backup
-    const firebaseToken = await fbUser.user.getIdToken();
-    console.log('Firebase token:', firebaseToken);
+    // STEP 3.1: Verify backend profile really exists and is active
+    const me = await fetch("http://34.228.198.154/api/user/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${resolvedUser.idToken}`,
+      },
+    });
 
-    // STEP 4: check Firestore for onboarding status
+    if (!me.ok) {
+      // Backend says user not found/unauthorized — clean up and abort
+      localStorage.removeItem("token");
+      await signOut(auth).catch(() => {});
+      throw new Error("Account not found or access denied. Please sign up again.");
+    }
+
+    const backendProfile = await me.json();
+
+    // STEP 3.2: Derive onboarding from backend when available
+    // Fall back to Firestore if backend doesn't expose it
+    const backendOnboarded = typeof backendProfile?.onboarding_completed === 'boolean'
+      ? backendProfile.onboarding_completed
+      : null;
+
+    // STEP 4: check Firestore for onboarding status (for consistency)
     const userRef = doc(db, "users", fbUser.user.uid);
     const userSnap = await getDoc(userRef);
 
     if (!userSnap.exists()) {
-      console.warn("User not found in Firestore, assuming not onboarded");
       // Create user document with default values
       await setDoc(userRef, {
         email: fbUser.user.email,
         name: fbUser.user.displayName || email,
         verified: fbUser.user.emailVerified,
-        isOnboarded: false,
+        isOnboarded: backendOnboarded ?? false,
       });
-      console.log("User needs onboarding - starting onboarding flow");
-      setLoggingIn(false); // Reset loading state
-      isDone(true); // Start onboarding flow
-      return { backend: resolvedUser, firebase: fbUser.user };
+    } else if (backendOnboarded !== null) {
+      // keep Firestore flag in sync with backend
+      const current = userSnap.data() as FirestoreUser;
+      if (current.isOnboarded !== backendOnboarded) {
+        await setDoc(userRef, { isOnboarded: backendOnboarded }, { merge: true });
+      }
     }
 
-    const userData = userSnap.data() as FirestoreUser;
-    console.log('User Firebase profile:', userData);
-    console.log('Onboarding status:', userData.isOnboarded);
+    const finalOnboarded = backendOnboarded ?? ((userSnap.data() as FirestoreUser | undefined)?.isOnboarded || false);
 
     // Check onboarding status and route accordingly
-    if (!userData.isOnboarded) {
+    if (!finalOnboarded) {
       console.log("User needs onboarding - starting onboarding flow");
-      setLoggingIn(false); // Reset loading state
-      isDone(true); // ✅ Only set to true when user hasn't completed onboarding
+      setLoggingIn(false);
+      isDone(true);
     } else {
       console.log("User has completed onboarding - redirecting to dashboard");
-      setLoggingIn(false); // Reset loading state
+      setLoggingIn(false);
       toast.success("Logged in successfully");
       router.push("/dashboard");
     }
@@ -125,7 +145,7 @@ export const handleGoogleSignup = async (
 
     const token = await user.getIdToken();
 
-    await fetch("http://34.228.198.154/users/sync-profile", {
+  await fetch("http://34.228.198.154/api/user/sync-profile", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -133,7 +153,7 @@ export const handleGoogleSignup = async (
       },
       body: JSON.stringify({
         email: user.email,
-        name: user.displayName,
+        full_name: user.displayName || "",
       }),
     });
 

@@ -9,7 +9,7 @@ type CardProps = {
   tutor: string
   duration: string
   progress: number
-  index: number
+  link: string
 }
 
 const CourseCard = ({
@@ -51,7 +51,7 @@ const CourseCard = ({
           ></div>
         </div>
 
-        <Link href={`/courses/${props.index}`}>
+        <Link href={`${props.link}`}>
           <button className="bg-[#00B5A5] rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer">
             View Details
           </button>

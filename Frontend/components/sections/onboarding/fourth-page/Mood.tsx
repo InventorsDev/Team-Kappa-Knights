@@ -140,7 +140,7 @@ function Mood() {
           <AuthButton
             text="Continue"
             action={isRouting}
-            textWhileActionIsTakingPlace="Routing"
+            textWhileActionIsTakingPlace="Loading..."
             isAuth={false}
           />
         </div>

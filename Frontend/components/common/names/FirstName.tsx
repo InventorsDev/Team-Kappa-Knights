@@ -1,18 +1,18 @@
 'use client'
-import { useUserStore } from '@/state/store'
 import React from 'react'
+import { useUserProfileStore } from '@/state/user'
 
 const UserName = () => {
-  const { name } = useUserStore()
+  const { profile } = useUserProfileStore()
 
   // grab first token only, then capitalize it
-  const formatFirstName = (raw: string) => {
+  const formatFirstName = (raw?: string) => {
     if (!raw) return 'Guest'
-    const first = raw.trim().split(/\s+/)[0]      // first word only
+    const first = raw.trim().split(/\s+/)[0]
     return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase()
   }
 
-  return <span>{formatFirstName(name)}</span>
+  return <span>{formatFirstName(profile?.full_name)}</span>
 }
 
 export default UserName

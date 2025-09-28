@@ -52,7 +52,7 @@ const AllSet = () => {
             <AuthButton
               text="Go to Dashboard"
               action={isRouting}
-              textWhileActionIsTakingPlace="Routing"
+              textWhileActionIsTakingPlace="Loading..."
               isAuth={false}
             />
           </div>

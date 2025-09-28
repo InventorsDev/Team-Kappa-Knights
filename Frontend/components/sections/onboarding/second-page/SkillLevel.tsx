@@ -63,7 +63,7 @@ function SkillLevel() {
           alt="logo"
         />
         <h1 className="text-[20px] md:text-[40px] font-[700] text-[#212121]">
-          What’s your current skill level?
+          What&deg;s your current skill level?
         </h1>
         <p className="text-[#4A4A4A] md:text-[24px] max-w-[500px] m-auto font-[400]">
           Pick your current stage so we can match you with the right challenges.
@@ -97,7 +97,7 @@ function SkillLevel() {
         <AuthButton
           text="Continue"
           action={isRouting}
-          textWhileActionIsTakingPlace="Routing..."
+          textWhileActionIsTakingPlace="Loading..."
           isAuth={false}
         />
       </div>

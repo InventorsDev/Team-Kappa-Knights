@@ -129,7 +129,7 @@ function Mood() {
                   Done
                 </button>
                 <Link href={"/journals/my-journals"}>
-                  <button className="bg-[#EBFFFC] rounded-xl py-3  font-semibold">
+                  <button className="bg-[#EBFFFC] rounded-xl py-3 w-full  font-semibold">
                     Go To Journal
                   </button>
                 </Link>

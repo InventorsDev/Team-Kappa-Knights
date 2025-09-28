@@ -34,7 +34,7 @@ function OnboardingHomepage() {
             isAuth={false}
             action={isRouting}
             text="Get Started"
-            textWhileActionIsTakingPlace="Hold on..."
+            textWhileActionIsTakingPlace="Loading..."
           />
         </div>
       </section>
