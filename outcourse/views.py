@@ -174,3 +174,71 @@ class RecommendAllCoursesView(APIView):
                 },
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+    def get(self, request):
+        try:
+            # Hard-coded interests
+            interests = [
+                "Data Analysis",
+                "Design",
+                "Time Management",
+                "Web3",
+                "Writing",
+                "Backend Developer",
+                "Public Speaking",
+                "Frontend Developer",
+                "Marketing",
+            ]
+            # optional default skill level (can be None)
+            skill_level = None
+
+            courses_qs = Courses.objects.all()
+            if skill_level:
+                courses_qs = courses_qs.filter(difficulty=skill_level)
+
+            search_filter = Q()
+            for word in interests:
+                search_filter |= (
+                    Q(title__icontains=word)
+                    | Q(description__icontains=word)
+                    | Q(tags__name__icontains=word)
+                )
+            courses_qs = courses_qs.filter(search_filter)
+
+            db_courses = courses_qs.distinct().order_by("-rating", "-created_at")
+            db_serialized = CoursesSerializers(db_courses, many=True).data
+            recommendations = list(db_serialized)
+
+            if len(db_serialized) < 20:
+                service = Nuroki()
+                external_courses = service.recommend_courses_m(
+                    tags=interests,
+                    difficulty=skill_level or "beginner",
+                )
+                ext_serializer = ExternalCourseSerializer(
+                    data=external_courses, many=True
+                )
+                ext_serializer.is_valid(raise_exception=True)
+                recommendations.extend(ext_serializer.data)
+
+            return Response(
+                {
+                    "courses": recommendations,
+                    "total_returned": len(recommendations),
+                    "search_info": {
+                        "interest": interests,
+                        "skill_level": skill_level,
+                        "searched_fields": ["title", "description", "tags"],
+                    },
+                },
+                status=status.HTTP_200_OK,
+            )
+
+        except Exception as e:
+            return Response(
+                {
+                    "error": "An error occurred while processing the request",
+                    "details": str(e),
+                },
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

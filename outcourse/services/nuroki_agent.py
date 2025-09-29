@@ -866,7 +866,7 @@ def main():
     # Show first course structure
     if django_ready_courses:
         print("Sample course structure (ready for Django serializer):")
-        print(json.dumps(django_ready_courses[:10], indent=2, ensure_ascii=False))
+        print(json.dumps(django_ready_courses[:25], indent=2, ensure_ascii=False))
         print(f"\nTotal courses found: {len(django_ready_courses)}")
     
     print("\n" + "=" * 60)
