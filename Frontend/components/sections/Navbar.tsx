@@ -146,7 +146,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { pages } from "@/lib/pages";
 import back from "@/public/SVGs/back.svg";
 import MobileNav from "./dashboard/MobileNav";
-import { CourseDataType, useUserStore } from "@/state/store";
+import { CourseDataType, useUserCourses, useUserStore } from "@/state/store";
 import { useUserProfileStore } from "@/state/user";
 import { SearchIcon } from "lucide-react";
 import { useOnboardingStore } from "@/state/useOnboardingData";
@@ -208,7 +208,7 @@ const Navbar = () => {
   const [target, setTarget] = useState('')
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
   // const [searchResult, setSearchResult] = useState<CourseDataType[]>()
-  const { setCourses} = useUserStore()
+  const { setCourses} = useUserCourses()
     const {interests, skillLevel} = useOnboardingStore()
   console.log(currentPage);
 
@@ -280,7 +280,7 @@ const Navbar = () => {
             <Image src={Logo} width={49} height={49} alt="" />
           </div>
           <div className="hidden md:block pl-2">
-            <p className={`text-[24px] w-full`}>{currentPage}</p>
+            <p className={`text-[24px] w-full whitespace-nowrap`}>{currentPage}</p>
           </div>
           <section className={`${isDashboard ? 'flex' : 'block'} justify-between w-full items-center`}>
             <div className={`flex justify-between w-full md:justify-end items-center ${isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
@@ -290,7 +290,7 @@ const Navbar = () => {
                     <Image src={Search} alt="" className="hover:cursor-pointer" />
                   </div> */}
 
-                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'block' : 'hidden'}`}>
+                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'md:block' : 'hidden'}`}>
                   {/* Inline expanding search */}
                   <AnimatePresence initial={false}>
                     {searchOpen ? (
@@ -329,9 +329,9 @@ const Navbar = () => {
 
                   <section className={`${isDashboard ? 'flex' : ' hidden md:flex'}  gap-2 md:gap-4 items-center`}>
                     {(navbarPic ?? '') === '' ? (
-                      <div className={`flex w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[20px] justify-center items-center `}>
+                      <div className={`flex w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[14px] lg:text-[20px] justify-center items-center `}>
                         {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
-                        <p>{firstName}{secondName}</p>
+                        <p>{firstName}<span className=" hidden lg:inline-block">{secondName}</span></p>
                       </div>
                     ) : (
                       <div className="">

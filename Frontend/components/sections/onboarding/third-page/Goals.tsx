@@ -71,7 +71,7 @@ function Goals() {
           alt="logo"
         />
         <h1 className="text-[20px] md:text-[40px] font-[700] text-[#212121]">
-          What&middot;s your main learning goal right now?
+          What&apos;s your main learning goal right now?
         </h1>
         <p className="text-[#4A4A4A] md:text-[24px] max-w-[500px] m-auto font-[400]">
           Choose the one that best fits your current focus.

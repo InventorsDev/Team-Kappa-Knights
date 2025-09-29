@@ -4,6 +4,7 @@ import Icon from '@/public/dashboard/greenVector.png'
 import Resume from '@/public/dashboard/courses/sideArrow.png'
 import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
+import { progress } from 'framer-motion'
 
 type DetailsProps = {
     title: string
@@ -21,6 +22,7 @@ type DetailsProps = {
     instructorCourses: string
     instructorStudents: string
     instructorRatings: number
+    link: string
 }
 
 const Details = ({ props, children }: { props: DetailsProps, children: ReactNode }) => {
@@ -58,10 +60,10 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
                 </div>
                 <div className='flex justify-between  md:text-[18px]'>
                     <p><span className='font-semibold'>{props.levelsCompleted}</span> of <span className='font-semibold'>{props.levelTotal}</span> levels completed</p>
-                    <div className='flex items-center text-center gap-1'>
-                        <p className='text-[#00bfa5] font-semibold'>Resume Learning</p>
+                    <Link href={props.link} className='flex items-center text-center gap-1'>
+                        <p className='text-[#00bfa5] font-semibold'>{ props.progress === 0 ? 'Start ' : 'Resume '} Learning</p>
                         <Image src={Resume} alt='' />
-                    </div>
+                    </Link>
                 </div>
             </section>
 

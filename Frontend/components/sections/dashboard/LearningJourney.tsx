@@ -6,7 +6,7 @@ import Green from "@/public/dashboard/business.png";
 import Side from "@/public/dashboard/sideArrow.png";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
-import AuthButton from "@/components/common/button/Button";
+import { data as demoCourses } from "@/lib/testData";
 
 // Backend response type: [{ enrollment, user, course }]
 type Enrollment = {
@@ -15,10 +15,11 @@ type Enrollment = {
   course: number | string;
 };
 
+type CourseMeta = { title?: string; url?: string; external?: boolean };
+
 const LearningJourney = () => {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
-  const [courseTitles, setCourseTitles] = useState<Record<string, string>>({});
-    const [isRouting, setIsRouting] = useState<boolean>(false);
+  const [courseMeta, setCourseMeta] = useState<Record<string, CourseMeta>>({});
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -64,49 +65,53 @@ const LearningJourney = () => {
     return Number.isFinite(n) ? n : null;
   };
 
-  // Fetch course title by ID, trying common endpoints
-  const fetchCourseTitle = async (id: number, token?: string): Promise<string | null> => {
-    const endpoints = [
-      `http://34.228.198.154/courses/${id}/`,
-      `http://34.228.198.154/course/${id}/`,
-    ];
-    for (const url of endpoints) {
-      try {
-        const res = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          cache: "no-store",
-        });
-        if (res.ok) {
-          const data = await res.json();
-          return data?.title || data?.name || data?.course_title || null;
-        }
-      } catch (_) {
-        // try next endpoint
-      }
+  // Fetch course meta by ID from your courses endpoint (title, url, external)
+  const fetchCourseMeta = async (id: number, token?: string): Promise<CourseMeta | null> => {
+    try {
+      const res = await fetch(`https://nuroki-backend.onrender.com/courses/${id}/`, {
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const meta: CourseMeta = {
+        title: data?.title || data?.name || data?.course_title,
+        url: data?.course_url || data?.url,
+        external: Boolean(
+          data?.external ||
+          data?.is_external ||
+          (data?.course_url && /^https?:\/\//i.test(data.course_url))
+        ),
+      };
+      return meta;
+    } catch (_) {
+      return null;
     }
-    return null;
   };
 
-  // When enrollments change, fetch course titles for those with resolvable IDs
+  // When enrollments change, fetch course meta for those with resolvable IDs
   useEffect(() => {
     const go = async () => {
       const token = localStorage.getItem("token") || undefined;
-      const entries = await Promise.all(
+      const entries: Array<[string, CourseMeta] | null> = await Promise.all(
         enrollments.map(async (enr) => {
           const id = resolveCourseId((enr as any).course);
           if (!id) return null;
-          const title = await fetchCourseTitle(id, token);
-          return title ? [String(id), title] : null;
+          const meta = await fetchCourseMeta(id, token);
+          return meta ? ([String(id), meta] as [string, CourseMeta]) : null;
         })
       );
-      const map: Record<string, string> = {};
+      const map: Record<string, CourseMeta> = {};
       for (const pair of entries) {
-        if (pair) map[pair[0]] = pair[1];
+        if (pair) {
+          const [key, val] = pair;
+          map[key] = val;
+        }
       }
-      if (Object.keys(map).length) setCourseTitles((prev) => ({ ...prev, ...map }));
+      if (Object.keys(map).length) setCourseMeta((prev) => ({ ...prev, ...map }));
     };
     if (enrollments.length) go();
   }, [enrollments]);
@@ -130,35 +135,61 @@ const shownData = enrollments.slice(0, 2);
 
       <div className="space-y-4">
         {shownData.length === 0 && (
-          <div className="text-center space-y-3"> 
-            <p>No courses yet!</p>
-            <p>Start your first course and track your progress here</p>
-                  <Link href={'/courses'} className="text-[14px] md:text-[16px]">
-                  <AuthButton
-                    text="Browse Courses"
-                    action={isRouting}
-                    textWhileActionIsTakingPlace="..."
-                    isAuth={false}
-                  />
-                  </Link>
+          <div className="space-y-4">
+            {demoCourses.slice(0, 2).map((item, index) => {
+              const isGreen = index % 2 !== 0;
+              const total = item.subtitles.length;
+              const completed = item.subtitles.filter((s) => s.status === "completed").length;
+              const progress = total > 0 ? Math.min((completed / total) * 100, 100) : 0;
+              return (
+                <div
+                  key={`demo-${index}`}
+                  className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${
+                    isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
+                  }`}
+                >
+                  <div>
+                    {isGreen ? (
+                      <Image src={Green} width={32} height={32} alt="" />
+                    ) : (
+                      <Image src={Purple} width={32} height={32} alt="" />
+                    )}
+                  </div>
+                  <section className="w-full space-y-2">
+                    <div className="flex justify-between gap-2">
+                      <p className="font-semibold text-[18px] max-w-[185px] md:max-w-none truncate">
+                        {item.title}
+                      </p>
+                      <span className="text-xs md:text-sm text-[#4A4A4A] font-medium">Suggested</span>
+                    </div>
+                    <div className={`my-2 h-[6px] w-full ${isGreen ? 'bg-[#AAF4E9]' : 'bg-[#D7D2FF]'} rounded-lg overflow-hidden`}>
+                      <div
+                        className={`h-full ${isGreen ? 'bg-[#00bfa5]' : 'bg-[#886CFF]'} rounded-lg`}
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                  </section>
+                </div>
+              );
+            })}
           </div>
         )}
 
         {shownData.map((item, index) => {
           const isGreen = index % 2 !== 0;
-          // Prefer resolved course title -> then embedded object title/name -> then ID fallback
           const courseAny: any = (item as any).course;
           const courseId = resolveCourseId(courseAny);
+          const meta = courseId != null ? courseMeta[String(courseId)] : undefined;
           const titleFromObject = typeof courseAny === 'object'
             ? (courseAny?.title || courseAny?.name || courseAny?.course_title)
             : undefined;
-          const title = titleFromObject
-            || (courseId != null ? (courseTitles[String(courseId)] || `Course #${courseId}`) : 'Unknown course');
+          const title = titleFromObject || meta?.title || (courseId != null ? `Course #${courseId}` : 'Unknown course');
           const progress = 0; // unknown at this endpoint
+          const badge = meta?.external ? 'Outsourced' : 'In-house';
+          const href = meta?.external && meta?.url ? meta.url : (courseId != null ? `/courses/${courseId}` : undefined);
 
-          return (
+          const CardInner = (
             <div
-              key={`${item.enrollment}-${index}`}
               className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${
                 isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
               }`}
@@ -175,7 +206,7 @@ const shownData = enrollments.slice(0, 2);
                   <p className="font-semibold text-[18px] max-w-[185px] md:max-w-none truncate">
                     {title}
                   </p>
-                  <span className="text-xs md:text-sm text-[#4A4A4A] font-medium">Enrolled</span>
+                  <span className="text-xs md:text-sm text-[#4A4A4A] font-medium">{badge}</span>
                 </div>
                 <div className={`my-2 h-[6px] w-full ${isGreen ? 'bg-[#AAF4E9]' : 'bg-[#D7D2FF]'} rounded-lg overflow-hidden`}>
                   <div
@@ -184,6 +215,20 @@ const shownData = enrollments.slice(0, 2);
                   />
                 </div>
               </section>
+            </div>
+          );
+
+          return (
+            <div key={`${item.enrollment}-${index}`}>
+              {href ? (
+                meta?.external ? (
+                  <a href={href} target="_blank" rel="noopener noreferrer">{CardInner}</a>
+                ) : (
+                  <Link href={href}>{CardInner}</Link>
+                )
+              ) : (
+                CardInner
+              )}
             </div>
           );
         })}

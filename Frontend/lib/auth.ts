@@ -19,6 +19,7 @@ import { query, where, getDocs } from "firebase/firestore";
 import { useUsername } from "@/state/usernameStore";
 import { saveTokens } from "./token";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 // import { signInWithEmailAndPassword } from "firebase/auth";
 interface FirestoreUser {
   email: string;
@@ -249,6 +250,25 @@ export const handleCreateAccount = async (
     // STEP 5: Store token locally (for API calls)
     console.log('Storing token from account creation:', idToken);
     localStorage.setItem("token", idToken);
+
+    // STEP 5.1: Ensure frontend store shows correct full name immediately
+    try {
+      useUserProfileStore.getState().setFullName(name);
+    } catch {}
+
+    // STEP 5.2: Best-effort ensure backend full_name is correct (in case sync-profile ignored it)
+    try {
+      await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({ full_name: name }),
+      });
+    } catch (e) {
+      console.warn("Failed to enforce full_name via /api/user/me PUT", e);
+    }
 
     // STEP 6: Navigate away
     toast.success("Account created successfully");

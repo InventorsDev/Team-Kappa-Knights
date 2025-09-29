@@ -103,6 +103,7 @@ export default function DetailsPage() {
           instructorCourses: courseItem.instructorCourses,
           instructorStudents: courseItem.instructorStudents,
           instructorRatings: courseItem.instructorRatings,
+          link: ''
         }}
       >
         <div className="flex flex-col gap-5">
