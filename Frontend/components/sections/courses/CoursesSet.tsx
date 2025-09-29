@@ -1,14 +1,15 @@
 'use client'
 import React, { useEffect } from 'react'
 import CourseCard from './ui/CourseCard'
-import { useUserStore, CourseDataType  } from '@/state/store'
+import { useUserStore, CourseDataType, useUserCourses  } from '@/state/store'
 import Loading from '@/app/loading'
 import { useOnboardingStore } from '@/state/useOnboardingData'
 import { stringify } from 'querystring'
 // import { useCourseStore, CourseDataType } from '@/state/store'
 
 const CoursesSet = () => {
-  const { courses, setCourses, selectedSkillLevel, selectedTags } = useUserStore()
+  const {selectedTags } = useUserStore()
+  const { courses, setCourses} = useUserCourses()
   const {interests, skillLevel} = useOnboardingStore()
 
   useEffect(() => {
@@ -77,7 +78,12 @@ const CoursesSet = () => {
 
   return (
     <div className="pt-3 flex flex-col md:grid grid-cols-3 gap-4">
-      {displayCourses.map((item, idx) => (
+      {courses.length === 0 ? (
+      <p className="col-span-3 text-center text-gray-500 font-semibold">
+        No courses found
+      </p>
+    ) : (
+      displayCourses.map((item, idx) => (
         <div key={idx} className="flex">
           <CourseCard
             props={{
@@ -91,7 +97,23 @@ const CoursesSet = () => {
             className="flex-1"
           />
         </div>
-      ))}
+      ))
+    )}
+      {/* {displayCourses.map((item, idx) => (
+        <div key={idx} className="flex">
+          <CourseCard
+            props={{
+              title: item.title,
+              content: item.description,
+              tutor: item.tutor || 'Code Academy',
+              duration: item.duration,
+              progress: item.progress,
+              link: item.course_url,
+            }}
+            className="flex-1"
+          />
+        </div>
+      ))}  */}
       {/* {} */}
     </div>
   )

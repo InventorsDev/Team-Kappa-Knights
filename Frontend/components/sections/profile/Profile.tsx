@@ -34,7 +34,7 @@ const Profile = () => {
       </div>
       <div className="md:border rounded-2xl md:p-7 md:mt-8">
         <AccountSec />
-        <TwoFactor />
+        {/* <TwoFactor /> */}
       </div>
       {/* <Preference /> */}
       <Security />

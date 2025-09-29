@@ -1,7 +1,7 @@
 "use client";
 import Loading from "@/app/loading";
 import AuthButton from "@/components/common/button/Button";
-import { CourseDataType, useUserStore } from "@/state/store";
+import { CourseDataType, useUserCourses, useUserStore } from "@/state/store";
 import { useOnboardingStore } from "@/state/useOnboardingData";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
@@ -18,7 +18,8 @@ type suggestedType = {
 const Suggested = () => {
   const [suggested, setSuggested] = useState<suggestedType[]>([]);
   const [isRouting, setIsRouting] = useState<boolean>(false);
-  const { courses, setCourses, selectedSkillLevel, selectedTags } = useUserStore()
+  const{ selectedTags} = useUserStore()
+  const { courses, setCourses } = useUserCourses()
     const {interests, skillLevel} = useOnboardingStore()
 
    useEffect(() => {
@@ -54,7 +55,6 @@ const Suggested = () => {
     }, [setCourses])
   
     const displayCourses = courses.length > 0 ? courses : []
-        if (courses.length === 0) return <Loading /> 
         console.log(displayCourses)
 
   return (
@@ -92,7 +92,7 @@ const Suggested = () => {
           );
         })} */}
 
-         {courses.slice(0, 2).map((item, index) => {
+        { courses.length === 0 ? <Loading /> : courses.slice(0, 2).map((item, index) => {
           const isGreen = index % 2 !== 0;
           return (
             <section
@@ -122,6 +122,8 @@ const Suggested = () => {
             </section>
           );
         })}
+
+         
       </section>
       <Link href={'/courses'} className="text-[14px] md:text-[16px]">
       <AuthButton

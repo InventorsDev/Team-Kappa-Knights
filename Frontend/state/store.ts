@@ -67,8 +67,6 @@ type UserState = {
 
   activities: Activity[]
   selectedTags: string[]
-  courses: CourseDataType[]
-  courseItems: RoadmapContentType[]
   interests: string[]
 
   setName: (name: string) => void
@@ -84,13 +82,12 @@ type UserState = {
   setDaysActive: (days: number) => void
   setAvgMood: (score: number) => void
 
-  setActivities: (acts: Activity[]) => void
+  setActivities: (act: Activity[]) => void
   setSelectedTags: (selected: string[] | ((prev: string[]) => string[])) => void
   addActivity: (act: Activity) => void
-  setCourses: (newCourses: CourseDataType[]) => void
-  setCourseItems: (newCourses: RoadmapContentType[]) => void
   setInterests: (interest: string[]) => void
 }
+
 
 export const useUserStore = create<UserState>()(
   persist(
@@ -106,13 +103,11 @@ export const useUserStore = create<UserState>()(
       selectedSkillLevel: "",
       goal: "",
 
+      activities: [],
       daysActive: 0,
       avgMood: 0,
 
-      activities: [],
       selectedTags: [],
-      courses: [],
-      courseItems: [],
       interests: [],
 
       setName: (name) => set({ name }),
@@ -136,8 +131,6 @@ export const useUserStore = create<UserState>()(
         })),
       addActivity: (act) =>
         set((state) => ({ activities: [...state.activities, act] })),
-      setCourses: (newCourses) => set({ courses: newCourses }),
-      setCourseItems: (newItems) => set({ courseItems: newItems }),
       setSelectedSkillLevel: (selectedSkillLevels) =>
         set({ selectedSkillLevel: selectedSkillLevels }),
       setGoal: (goals) => set({ goal: goals }),
@@ -148,3 +141,23 @@ export const useUserStore = create<UserState>()(
     }
   )
 )
+
+type UserCourses = {
+  courses: CourseDataType[]
+  courseItems: RoadmapContentType[]
+
+  setCourses: (newCourses: CourseDataType[]) => void
+  setCourseItems: (newCourses: RoadmapContentType[]) => void
+}
+export const useUserCourses = create<UserCourses>()(
+  persist(
+    (set) => ({
+
+      courses: [],
+      courseItems: [],
+      setCourses: (newCourses) => set({ courses: newCourses }),
+      setCourseItems: (newItems) => set({ courseItems: newItems }),
+    }),
+    {
+      name: 'user-store'
+    }))

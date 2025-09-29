@@ -6,44 +6,61 @@ import Green from "@/public/dashboard/business.png";
 import Side from "@/public/dashboard/sideArrow.png";
 import Link from "next/link";
 import { data } from "@/lib/testData";
+import { ChevronRight } from "lucide-react";
 
 type JourneyType = {
-  journey: string;
-  percent: number;
+  enrollment: number;
+  user: string
+  course: string
 };
 
-const journeyContent: JourneyType[] = [
-  {
-    journey: "Web3",
-    percent: 50,
-  },
-  {
-    journey: "Business",
-    percent: 35,
-  },
-];
 
-const shownData = data.slice(0, 2);
 
 const LearningJourney = () => {
-  const [journey, setJourney] = useState<JourneyType[]>([]);
+  const [journey, setJourney] = useState<JourneyType[]>()
+  
+    useEffect(() => {
+      const token = localStorage.getItem('token')
+      const fetchCourses = async () => {
+        try {
+          const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+  
+          console.log(res)
+          if (!res.ok) throw new Error('Failed to fetch courses')
+            const returnedData = await res.json()
+          const data = returnedData.courses
+        console.log(data)
+          setJourney(data)
+  
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      fetchCourses()
+    }, [setJourney])
 
-  useEffect(() => {
-    setJourney(journeyContent);
-  }, []);
+    
+
+const shownData = journey?.slice(0, 2);
   return (
     <main className="w-full p-4 md:px-8 rounded-[16px] h-full flex flex-col justify-between select-none">
       <div className=" pb-5 flex items-center justify-between">
-        <p className="text-[18px] md:text-[24px] font-bold">
+        <p className="text-[14px] md:text-[24px] font-bold">
           Your Learning Journey
         </p>
         <div >
-          <Link href={'/skilltree'} className="flex gap-3 items-center">
+          <Link href={'/skilltree'} className="flex gap-1 md:gap-3 items-center">
           <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">
             View more
           </p>
           <div>
-            <Image src={Side} alt="View Analytics" />
+            <ChevronRight size={20} className="size-3 md:size-6 text-[#4A4A4A]"/>
+            {/* <Image src={Side} alt="View Analytics" className=" md:size-3"/> */}
           </div>
           </Link>
         </div>

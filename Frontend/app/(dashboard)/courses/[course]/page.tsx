@@ -1,5 +1,5 @@
 'use client'
-import { CourseDataType, useUserStore } from '@/state/store'
+import { CourseDataType, useUserCourses, useUserStore } from '@/state/store'
 import notFound from '@/app/not-found'
 import Details from '@/components/sections/courses/Details'
 import DetailCards from '@/components/sections/courses/ui/DetailCards'
@@ -19,7 +19,7 @@ type Props = {
 
 export default function DetailsPage() {
   // const { course } = use(params)
-  const { courses, courseItems, setCourseItems } = useUserStore()
+  const { courses, courseItems, setCourseItems } = useUserCourses()
   const [courseContent, setCourseContent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const params = useParams()

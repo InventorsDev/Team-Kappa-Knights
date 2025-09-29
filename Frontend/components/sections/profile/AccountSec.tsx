@@ -84,7 +84,7 @@ const AccountSec = () => {
                 name="current"
                 value={allPasswords.current}
                 onChange={handleChange}
-                className="flex-1 outline-none"
+                className="flex-1 outline-none "
               />
             ) : (
               <span className="flex-1">{mask(allPasswords.current)}</span>
@@ -137,7 +137,7 @@ const AccountSec = () => {
           </button>
         </div>
 
-        <hr className="border border-[#CCCCCC]/50 w-full mt-8" />
+        {/* <hr className="border border-[#CCCCCC]/50 w-full mt-8" /> */}
       </form>
     </main>
   )

@@ -97,16 +97,16 @@ const Security = () => {
           </div>
         </section>
       )}
-      <section className='flex justify-between pb-3'>
+      {/* <section className='flex justify-between pb-3'>
         <div>
           <p className='font-semibold text-[18px] md:text-[24px]'>Security & Sessions</p>
           <p className='text-sm text-[#4A4A4A] md:text-[20px]'>Manage your active sessions and data privacy settings
           </p>
         </div>
         <div></div>
-      </section>
-      <section className='pt-5'>
-        <section className='space-y-5'>
+      </section> */}
+      <section className=''>
+        {/* <section className='space-y-5'>
           <div className='flex justify-between md:text-[20px]'>
             <div className='text-[15px] flex flex-col md:text-[18px]'>
               <p className='font-semibold '>Current session (Window, Chrome)</p>
@@ -126,10 +126,10 @@ const Security = () => {
             </div>
           </div>
         </section>
-        <hr className='border border-[#CCCCCC]/50 w-full mt-8' />
+        <hr className='border border-[#CCCCCC]/50 w-full mt-8' /> */}
 
-        <section className=' md:flex justify-between md:pb-6'>
-          <div className='pt-5'>
+        <section className=' md:flex justify-between items-center'>
+          <div className=''>
             <p className='font-semibold md:text-[24px]'>Data Management</p>
             <p className='text-sm text-[#4A4A4A] md:text-[18px]'>You&apos;re in charge of your information and account status.
             </p>
@@ -137,7 +137,7 @@ const Security = () => {
 
           <div className='flex justify-center md:justify-end gap-3 pt-7'>
             <div className='w-[45%]  md:w-full'>
-              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-15 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
+              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-27 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
             </div>
           </div>
 
