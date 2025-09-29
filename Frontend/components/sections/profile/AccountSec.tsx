@@ -56,9 +56,10 @@ const AccountSec = () => {
       setAllPasswords({ current: "", new: "", confirm: "" })
       setIsEditing(false)
       setShowPassword(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Password update failed:", err)
-      toast.error(err.message || "Update failed")
+      const message = err instanceof Error ? err.message : "Update failed"
+      toast.error(message)
     }
   }
 

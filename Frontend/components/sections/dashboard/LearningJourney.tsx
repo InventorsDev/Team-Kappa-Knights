@@ -35,7 +35,7 @@ const LearningJourney = () => {
         });
         if (!res.ok) throw new Error(`Failed to fetch enrollments: ${res.status}`);
         const raw = await res.json();
-        const arr: any[] = Array.isArray(raw)
+        const arr = Array.isArray(raw)
           ? raw
           : Array.isArray(raw?.results)
           ? raw.results
@@ -51,8 +51,8 @@ const LearningJourney = () => {
     fetchEnrollments();
   }, []);
 
-  // Helper to resolve a course ID from the enrollment.course field
-  const resolveCourseId = (course: any): number | null => {
+  
+  const resolveCourseId = (course: number | string | {id: string, course_id: string, courseId: string}): number | null => {
     if (course == null) return null;
     if (typeof course === "number") return course;
     if (typeof course === "string") {
@@ -98,7 +98,7 @@ const LearningJourney = () => {
       const token = localStorage.getItem("token") || undefined;
       const entries: Array<[string, CourseMeta] | null> = await Promise.all(
         enrollments.map(async (enr) => {
-          const id = resolveCourseId((enr as any).course);
+          const id = resolveCourseId((enr).course);
           if (!id) return null;
           const meta = await fetchCourseMeta(id, token);
           return meta ? ([String(id), meta] as [string, CourseMeta]) : null;
@@ -177,12 +177,16 @@ const shownData = enrollments.slice(0, 2);
 
         {shownData.map((item, index) => {
           const isGreen = index % 2 !== 0;
-          const courseAny: any = (item as any).course;
-          const courseId = resolveCourseId(courseAny);
+          type CourseValue = number | string | Record<string, unknown>;
+          const courseVal: CourseValue = item.course as CourseValue;
+          const courseId = resolveCourseId(courseVal);
           const meta = courseId != null ? courseMeta[String(courseId)] : undefined;
-          const titleFromObject = typeof courseAny === 'object'
-            ? (courseAny?.title || courseAny?.name || courseAny?.course_title)
-            : undefined;
+          const titleFromObject =
+            typeof courseVal === 'object' && courseVal !== null
+              ? ((courseVal as Record<string, unknown>).title as string | undefined) ||
+                ((courseVal as Record<string, unknown>).name as string | undefined) ||
+                ((courseVal as Record<string, unknown>).course_title as string | undefined)
+              : undefined;
           const title = titleFromObject || meta?.title || (courseId != null ? `Course #${courseId}` : 'Unknown course');
           const progress = 0; // unknown at this endpoint
           const badge = meta?.external ? 'Outsourced' : 'In-house';

@@ -49,10 +49,11 @@ const Login = ({ isDone }: prop) => {
       await sendPasswordResetEmail(auth, email);
 
       toast.success("Password reset link sent. Check your email.");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Password reset error:", error);
 
-      if (error.code === "auth/user-not-found") {
+      const err = error as { code?: string };
+      if (err.code === "auth/user-not-found") {
         toast.error("No user found with this email.");
       } else if (error.code === "auth/invalid-email") {
         toast.error("Invalid email format.");

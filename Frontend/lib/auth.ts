@@ -20,6 +20,8 @@ import { useUsername } from "@/state/usernameStore";
 import { saveTokens } from "./token";
 import { useUserStore } from "@/state/store";
 import { useUserProfileStore } from "@/state/user";
+import { useOnboardingStore } from "@/state/useOnboardingData";
+import { clearNonAuthStorage } from "@/lib/token";
 // import { signInWithEmailAndPassword } from "firebase/auth";
 interface FirestoreUser {
   email: string;
@@ -64,7 +66,24 @@ export const handleSignin = async (
     // STEP 3: store backend token
     console.log('Storing token from backend login:', resolvedUser.idToken);
     localStorage.setItem("token", resolvedUser.idToken);
-    
+
+    // STEP 3.0: Clear any persisted non-auth state from previous users (Zustand persists)
+    try {
+      clearNonAuthStorage();
+      // also clear in-memory slices
+      const u = useUserStore.getState();
+      u.setName("");
+      u.setEmail("");
+      u.setPassword("");
+      u.setProfilePic("");
+      u.setSelectedTags([]);
+      u.setMood("");
+      u.setDesc("");
+      u.setDob({ day: "", month: "", year: "" });
+      useOnboardingStore.getState().reset();
+      useUserProfileStore.getState().clearProfile();
+    } catch {}
+
     // STEP 3.1: Verify backend profile really exists and is active
     const me = await fetch("http://34.228.198.154/api/user/me", {
       method: "GET",
@@ -124,9 +143,10 @@ export const handleSignin = async (
     }
 
     return { backend: resolvedUser, firebase: fbUser.user };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("signin error:", err);
-    toast.error(err.message || "Login failed");
+    const message = err instanceof Error ? err.message : "Login failed";
+    toast.error(message);
     setLoggingIn(false);
   }
 };
@@ -251,6 +271,22 @@ export const handleCreateAccount = async (
     console.log('Storing token from account creation:', idToken);
     localStorage.setItem("token", idToken);
 
+    // STEP 5.0: Clear any persisted non-auth state from previous sessions
+    try {
+      clearNonAuthStorage();
+      const u = useUserStore.getState();
+      u.setName("");
+      u.setEmail("");
+      u.setPassword("");
+      u.setProfilePic("");
+      u.setSelectedTags([]);
+      u.setMood("");
+      u.setDesc("");
+      u.setDob({ day: "", month: "", year: "" });
+      useOnboardingStore.getState().reset();
+      useUserProfileStore.getState().clearProfile();
+    } catch {}
+
     // STEP 5.1: Ensure frontend store shows correct full name immediately
     try {
       useUserProfileStore.getState().setFullName(name);
@@ -275,8 +311,8 @@ export const handleCreateAccount = async (
     router.replace("/interests");
 
     return user;
-  } catch (error: any) {
-    const message = getFirebaseErrorMessage(error);
+  } catch (error: unknown) {
+    const message = getFirebaseErrorMessage(error as unknown as Error);
     toast.error(message);
     console.error("signup error:", error);
     setError(message);

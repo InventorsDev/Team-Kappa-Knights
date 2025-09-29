@@ -201,9 +201,9 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter()
   const isDashboard = pathname.includes("/dashboard");
-  const { name, profilePic, setName, setProfilePic } = useUserStore()
+  const { name, setName, setProfilePic } = useUserStore()
   const { profile } = useUserProfileStore()
-  const navbarPic = profile?.profile_picture_url || profilePic || ''
+  const navbarPic = profile?.profile_picture_url || ''
   const currentPage = pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   const [target, setTarget] = useState('')
   const [searchOpen, setSearchOpen] = useState<boolean>(false);

@@ -46,8 +46,6 @@ export default function ProtectedLayout({ children }: Props) {
       return;
     }
 
-    let interval: NodeJS.Timeout;
-
     const checkUser = async () => {
       const user = await getCurrentUser(token, router);
       if (user) {
@@ -61,7 +59,7 @@ export default function ProtectedLayout({ children }: Props) {
     };
 
     checkUser(); // run immediately
-    interval = setInterval(checkUser, 60_000); // run every 60s
+    const interval = setInterval(checkUser, 60_000); // run every 60s
 
     return () => clearInterval(interval);
   }, [router, setProfile]);

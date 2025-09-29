@@ -48,8 +48,8 @@ const CoursesSet = () => {
         <p className="col-span-1 md:col-span-3 text-center text-gray-500 font-semibold">No courses found</p>
       ) : (
         displayCourses.map((item, idx) => {
-          const external = !!(item as any)?.course_url && /^https?:\/\//i.test((item as any).course_url)
-          const href = external ? (item as any).course_url : `/courses/${idx}`
+          const external = !!item.course_url && /^https?:\/\//i.test(item.course_url)
+          const href = external ? item.course_url : `/courses/${idx}`
           const badge = external ? 'Outsourced' : 'In-house'
           return (
             <div key={idx}>

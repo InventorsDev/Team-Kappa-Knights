@@ -95,40 +95,6 @@ function Interest() {
     setCustomTags(localTags);
   }, []);
 
-  // const handleAdd = () => {
-  //   if (!name) {
-  //     toast.message("Please add a skill");
-  //     return;
-  //   }
-
-  //     const user = auth.currentUser;
-  // if (!user) return;
-
-  //   const newTag: Tags = {
-  //     id: Date.now().toString(),
-  //     name,
-  //     bg: "rgb(173, 216, 230)",
-  //     border: "rgb(30, 144, 255)",
-  //     text: "rgb(0, 51, 102)",
-  //     icon: "Writing",
-  //     createdBy: user.uid,
-  //     custom: true,
-  //   };
-
-  //   // Save to state & localStorage
-  //   const updated = [...customTags, newTag];
-  //   setCustomTags(updated);
-  //   localStorage.setItem("newTags", JSON.stringify(updated));
-
-  //   // ✅ Immediately select the new tag
-  //   setSelectedTags((prev) => [...prev, newTag.name]);
-  //   // setLimit((n) => n + 1);
-
-  //   setName("");
-  //   setIsClosed(true);
-  // };
-
-  // ...
 
   const handleAdd = async () => {
     if (!name) {
@@ -312,30 +278,6 @@ function Interest() {
             </div>
           ))}
 
-          <div
-            className="px-4 cursor-pointer py-3 rounded-xl text-sm font-medium border"
-            style={{
-              backgroundColor: "rgb(237, 233, 254)",
-              color: "rgb(91, 33, 182)",
-            }}
-            onClick={() => {
-              if (tags.length >= 14) {
-                toast.message("Remove a skill to add more");
-                return;
-              }
-              setIsClosed(false);
-            }}
-          >
-            <div className="flex items-center gap-4">
-              <Image
-                src={`/plus.svg`}
-                alt="Add your own"
-                width={20}
-                height={20}
-              />
-              <p>Add Yours</p>
-            </div>
-          </div>
         </section>
       )}
 

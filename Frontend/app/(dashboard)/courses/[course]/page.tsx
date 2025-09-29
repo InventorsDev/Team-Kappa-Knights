@@ -43,7 +43,13 @@ export default function DetailsPage() {
         const data = await res.json()
 
         // map backend format → your levelsArray shape
-        const formatted = data.map((item: any) => {
+        type BackendItem = {
+          sequence: number
+          title: string
+          content_url: string
+          status: 'completed' | 'ongoing' | 'not-started' | string
+        }
+        const formatted = (data as BackendItem[]).map((item) => {
           let statusIcon = Locked
           if (item.status === 'completed') statusIcon = Completed
           else if (item.status === 'ongoing') statusIcon = Ongoing

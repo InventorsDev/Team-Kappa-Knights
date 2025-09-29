@@ -49,8 +49,9 @@ const Security = () => {
         // 3) Delete Firebase Auth user
         try {
           await deleteUser(current)
-        } catch (e: any) {
-          if (e?.code === 'auth/requires-recent-login') {
+        } catch (e: unknown) {
+          const err = e as { code?: string };
+          if (err?.code === 'auth/requires-recent-login') {
             console.warn('Firebase requires recent login to delete account.')
           } else {
             console.error('Failed to delete Firebase Auth user:', e)

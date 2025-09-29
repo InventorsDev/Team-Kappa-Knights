@@ -39,27 +39,29 @@ const moodLabelsMap = [
 const LineChart: React.FC<LineChartProps> = ({ labels, datasets, title }) => {
   // build array of { x: label, d0: number, d1: number, ... }
   const data = useMemo(() => {
+    type ChartPoint = { x: string } & Record<string, number | null>;
     return labels.map((label, i) => {
-      const point: Record<string, any> = { x: label };
+      const point: ChartPoint = { x: label };
       datasets.forEach((ds, idx) => {
-        point[`d${idx}`] = ds.data[i] ?? null;
+        point[`d${idx}`] = (ds.data[i] ?? null) as number | null;
       });
       return point;
     });
   }, [labels, datasets]);
 
   // custom tooltip that translates numeric mood -> text
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  type TooltipPayloadEntry = { value: number | string; dataKey: string; name?: string };
+  type CustomTooltipProps = { active?: boolean; payload?: TooltipPayloadEntry[]; label?: string };
+  const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
     if (!active || !payload || payload.length === 0) return null;
     return (
       <div className="bg-white p-2 rounded shadow">
         <div className="font-semibold text-sm">
           {new Date(label).toLocaleString()}
         </div>
-        {payload.map((p: any) => {
+        {payload.map((p: TooltipPayloadEntry) => {
           const val = p.value;
-          const moodText =
-            typeof val === "number" ? moodLabelsMap[val] ?? val : val;
+          const moodText = typeof val === "number" ? moodLabelsMap[val] ?? val : val;
           return (
             <div key={p.dataKey} className="text-sm">
               <span className="mr-1">{p.name ?? p.dataKey}:</span>
