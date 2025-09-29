@@ -38,7 +38,7 @@ class CoursesSerializers(serializers.ModelSerializer):
 
 class RecommendationInputSerializer(serializers.Serializer):   
     skill_level = serializers.ChoiceField(choices=[('beginner', 'Beginner'), ('intermediate', 'Intermediate'), ('advanced', 'Advanced')], allow_blank=True, required=False)
-    interests = serializers.ListField(child=serializers.CharField(), allow_empty=False)
+    interests = serializers.ListField(child=serializers.CharField(), allow_empty=True, required=False)
     #course_type = serializers.ChoiceField(choices=Courses._meta.get_field('course_type').choices)
 
 # Input validation serializer for course search

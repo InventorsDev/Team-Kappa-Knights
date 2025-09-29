@@ -141,7 +141,7 @@ def recommend_courses(request):
 
         # Extract validated data
         validated_data = input_serializer.validated_data
-        skill_level = validated_data.get('skill_level')   # now optional
+        skill_level = validated_data.get('skill_level') or "beginner"   # now optional
         interests = validated_data['interests']
 
         # Start with all courses
