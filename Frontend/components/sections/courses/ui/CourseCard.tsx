@@ -148,7 +148,8 @@ const CourseCard = ({
         </div>
 
         <div className='flex gap-2'>
-          <Link href={`${props.link}`} className='flex-1'>
+          {/* <Link href={`${props.link}`} className='flex-1'> */}
+          <Link href={`/courses/${props.courseId}`} className='flex-1'>
             <button className="bg-[#00B5A5] rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer">
               View Details
             </button>

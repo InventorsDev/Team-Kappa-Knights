@@ -54,6 +54,7 @@ export default function DetailsPage() {
           content_url: string
           status: 'completed' | 'ongoing' | 'not-started' | string
         }
+        console.log(data)
         const formatted: RoadmapContentType[] = (data as BackendItem[]).map((item) => {
           let statusIcon: string = 'dashboard/courses/locked.png'
           if (item.status === 'completed') statusIcon = 'dashboard/courses/completed.png'
