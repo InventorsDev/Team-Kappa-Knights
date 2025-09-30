@@ -3,10 +3,11 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Purple from "@/public/dashboard/purpleVector.png";
 import Green from "@/public/dashboard/business.png";
-import Side from "@/public/dashboard/sideArrow.png";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { data as demoCourses } from "@/lib/testData";
+import AuthButton from "@/components/common/button/Button";
+import { useUserStore } from "@/state/store";
 
 // Backend response type: [{ enrollment, user, course }]
 type Enrollment = {
@@ -20,6 +21,8 @@ type CourseMeta = { title?: string; url?: string; external?: boolean };
 const LearningJourney = () => {
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [courseMeta, setCourseMeta] = useState<Record<string, CourseMeta>>({});
+  const [isRouting, setIsRouting] = useState(false);
+  const { daysActive } = useUserStore();
 
   useEffect(() => {
     const fetchEnrollments = async () => {
@@ -38,10 +41,10 @@ const LearningJourney = () => {
         const arr = Array.isArray(raw)
           ? raw
           : Array.isArray(raw?.results)
-          ? raw.results
-          : Array.isArray(raw?.courses)
-          ? raw.courses
-          : [];
+            ? raw.results
+            : Array.isArray(raw?.courses)
+              ? raw.courses
+              : [];
         setEnrollments(arr as Enrollment[]);
       } catch (err) {
         console.error(err);
@@ -51,19 +54,22 @@ const LearningJourney = () => {
     fetchEnrollments();
   }, []);
 
-  
-  const resolveCourseId = (course: number | string | {id: string, course_id: string, courseId: string}): number | null => {
+
+  const resolveCourseId = (
+    course: number | string | { id?: string; course_id?: string; courseId?: string }
+  ): number | null => {
     if (course == null) return null;
     if (typeof course === "number") return course;
     if (typeof course === "string") {
       const n = Number(course);
       return Number.isFinite(n) ? n : null;
     }
-    // object case: try common keys
+    // object case
     const cand = course.id ?? course.course_id ?? course.courseId;
     const n = Number(cand);
     return Number.isFinite(n) ? n : null;
   };
+
 
   // Fetch course meta by ID from your courses endpoint (title, url, external)
   const fetchCourseMeta = async (id: number, token?: string): Promise<CourseMeta | null> => {
@@ -87,7 +93,7 @@ const LearningJourney = () => {
         ),
       };
       return meta;
-    } catch (_) {
+    } catch {
       return null;
     }
   };
@@ -116,7 +122,7 @@ const LearningJourney = () => {
     if (enrollments.length) go();
   }, [enrollments]);
 
-const shownData = enrollments.slice(0, 2);
+  const shownData = enrollments.slice(0, 2);
   return (
     <main className="w-full p-4 md:px-8 rounded-[16px] h-full flex flex-col justify-between select-none">
       <div className=" pb-5 flex items-center justify-between">
@@ -127,7 +133,7 @@ const shownData = enrollments.slice(0, 2);
           <Link href={'/skilltree'} className="flex gap-1 md:gap-3 items-center">
             <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">View more</p>
             <div>
-              <ChevronRight size={20} className="size-3 md:size-6 text-[#4A4A4A]"/>
+              <ChevronRight size={20} className="size-3 md:size-6 text-[#4A4A4A]" />
             </div>
           </Link>
         </div>
@@ -135,6 +141,7 @@ const shownData = enrollments.slice(0, 2);
 
       <div className="space-y-4">
         {shownData.length === 0 && (
+          daysActive > 5 ? (
           <div className="space-y-4">
             {demoCourses.slice(0, 2).map((item, index) => {
               const isGreen = index % 2 !== 0;
@@ -144,9 +151,8 @@ const shownData = enrollments.slice(0, 2);
               return (
                 <div
                   key={`demo-${index}`}
-                  className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${
-                    isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
-                  }`}
+                  className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
+                    }`}
                 >
                   <div>
                     {isGreen ? (
@@ -173,19 +179,35 @@ const shownData = enrollments.slice(0, 2);
               );
             })}
           </div>
+          ) : (
+            <div className="text-center space-y-3">
+              <p>No courses yet!</p>
+              <p>Start your first course and track your progress here</p>
+              <Link href={'/courses'} className="text-[14px] md:text-[16px]">
+                <AuthButton
+                  text="Browse Courses"
+                  action={isRouting}
+                  textWhileActionIsTakingPlace="..."
+                  isAuth={false}
+                />
+              </Link>
+            </div>
+          )
         )}
 
         {shownData.map((item, index) => {
           const isGreen = index % 2 !== 0;
-          type CourseValue = number | string | Record<string, unknown>;
+          // type CourseValue = number | string | Record<string, unknown>;
+          type CourseValue = number | string | { id?: string; course_id?: string; courseId?: string };
+
           const courseVal: CourseValue = item.course as CourseValue;
           const courseId = resolveCourseId(courseVal);
           const meta = courseId != null ? courseMeta[String(courseId)] : undefined;
           const titleFromObject =
             typeof courseVal === 'object' && courseVal !== null
               ? ((courseVal as Record<string, unknown>).title as string | undefined) ||
-                ((courseVal as Record<string, unknown>).name as string | undefined) ||
-                ((courseVal as Record<string, unknown>).course_title as string | undefined)
+              ((courseVal as Record<string, unknown>).name as string | undefined) ||
+              ((courseVal as Record<string, unknown>).course_title as string | undefined)
               : undefined;
           const title = titleFromObject || meta?.title || (courseId != null ? `Course #${courseId}` : 'Unknown course');
           const progress = 0; // unknown at this endpoint
@@ -194,9 +216,8 @@ const shownData = enrollments.slice(0, 2);
 
           const CardInner = (
             <div
-              className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${
-                isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
-              }`}
+              className={`flex gap-2 items-center text-[16px] font-semibold space-x-2 rounded-2xl p-[16px] ${isGreen ? "bg-[#EBFFFC]" : "bg-[#F1EFFF]"
+                }`}
             >
               <div>
                 {isGreen ? (

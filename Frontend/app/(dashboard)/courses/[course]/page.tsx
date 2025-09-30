@@ -1,25 +1,18 @@
 'use client'
-import { CourseDataType, useUserCourses, useUserStore } from '@/state/store'
-import notFound from '@/app/not-found'
+import { useUserCourses } from '@/state/store'
 import Details from '@/components/sections/courses/Details'
 import DetailCards from '@/components/sections/courses/ui/DetailCards'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import Back from '@/public/dashboard/backArrow.png'
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Locked from '@/public/dashboard/courses/locked.png'
 import Completed from '@/public/dashboard/courses/completed.png'
 import Ongoing from '@/public/dashboard/courses/unlocked.png'
-import { useParams } from 'next/navigation'
 import Loader from '@/components/common/loader/Loader'
 
-type Props = {
-  params: Promise<{ course: string }>
-}
-
 export default function DetailsPage() {
-  // const { course } = use(params)
-  const { courses, courseItems, setCourseItems } = useUserCourses()
+  const { courses, courseItems } = useUserCourses()
   const [courseContent, setCourseContent] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const params = useParams()
@@ -113,7 +106,7 @@ export default function DetailsPage() {
         }}
       >
         <div className="flex flex-col gap-5">
-          {courseItems.map((lvl, i) => (
+          {courseItems.map((lvl) => (
             <DetailCards
               key={lvl.id}
               props={{

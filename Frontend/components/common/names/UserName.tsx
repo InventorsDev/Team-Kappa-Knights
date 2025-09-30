@@ -1,5 +1,4 @@
 "use client";
-import { useUserStore } from "@/state/store";
 import { useUserProfileStore } from "@/state/user";
 import { formatName } from "@/helpers/formatName";
 import React from "react";
