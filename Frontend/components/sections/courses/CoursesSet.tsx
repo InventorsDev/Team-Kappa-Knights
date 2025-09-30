@@ -74,7 +74,7 @@ const CoursesSet = () => {
   // If no API courses yet, you could show placeholders
   const displayCourses = courses.length > 0 ? courses : []
       if (courses.length === 0) return <Loading /> 
-      console.log(displayCourses)
+      // console.log(displayCourses)
 
   return (
     <div className="pt-3 flex flex-col md:grid grid-cols-3 gap-4">
@@ -93,28 +93,13 @@ const CoursesSet = () => {
               duration: item.duration,
               progress: item.progress,
               link: item.course_url,
+              courseId: item.course_id,
             }}
             className="flex-1"
           />
         </div>
       ))
     )}
-      {/* {displayCourses.map((item, idx) => (
-        <div key={idx} className="flex">
-          <CourseCard
-            props={{
-              title: item.title,
-              content: item.description,
-              tutor: item.tutor || 'Code Academy',
-              duration: item.duration,
-              progress: item.progress,
-              link: item.course_url,
-            }}
-            className="flex-1"
-          />
-        </div>
-      ))}  */}
-      {/* {} */}
     </div>
   )
 }

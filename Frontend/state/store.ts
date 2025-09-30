@@ -15,6 +15,7 @@ export type DateParts = {
 export type CourseDataType = {
   course_url: string
   id: number
+  course_id: number
   title: string
   description: string
   tutor: string
