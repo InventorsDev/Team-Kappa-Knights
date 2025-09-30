@@ -9,7 +9,8 @@ import { handleGoogleSignup, handleCreateAccount } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { auth, provider } from "@/lib/firebase";
 import { signInWithPopup } from "firebase/auth";
-import { useUsername } from "@/state/store";
+import { useUserStore } from "@/state/store";
+//import { useUsername } from "@/state/store";
 type props = {
   setIsVerifying: (bool: boolean) => void;
   // setIsVerifying: (bool: boolean) => void;
@@ -17,13 +18,14 @@ type props = {
 function SignUpForm({ setIsVerifying }: props) {
   const [error, setError] = useState("");
   const [emailSigningIn, setEmailSigningIn] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  //const [email, setEmail] = useState("");
+  //const [password, setPassword] = useState("");
   // const [name, setName] = useState("");
   const [signingIn, setSigningIn] = useState(false);
   const router = useRouter();
-  const name = useUsername((state) => state.name);
-  const setName = useUsername((state) => state.setName);
+  //const name = useUsername((state) => state.name);
+  //const setName = useUsername((state) => state.setName);
+  const {name, setName, email, setEmail, password, setPassword} = useUserStore()
 
   const handleGoogleSignup = async () => {
     if (signingIn) return;
@@ -47,7 +49,7 @@ function SignUpForm({ setIsVerifying }: props) {
     }
   };
   return (
-    <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px]">
+    <section className="w-full max-w-[440px] xl:min-w-[600px] xl:max-w-[700px] mt-[64px] select-none">
       <div className="w-full flex items-center justify-center">
         <Image src={Logo} alt="Neuroloom Logo" className="" />
       </div>
@@ -60,18 +62,34 @@ function SignUpForm({ setIsVerifying }: props) {
             Fill in the field below to register your account
           </p>
         </div>
-        <form
+        {/* <form
+          className="w-full flex flex-col gap-6"
+          onSubmit={(e) =>
+            handleCreateAccount(
+              e,
+              email,
+              password,
+              name, // this is fullName from your zustand store
+              router,
+              setError,
+              setEmailSigningIn,
+              setIsVerifying
+            )
+          }
+        > */}
+
+          <form
           className="w-full  flex flex-col gap-6"
           onSubmit={(e) =>
             handleCreateAccount(
               e,
-              password,
+              //password,
               setError,
               router,
-              name,
-              email,
+              //name,
+              //email,
               setEmailSigningIn,
-              setIsVerifying
+              // setIsVerifying
             )
           }
         >
@@ -92,6 +110,7 @@ function SignUpForm({ setIsVerifying }: props) {
               onChange={(e) => setName(e.target.value)}
               value={name}
             />
+            
           </div>
           <div className="w-full">
             <label

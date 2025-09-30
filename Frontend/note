@@ -1,0 +1,21 @@
+Reference from -  ReDoc (reference style):
+http://34.228.198.154/redoc
+
+AT SIGNUP - Auth -> POST register
+AT Login - Auth -> POST Login
+At onboarding - User -> POST Complete onboarding: skill level, learning goal, support style
+
+DASHBOARD
+At the navbar and top,  User -> GET current user
+At the journal entry, Journals -> POST create journal entry
+At your learning journey - Progress -> GET user progress list
+At your progress - mixed
+At recommendations- incomplete data
+At This week - Journals -> GET journal entries
+At recent - 
+
+
+PROFILE
+At personalInfo - User -> GET current user and PUT update user profile
+At AcountSec - User -> GET current user and PUT update user profile
+At Security - User -> DEL user profile

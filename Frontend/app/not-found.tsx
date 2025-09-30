@@ -10,7 +10,7 @@ function notFound() {
           <Image src={pageNotFound} width={600} height={600} alt="404" />
           <p>sorry bro...page not found</p>
         </div>
-        <Link className="hover:underline hover:text-[#00bfa5]" href={"/"}>
+        <Link className="hover:underline hover:text-[#00bfa5]" href={"/dashboard"}>
           Return To Dashboard
         </Link>
       </div>

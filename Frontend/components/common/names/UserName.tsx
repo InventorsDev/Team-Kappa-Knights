@@ -1,19 +1,12 @@
-'use client'
-import { useUsername } from '@/state/usernameStore'
-import React from 'react'
-
-
+"use client";
+import { useUserProfileStore } from "@/state/user";
+import { formatName } from "@/helpers/formatName";
+import React from "react";
 
 const UserName = () => {
-    const user = useUsername((state) => (state.name))
+  const { profile } = useUserProfileStore();
 
-    const getName = (name: string) => {
-        if(!name) return "Guest"
-      return   name
-    }
-  return (
-    <span>{getName(user)}</span>
-  )
-}
+  return <span>{formatName(profile?.full_name ?? "Guest")}</span>;
+};
 
-export default UserName
+export default UserName;

@@ -17,14 +17,16 @@ import { useRouter } from "next/navigation";
 import { handleSignin, handleGoogleSignup } from "@/lib/auth";
 import AuthButton from "@/components/common/button/Button";
 import { toast } from "sonner";
+import { useUserStore } from "@/state/store";
 
 type prop = {
   isDone: (boolean: boolean) => void;
 };
 
 const Login = ({ isDone }: prop) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // const [email, setEmail] = useState("");
+  // const [password, setPassword] = useState("");
+  const { email, setEmail, password, setPassword } = useUserStore();
   const [signingIn, setSigningIn] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +36,7 @@ const Login = ({ isDone }: prop) => {
   //   ? browserLocalPersistence
   //   : browserSessionPersistence;
 
-  const persistence = browserLocalPersistence
+  const persistence = browserLocalPersistence;
 
   const forgotPassword = async () => {
     if (!email) {
@@ -47,10 +49,11 @@ const Login = ({ isDone }: prop) => {
       await sendPasswordResetEmail(auth, email);
 
       toast.success("Password reset link sent. Check your email.");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Password reset error:", error);
 
-      if (error.code === "auth/user-not-found") {
+      const err = error as { code?: string };
+      if (err.code === "auth/user-not-found") {
         toast.error("No user found with this email.");
       } else if (error.code === "auth/invalid-email") {
         toast.error("Invalid email format.");
@@ -93,8 +96,8 @@ const Login = ({ isDone }: prop) => {
                 onSubmit={(e) =>
                   handleSignin(
                     e,
-                    email,
-                    password,
+                    //email,
+                    //password,
                     persistence,
                     router,
                     setLoggingIn,
@@ -204,7 +207,7 @@ const Login = ({ isDone }: prop) => {
                   action={loggingIn}
                   text="Log in"
                   textWhileActionIsTakingPlace="Logging in"
-                  isAuth={true}
+                  isAuth={false}
                 />
                 <div className="mt-[12px] mb-[20px]">
                   <p className="text-center">

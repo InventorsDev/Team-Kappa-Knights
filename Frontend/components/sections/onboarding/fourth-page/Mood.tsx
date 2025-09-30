@@ -6,6 +6,8 @@ import { useState } from "react";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { auth } from "@/lib/firebase";
+import { useOnboardingStore } from "@/state/useOnboardingData";
 
 const moods = [
   {
@@ -49,17 +51,19 @@ const moods = [
 function Mood() {
   const [mood, setMood] = useState("");
   const [desc, setDesc] = useState("");
+  const { interests, learningGoal, skillLevel } = useOnboardingStore();
+  const [itemLogo, setItemLogo] = useState("");
   const [isRouting, setIsRouting] = useState(false);
+
   const router = useRouter();
 
-  const handleRoute = () => {
+  const handleRoute = async () => {
     if (!mood) {
       toast.error("please select your mood");
       return;
     }
-
     setIsRouting(true);
-    router.push("/onboarding/support");
+    router.push("/support");
   };
   return (
     <div className="py-8 px-4 text-[#212121]">
@@ -93,7 +97,10 @@ function Mood() {
                       ? `2px solid ${item.borderColor}`
                       : "none",
                 }}
-                onClick={() => setMood(item.title)}
+                onClick={() => {
+                  setMood(item.title);
+                  setItemLogo(item.logo);
+                }}
               >
                 <div className="w-[50px]">
                   <Image
@@ -114,7 +121,7 @@ function Mood() {
             htmlFor="extra_info"
             className="text-[#212121] text-[18px] md:text-[24px] font-[500]"
           >
-            What’s on your mind? (Optional)
+            What&apos;s on your mind? (Optional)
           </label>
           <textarea
             name="extra_info"
@@ -133,7 +140,7 @@ function Mood() {
           <AuthButton
             text="Continue"
             action={isRouting}
-            textWhileActionIsTakingPlace="Routing"
+            textWhileActionIsTakingPlace="Loading..."
             isAuth={false}
           />
         </div>

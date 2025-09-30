@@ -3,12 +3,22 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import logo from "@/public/favicon.ico";
 import AuthButton from "@/components/common/button/Button";
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import {
+  addDoc,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import { toast } from "sonner";
 import Loader from "@/components/common/loader/Loader";
 import { useRouter } from "next/navigation";
 import { getCurrentUserFromFirestore } from "@/lib/auth";
+import { getFirebaseErrorMessage } from "@/lib/firebaseErrorHandler";
+import { useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
+import { clearNonAuthStorage } from "@/lib/token";
 
 interface Tags {
   id: string;
@@ -18,6 +28,7 @@ interface Tags {
   border: string;
   icon: string;
   custom?: boolean;
+  createdBy?: string;
 }
 
 interface user {
@@ -30,16 +41,20 @@ interface user {
 function Interest() {
   const [firestoreTags, setFirestoreTags] = useState<Tags[]>([]);
   const [customTags, setCustomTags] = useState<Tags[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  // const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const { selectedTags, setSelectedTags } = useUserStore();
   const [isClosed, setIsClosed] = useState(true);
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
+  const { setInterests, interests, addInterest } = useOnboardingStore();
   const router = useRouter();
   // const [limit, setLimit] = useState(0);
 
   useEffect(() => {
     console.log(selectedTags);
-  }, [selectedTags]);
+    setInterests(selectedTags);
+    console.log(interests);
+  }, [selectedTags, interests]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -49,7 +64,6 @@ function Interest() {
     fetchUser();
   }, []);
 
-  // Load Firestore tags once
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -66,7 +80,8 @@ function Interest() {
         setFirestoreTags(tagData);
         setLoading(false);
       } catch (error) {
-        toast.error("Network issues, please reload page");
+        const message = getFirebaseErrorMessage(error);
+        toast.error(message);
         console.error("Error fetching tags from Firestore", error);
       }
     };
@@ -80,33 +95,49 @@ function Interest() {
     setCustomTags(localTags);
   }, []);
 
-  const handleAdd = () => {
+
+  const handleAdd = async () => {
     if (!name) {
       toast.message("Please add a skill");
       return;
     }
 
-    const newTag: Tags = {
-      id: Date.now().toString(),
-      name,
-      bg: "rgb(173, 216, 230)",
-      border: "rgb(30, 144, 255)",
-      text: "rgb(0, 51, 102)",
-      icon: "Writing",
-      custom: true,
-    };
+    const user = auth.currentUser;
+    if (!user) {
+      toast.error("You must be signed in to add a skill");
+      return;
+    }
 
-    // Save to state & localStorage
-    const updated = [...customTags, newTag];
-    setCustomTags(updated);
-    localStorage.setItem("newTags", JSON.stringify(updated));
+    try {
+      const newTag = {
+        name,
+        bg: "rgb(173, 216, 230)",
+        border: "rgb(30, 144, 255)",
+        text: "rgb(0, 51, 102)",
+        icon: "Writing",
+        createdBy: user.uid, // 🔑 for rules
+      };
 
-    // ✅ Immediately select the new tag
-    setSelectedTags((prev) => [...prev, newTag.name]);
-    // setLimit((n) => n + 1);
+      // Write to Firestore
+      const docRef = await addDoc(collection(db, "tags"), newTag);
 
-    setName("");
-    setIsClosed(true);
+      // Update local state so UI refreshes immediately
+      setFirestoreTags((prev) => [
+        ...prev,
+        { id: docRef.id, ...newTag, custom: false },
+      ]);
+
+      // Auto-select the tag
+      setSelectedTags((prev) => [...prev, newTag.name]);
+      addInterest(newTag.name);
+
+      setName("");
+      setIsClosed(true);
+      toast.success("Skill added!");
+    } catch (err) {
+      console.error("Error adding tag:", err);
+      toast.error(getFirebaseErrorMessage(err));
+    }
   };
 
   const handleDelete = async (id: string, custom?: boolean) => {
@@ -140,7 +171,7 @@ function Interest() {
     }
   };
 
-  const handleLimit = () => {
+  const handleLimit = async () => {
     if (selectedTags.length > 5) {
       toast.message("The skills selected exceed the limit");
       return;
@@ -149,7 +180,38 @@ function Interest() {
       toast.message("The skills selected do not meet the limit.");
       return;
     }
-    localStorage.clear();
+    try {
+      const token = localStorage.getItem("token");
+      console.log('Interest handleLimit - checking token:', token ? 'FOUND' : 'NOT FOUND');
+      if (!token) {
+        toast("no token");
+        console.error('No token found in Interest page!');
+        return;
+      }
+      const res = await fetch("http://34.228.198.154/api/user/me", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          interests: selectedTags,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`Server said ${res.status}`);
+    } catch (err) {
+      console.log(err);
+    }
+
+    // Safe clearing that preserves authentication tokens
+    clearNonAuthStorage(['newTags']); // Only clear specific non-auth items
+    
+    // Verify token is still there before navigation
+    const tokenAfterClear = localStorage.getItem("token");
+    console.log('After safe clearing, token still exists:', tokenAfterClear ? 'YES' : 'NO');
+    console.log('Navigating to skill-level, token preserved');
+    
     router.push("./skill-level");
   };
 
@@ -216,30 +278,6 @@ function Interest() {
             </div>
           ))}
 
-          <div
-            className="px-4 cursor-pointer py-3 rounded-xl text-sm font-medium border"
-            style={{
-              backgroundColor: "rgb(237, 233, 254)",
-              color: "rgb(91, 33, 182)",
-            }}
-            onClick={() => {
-              if (tags.length >= 14) {
-                toast.message("Remove a skill to add more");
-                return;
-              }
-              setIsClosed(false);
-            }}
-          >
-            <div className="flex items-center gap-4">
-              <Image
-                src={`/plus.svg`}
-                alt="Add your own"
-                width={20}
-                height={20}
-              />
-              <p>Add Yours</p>
-            </div>
-          </div>
         </section>
       )}
 

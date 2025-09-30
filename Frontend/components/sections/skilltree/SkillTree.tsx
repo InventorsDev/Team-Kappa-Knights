@@ -34,7 +34,7 @@ function SkillTree({ data, completed, total }: SkillTreeProps) {
   const [isOpen, setIsOpen] = useState(false);
   const progress = total > 0 ? Math.min((completed / total) * 100, 100) : 0;
   return (
-    <div className="border border-[#CCCCCCCC] p-2 rounded-[16px]">
+    <div className="border border-[#CCCCCCCC] p-2 rounded-[16px]" style={{ fontFamily: 'var(--font-nunito)' }}>
       <div
         className="flex justify-between items-center"
         onClick={() => setIsOpen(!isOpen)}

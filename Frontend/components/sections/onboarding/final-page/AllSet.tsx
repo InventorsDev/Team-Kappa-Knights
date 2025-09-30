@@ -7,14 +7,17 @@ import CheckCircle from "@/public/images/check-circle.png";
 import AuthButton from "@/components/common/button/Button";
 import { useRouter } from "next/navigation";
 import { useUsername } from "@/state/usernameStore";
+import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 const AllSet = () => {
-  const name = useUsername((state) => state.name);
+  // const name = useUsername((state) => state.name);
+  const { profile } = useUserProfileStore();
   const [isRouting, setIsRouting] = useState(false);
   const router = useRouter();
 
   const getFirstName = (fullName?: string) => {
-    if (!fullName) return "stranger";
+    if (!fullName) return "Guest";
     return fullName.trim().split(" ")[0];
   };
 
@@ -36,7 +39,7 @@ const AllSet = () => {
             />
           </div>
           <p className="text-[24px] font-[500]">
-            You&apos;re all set, {getFirstName(name)}
+            You&apos;re all set, {getFirstName(profile?.full_name)}
           </p>
           <p className="text-gray-500 pb-10">
             We&apos;ve personalised your learning experience based on your
@@ -49,7 +52,7 @@ const AllSet = () => {
             <AuthButton
               text="Go to Dashboard"
               action={isRouting}
-              textWhileActionIsTakingPlace="Routing"
+              textWhileActionIsTakingPlace="Loading..."
               isAuth={false}
             />
           </div>

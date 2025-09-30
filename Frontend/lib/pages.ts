@@ -12,7 +12,11 @@ export const pages = [
     href: "/profile",
   },
   {
-    name: "insights",
+    name: "Insights",
     href: "/insights",
+  },
+  {
+    name: "Courses",
+    href: "/courses",
   },
 ];

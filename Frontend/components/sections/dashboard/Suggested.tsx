@@ -1,6 +1,10 @@
 "use client";
+import Loading from "@/app/loading";
 import AuthButton from "@/components/common/button/Button";
-import React, { useEffect, useState } from "react";
+import { CourseDataType, useUserCourses, useUserStore } from "@/state/store";
+import { useOnboardingStore } from "@/state/useOnboardingData";
+import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
 
 type suggestedType = {
   title: string;
@@ -9,28 +13,49 @@ type suggestedType = {
   feature: string;
 };
 
-const suggestedContent: suggestedType[] = [
-  {
-    title: "Morning Meditation",
-    details: "Start your day with a 10 minutes guided meditation",
-    category: "Wellness",
-    feature: "10 mins",
-  },
-  {
-    title: "Java Scripts Fundamental",
-    details: "Continue your web development suggested today",
-    category: "Programming",
-    feature: "Beginner",
-  },
-];
+
 
 const Suggested = () => {
   const [suggested, setSuggested] = useState<suggestedType[]>([]);
   const [isRouting, setIsRouting] = useState<boolean>(false);
+  const{ selectedTags} = useUserStore()
+  const { courses, setCourses } = useUserCourses()
+    const {interests, skillLevel} = useOnboardingStore()
 
-  useEffect(() => {
-    setSuggested(suggestedContent);
-  }, []);
+   useEffect(() => {
+      const token = localStorage.getItem('token')
+      const fetchCourses = async () => {
+        try { console.log(selectedTags)
+  
+          const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              // skill_level: skillLevel,
+              interest: interests,
+            })
+          })
+  
+          console.log(res)
+           console.log('selected tags are:' + selectedTags)
+          if (!res.ok) throw new Error('Failed to fetch courses')
+            const returnedData = await res.json()
+          const data: CourseDataType[] = returnedData.courses
+        console.log(data)
+          setCourses(data)
+
+  
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      fetchCourses()
+    }, [setCourses])
+  
+    const displayCourses = courses.length > 0 ? courses : []
+        console.log(displayCourses)
 
   return (
     <main className="select-none">
@@ -38,41 +63,48 @@ const Suggested = () => {
         Recommended for you
       </p>
       <section className="space-y-8 pb-10">
-        {suggested.map((item, index) => {
+       
+        { courses.length === 0 ? <Loading /> : courses.slice(0, 2).map((item, index) => {
           const isGreen = index % 2 !== 0;
           return (
             <section
               key={index}
               className="border border-[#CCCCCCCC] w-full p-4 rounded-[16px] select-none"
             >
+              <Link href={item.course_url} >
               <p className="text-[18px]  font-semibold ">{item.title}</p>
-              <p className="text-[#4A4A4A] text-[16px]"> {item.details} </p>
+              <p className="text-[#4A4A4A] text-[16px] line-clamp-2"> {item.description} </p>
               <div className="flex gap-3 pt-2 ">
                 <div
                   className={`px-3 py-1 rounded-lg border md:text-[18px] ${
                     isGreen ? " border-[#AAF4E9] border-2" : "border-[#886CFF]"
                   }`}
                 >
-                  {item.category}
+                  {item.difficulty}
                 </div>
                 <div
                   className={`px-3 py-1 rounded-lg border md:text-[18px] ${
                     isGreen ? " border-[#AAF4E9] border-2" : "border-[#886CFF]"
                   }`}
                 >
-                  {item.feature}
+                  {item.duration}
                 </div>
               </div>
+              </Link>
             </section>
           );
         })}
+
+         
       </section>
+      <Link href={'/courses'} className="text-[14px] md:text-[16px]">
       <AuthButton
-        text="View all recommendations"
+        text="View Course Recommendations"
         action={isRouting}
         textWhileActionIsTakingPlace="..."
         isAuth={false}
       />
+      </Link>
     </main>
   );
 };
