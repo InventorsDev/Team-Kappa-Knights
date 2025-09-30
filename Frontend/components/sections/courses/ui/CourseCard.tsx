@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Icon from '@/public/dashboard/greenVector.png'
 import Link from 'next/link'
@@ -25,22 +25,71 @@ const CourseCard = ({
   const profile = useUserProfileStore((s) => s.profile)
   const [adding, setAdding] = useState(false)
   const [added, setAdded] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isEnrolled, setIsEnrolled] = useState(false)
 
-  // /enrollments/ 
+  // Resolve course id from enrollment payloads (could be number, string, or object)
+  const resolveCourseId = (v: unknown): number | null => {
+    if (v == null) return null
+    if (typeof v === 'number') return v
+    if (typeof v === 'string') {
+      const n = Number(v)
+      return Number.isFinite(n) ? n : null
+    }
+    if (typeof v === 'object') {
+      const anyObj = v as { course_id?: unknown; id?: unknown; courseId?: unknown }
+      const cand = (anyObj.course_id ?? anyObj.id ?? anyObj.courseId) as unknown
+      const n = Number(cand)
+      return Number.isFinite(n) ? n : null
+    }
+    return null
+  }
+
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      try {
+        const userId = profile?.user_id
+        if (!userId || !props.courseId) return
+        const token = localStorage.getItem('token') || undefined
+        const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: 'no-store',
+        })
+        if (!res.ok) return
+        const raw = await res.json()
+        const arr: any[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.results)
+          ? raw.results
+          : Array.isArray(raw?.courses)
+          ? raw.courses
+          : []
+        const found = arr.some((enr) => {
+          const uid = String((enr as any)?.user)
+          const cid = resolveCourseId((enr as any)?.course)
+          return uid === String(userId) && cid === props.courseId
+        })
+        if (found) {
+          setIsEnrolled(true)
+          setAdded(true)
+        }
+      } catch {
+        // silently ignore; enrollment check is best-effort
+      }
+    }
+    checkEnrollment()
+  }, [profile?.user_id, props.courseId])
 
   const handleAddCourse = async () => {
-    if (adding || added) return
+    if (adding || added || isEnrolled) return
     setAdding(true)
-    setError(null)
     try {
       const userId = profile?.user_id
       if (!userId) {
         throw new Error('User not found. Please sign in again.')
-      }
-      if(!props.courseId){
-        toast.error("no id")
-        return;
       }
       const token = localStorage.getItem('token') || undefined
       const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
@@ -56,9 +105,11 @@ const CourseCard = ({
         throw new Error(text || `Failed to enroll (HTTP ${res.status})`)
       }
       setAdded(true)
+      setIsEnrolled(true)
+      toast.success('Course added')
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to enroll'
-      setError(msg)
+      toast.error(msg || 'Failed to add course')
     } finally {
       setAdding(false)
     }
@@ -104,13 +155,12 @@ const CourseCard = ({
           </Link>
           <button
             onClick={handleAddCourse}
-            disabled={adding || added}
-            className={`flex-1 rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer ${added ? 'bg-gray-400' : 'bg-[#00B5A5]'}`}
+            disabled={adding || added || isEnrolled}
+            className={`flex-1 rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer ${(added || isEnrolled) ? 'bg-gray-400' : 'bg-[#00B5A5]'}`}
           >
-            {added ? 'Added' : adding ? 'Adding…' : 'Add Course'}
+            {(added || isEnrolled) ? 'Added' : adding ? 'Adding…' : 'Add Course'}
           </button>
         </div>
-        {error && <p className="mt-2 text-sm text-red-600">Failed to add course</p>}
       </section>
     </div>
   )
