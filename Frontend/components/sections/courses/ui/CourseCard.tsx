@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import Icon from '@/public/dashboard/greenVector.png'
 import Link from 'next/link'
+import { useUserProfileStore } from '@/state/user'
+import { toast } from 'sonner'
 
 type CardProps = {
   title: string
@@ -10,8 +12,7 @@ type CardProps = {
   duration: string
   progress: number
   link: string
-  badge?: string
-  external?: boolean
+  courseId: number
 }
 
 const CourseCard = ({
@@ -21,24 +22,108 @@ const CourseCard = ({
   props: CardProps
   className?: string
 }) => {
-  const Title = (
-    <section className="flex gap-3 pb-4 ">
-      <Image src={Icon} width={100} height={100} alt="" className='w-4 h-4 md:w-7 md:h-7' />
-      <div className="font-semibold text-[18px] flex flex-col items-start gap-2">
-        <span className="">{props.title}</span>
-        {props.badge && (
-          <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 border border-gray-300">{props.badge}</span>
-        )}
-      </div>
-    </section>
-  )
+  const profile = useUserProfileStore((s) => s.profile)
+  const [adding, setAdding] = useState(false)
+  const [added, setAdded] = useState(false)
+  const [isEnrolled, setIsEnrolled] = useState(false)
+
+  // Resolve course id from enrollment payloads (could be number, string, or object)
+  const resolveCourseId = (v: unknown): number | null => {
+    if (v == null) return null
+    if (typeof v === 'number') return v
+    if (typeof v === 'string') {
+      const n = Number(v)
+      return Number.isFinite(n) ? n : null
+    }
+    if (typeof v === 'object') {
+      const anyObj = v as { course_id?: unknown; id?: unknown; courseId?: unknown }
+      const cand = (anyObj.course_id ?? anyObj.id ?? anyObj.courseId) as unknown
+      const n = Number(cand)
+      return Number.isFinite(n) ? n : null
+    }
+    return null
+  }
+
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      try {
+        const userId = profile?.user_id
+        if (!userId || !props.courseId) return
+        const token = localStorage.getItem('token') || undefined
+        const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: 'no-store',
+        })
+        if (!res.ok) return
+        const raw = await res.json()
+        const arr: any[] = Array.isArray(raw)
+          ? raw
+          : Array.isArray(raw?.results)
+          ? raw.results
+          : Array.isArray(raw?.courses)
+          ? raw.courses
+          : []
+        const found = arr.some((enr) => {
+          const uid = String((enr as any)?.user)
+          const cid = resolveCourseId((enr as any)?.course)
+          return uid === String(userId) && cid === props.courseId
+        })
+        if (found) {
+          setIsEnrolled(true)
+          setAdded(true)
+        }
+      } catch {
+        // silently ignore; enrollment check is best-effort
+      }
+    }
+    checkEnrollment()
+  }, [profile?.user_id, props.courseId])
+
+  const handleAddCourse = async () => {
+    if (adding || added || isEnrolled) return
+    setAdding(true)
+    try {
+      const userId = profile?.user_id
+      if (!userId) {
+        throw new Error('User not found. Please sign in again.')
+      }
+      const token = localStorage.getItem('token') || undefined
+      const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ user: userId, course_id: props.courseId }),
+      })
+      if (!res.ok) {
+        const text = await res.text()
+        throw new Error(text || `Failed to enroll (HTTP ${res.status})`)
+      }
+      setAdded(true)
+      setIsEnrolled(true)
+      toast.success('Course added')
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Failed to enroll'
+      toast.error(msg || 'Failed to add course')
+    } finally {
+      setAdding(false)
+    }
+  }
 
   return (
     <div
       className={`p-4 rounded-2xl border border-[#CCCCCC] md:text-[18px] flex flex-col h-full ${className}`}
     >
       {/* Header */}
-      {Title}
+      <section className="flex gap-2 pb-4 items-center">
+        <Image src={Icon} width={20} height={20} alt="" className='w-4 h-4 md:w-7 md:h-7' />
+        <div className="font-semibold text-[18px]">{props.title}</div>
+      </section>
 
       {/* Content */}
       <div className="text-[16px] md:text-[18px] text-[#4A4A4A] line-clamp-2">
@@ -62,22 +147,33 @@ const CourseCard = ({
           ></div>
         </div>
 
-        {props.external ? (
-          <a href={props.link} target="_blank" rel="noopener noreferrer">
-            <button className="bg-[#00B5A5] rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer">
-              View Details
-            </button>
-          </a>
-        ) : (
-          <Link href={`${props.link}`}>
+        <div className='flex gap-2'>
+          {/* <Link href={`${props.link}`} className='flex-1'> */}
+          <Link href={`/courses/${props.courseId}`} className='flex-1'>
             <button className="bg-[#00B5A5] rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer">
               View Details
             </button>
           </Link>
-        )}
+          <button
+            onClick={handleAddCourse}
+            disabled={adding || added || isEnrolled}
+            className={`flex-1 rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer ${(added || isEnrolled) ? 'bg-gray-400' : 'bg-[#00B5A5]'}`}
+          >
+            {(added || isEnrolled) ? 'Added' : adding ? 'Adding…' : 'Add Course'}
+          </button>
+        </div>
       </section>
     </div>
   )
 }
 
 export default CourseCard
+
+
+
+
+
+
+
+
+

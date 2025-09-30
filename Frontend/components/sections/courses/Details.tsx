@@ -4,7 +4,6 @@ import Icon from '@/public/dashboard/greenVector.png'
 import Resume from '@/public/dashboard/courses/sideArrow.png'
 import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
-import { progress } from 'framer-motion'
 
 type DetailsProps = {
     title: string
