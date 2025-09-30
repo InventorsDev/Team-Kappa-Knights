@@ -37,21 +37,12 @@ urlpatterns = [
     path('roadmaps/<int:roadmap_pk>/contents/', course_content_list, name='roadmap-contents'),
     path('recommend/', recommend_courses, name='recommend_courses'),
     path('search/', search_courses, name='search_courses'),
-
-
     path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('enrollments/', enrollment, name='course-enrollment'),
-
-    
     path("courses/contents/<int:content_id>/complete/", complete_content, name="complete_content"),
-    
-    
-    
     #path("outrecommend/", RecommendCoursesView.as_view(), name="recommend_courses"),
     path("outrecommendall/", RecommendAllCoursesView.as_view(), name="recommend_courses"),
-
-
     path('insights/progress/<str:user_id>/', ProgressDashboardView.as_view(), name='progress-dashboard'),
 ]

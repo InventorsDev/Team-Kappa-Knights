@@ -1,17 +1,24 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Courses, Tag
-from .serializers import RecommendationInputSerializer
-from .serializers import CoursesSerializers, CourseEnrollmentSerializer, CourseRoadmapSerializer, CourseContentSerializer
+from .serializers import ( CoursesSerializers, 
+                          CourseEnrollmentSerializer, 
+                          CourseRoadmapSerializer, 
+                          CourseContentSerializer , 
+                          CourseSearchInputSerializer,
+                          RecommendationInputSerializer )
 from django.db.models import Q, Count
-from difflib import SequenceMatcher
 from .models import UserCourseContent
 from django.utils import timezone
-
-
-
+from userprofile.models import UserProfile
 from .models import Courses, CourseEnrollment, CourseRoadmap, CourseContent
+
+
+
+
+
+
+
 
 @api_view(['GET', 'POST'])
 def course_list(request):
@@ -117,7 +124,6 @@ def course_content_list(request, roadmap_pk):
 
 
 
-from .serializers import CoursesSerializers, RecommendationInputSerializer
 
 @api_view(['POST'])
 def recommend_courses(request):
@@ -188,7 +194,6 @@ def recommend_courses(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-from .serializers import CoursesSerializers, CourseSearchInputSerializer
 
 @api_view(['POST'])
 def search_courses(request):
@@ -311,12 +316,6 @@ def enrollment(request):
 
 
 # for progress update
-from userprofile.models import UserProfile
-from django.utils import timezone
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-
 def update_course_progress(user_id, course):
     try:
         user = UserProfile.objects.get(pk=user_id)

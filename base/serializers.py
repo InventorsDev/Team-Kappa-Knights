@@ -58,11 +58,24 @@ class CourseSearchInputSerializer(serializers.Serializer):
 
 
 class CourseEnrollmentSerializer(serializers.ModelSerializer):
-    course = CoursesSerializers(read_only=True)
+    course = CoursesSerializers(read_only=True)  # for GET responses
+    course_id = serializers.PrimaryKeyRelatedField(
+        queryset=Courses.objects.all(),
+        source="course",
+        write_only=True
+    )
 
     class Meta:
         model = CourseEnrollment
-        fields = ['enrollment', 'user', 'course', 'enrolled_at', 'completed', 'progress']
+        fields = [
+            'enrollment',
+            'user',
+            'course',       # detailed course info in response
+            'course_id',    # accepts course id in POST
+            'enrolled_at',
+            'completed',
+            'progress'
+        ]
 
 
 class ExternalCourseSerializer(serializers.Serializer):
