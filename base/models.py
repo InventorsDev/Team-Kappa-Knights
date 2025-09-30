@@ -37,7 +37,7 @@ class Courses(models.Model):
     progress = models.FloatField(default=0.0)  
     duration = models.CharField(null=True, blank=True)  
     tutor_academy = models.CharField(max_length=200, blank=True, null=True)
-    overview = models.CharField(max_length=500, blank=True, null=True)
+    overview = models.TextField(max_length=500, blank=True, null=True)
     
 
     def __str__(self):
