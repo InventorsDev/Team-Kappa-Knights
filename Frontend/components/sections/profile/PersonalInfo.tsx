@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 import Photo from "./Photo";
 import Image from "next/image";
 import LogOut from "@/public/dashboard/logOutBig.png";
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const months = [
   "January","February","March","April","May","June",
@@ -26,6 +28,7 @@ const PersonalInfo = () => {
 
   const { name, setName, email, setEmail, gender, setGender, dob, setDob, profilePic, setProfilePic } =
     useUserStore();
+  const updateProfile = useUserProfileStore((s) => s.updateProfile);
 
     useEffect(() => {
   const fetchData = async () => {
@@ -42,9 +45,14 @@ const PersonalInfo = () => {
       // console.log("API returned full_name:", data.full_name);
 
       setName(data.full_name || "");
-      // console.log("API returned full_name:", data.full_name);
       setEmail(data.email || "");
       setGender(data.gender || ""); 
+      updateProfile({
+        full_name: data.full_name || "",
+        email: data.email || "",
+        gender: data.gender || "",
+        profile_picture_url: data.profile_picture_url || undefined,
+      })
       //setProfilePic(data.profile_picture_url || "")
 
       // hydrate dob
@@ -105,23 +113,37 @@ const PersonalInfo = () => {
           : "";
 
       try {
-        await fetch("http://34.228.198.154/api/user/me", {
+        const payload: Record<string, unknown> = {
+          full_name: name,
+          email,
+          gender,
+        }
+        if (iso) payload.date_of_birth = iso
+        if (profilePic) payload.profile_picture_url = profilePic
+
+        const res = await fetch("http://34.228.198.154/api/user/me", {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            full_name: name,
-            email,
-            gender,
-            date_of_birth: iso,
-            profile_picture_url: profilePic
-
-          }),
+          body: JSON.stringify(payload),
         });
+        if (!res.ok) {
+          let msg = await res.text()
+          try {
+            const j = JSON.parse(msg)
+            msg = j?.detail ? JSON.stringify(j.detail) : msg
+          } catch {}
+          throw new Error(msg || `Failed to update profile (HTTP ${res.status})`);
+        }
+        // update local profile store for immediate UI reflection
+        updateProfile({ full_name: name, email, gender, ...(iso ? { date_of_birth: iso } : {}), ...(profilePic ? { profile_picture_url: profilePic } : {}) })
+        toast.success("Profile updated")
       } catch (err) {
         console.error("save failed:", err);
+        const msg = err instanceof Error ? err.message : "Could not update profile"
+        toast.error(msg)
       }
     }
     setIsEditing((v) => !v);
