@@ -66,7 +66,7 @@ const Details = [
         title: 'Active Days',
         icon: '/dashboard/insights/daysActive.png',
         num: daysActive,
-        numText: 'Days',
+        numText: ( daysActive === 1 ? 'Day' : 'Days'),
         text: 'Your current longest learning streak'
     },
     {
