@@ -87,12 +87,10 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
             try {
                 const userId = profile?.user_id
                 if (!userId || !courseId) return
-                const token = localStorage.getItem('token') || undefined
                 const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
                     },
                     cache: 'no-store',
                 })
