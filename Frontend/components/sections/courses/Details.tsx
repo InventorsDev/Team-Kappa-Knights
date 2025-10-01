@@ -5,7 +5,6 @@ import Resume from '@/public/dashboard/courses/sideArrow.png'
 import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
 import { useUserProfileStore } from '@/state/user'
-import { useUserCourses } from '@/state/store'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
@@ -26,19 +25,15 @@ type DetailsProps = {
     instructorStudents: string
     instructorRatings: number
     link: string
+    courseId: number
 }
 
 const Details = ({ props, children }: { props: DetailsProps, children: ReactNode }) => {
     const router = useRouter()
     const profile = useUserProfileStore((s) => s.profile)
-    const { courses } = useUserCourses()
 
-    // Try to resolve backend course id from courses store using the provided index
-    const courseId = useMemo(() => {
-        const c = courses?.[props.index]
-        // Prefer explicit course_id, fallback to id
-        return c?.course_id ?? c?.id ?? null
-    }, [courses, props.index]) as number | null
+    // Use provided backend course id directly
+    const courseId = props.courseId
 
     const [isEnrolled, setIsEnrolled] = useState(false)
     const [adding, setAdding] = useState(false)

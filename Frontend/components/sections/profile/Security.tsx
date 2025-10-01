@@ -30,14 +30,14 @@ const Security = () => {
     setIsRouting(true)
     const token = localStorage.getItem('token')
     try {
-      // 1) Delete from your backend
+      
       await fetch('http://34.228.198.154/api/user/me', {
           method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",}})
 
-      // 2) Delete Firestore user doc (if exists)
+      
       const current = auth.currentUser
       if (current) {
         try {
@@ -46,7 +46,7 @@ const Security = () => {
           console.warn('Could not delete Firestore user doc:', e)
         }
 
-        // 3) Delete Firebase Auth user
+        
         try {
           await deleteUser(current)
         } catch (e: unknown) {
@@ -98,36 +98,7 @@ const Security = () => {
           </div>
         </section>
       )}
-      {/* <section className='flex justify-between pb-3'>
-        <div>
-          <p className='font-semibold text-[18px] md:text-[24px]'>Security & Sessions</p>
-          <p className='text-sm text-[#4A4A4A] md:text-[20px]'>Manage your active sessions and data privacy settings
-          </p>
-        </div>
-        <div></div>
-      </section> */}
       <section className=''>
-        {/* <section className='space-y-5'>
-          <div className='flex justify-between md:text-[20px]'>
-            <div className='text-[15px] flex flex-col md:text-[18px]'>
-              <p className='font-semibold '>Current session (Window, Chrome)</p>
-              <p className='text-sm text-[#4A4A4A] md:text-[16px]'>Lagos, Nigeria &middot; Active Now</p>
-            </div>
-            <div className='border border-[#cccccc] rounded-xl p-3 px-5'>
-              Revoke
-            </div>
-          </div>
-          <div className='flex justify-between md:text-[20px]'>
-            <div className=' text-[15px] flex flex-col md:text-[18px]'>
-              <p className='font-semibold '>Previous session (Window, Chrome)</p>
-              <p className='text-sm text-[#4A4A4A] md:text-[16px]'>Lagos, Nigeria &middot; 2 days ago</p>
-            </div>
-            <div className='border border-[#cccccc] rounded-xl p-3 px-5'>
-              Revoke
-            </div>
-          </div>
-        </section>
-        <hr className='border border-[#CCCCCC]/50 w-full mt-8' /> */}
 
 
         <section className="select-none">
@@ -148,27 +119,6 @@ const Security = () => {
           </button>
         </div>
     </section>
-
-        {/* <section className=' md:flex justify-between items-center'>
-          <div className=''>
-            <p className='font-semibold md:text-[24px]'>Data Management</p>
-            <p className='text-sm text-[#4A4A4A] md:text-[18px]'>You&apos;re in charge of your information and account status.
-            </p>
-          </div>
-
-          
-        <div className="flex md:justify-end px-[20%] md:px-0 gap-3 pt-3">
-          <button
-            type="button"
-            className="bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:w-[22%] py-3 text-white font-bold"
-            onClick={() => setIsClicked(true)}
-          >
-            Delete Account
-          </button>
-        </div>
-
-
-        </section> */}
 
       </section>
     </main>

@@ -160,5 +160,5 @@ export const useUserCourses = create<UserCourses>()(
       setCourseItems: (newItems) => set({ courseItems: newItems }),
     }),
     {
-      name: 'user-store'
+      name: 'user-courses-store'
     }))

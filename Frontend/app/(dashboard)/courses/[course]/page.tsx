@@ -28,17 +28,19 @@ export default function DetailsPage() {
   const [courseContent, setCourseContent] = useState<RoadmapContentType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const params = useParams()
-  const course = params.course
   const router = useRouter()
-  const idx = Number(course)
-  // const courseItem = courses[idx] // top-level course info (title, desc, etc)
-   const courseItem = courses[idx] 
+
+  // Parse backend id from route and find by id, not by array index
+  const courseId = Number(params.course)
+  const selectedCourse = courses.find(
+    (c) => String(c.course_id) === String(courseId) || String(c.id) === String(courseId)
+  ) // top-level course info (title, desc, etc)
 
   useEffect(() => {
     const fetchCourseItems = async () => {
       try {
-        // Prefer a real course/roadmap id when available, fallback to index
-        const contentId = (courseItem)?.id ?? idx
+        // Prefer a real course/roadmap id when available, fallback to courseId from route
+        const contentId = (selectedCourse)?.id ?? (selectedCourse)?.course_id ?? courseId
         const res = await fetch(
           `https://nuroki-backend.onrender.com/roadmaps/${contentId}/contents/`,
           {
@@ -61,7 +63,7 @@ export default function DetailsPage() {
         }
         const formatted: RoadmapContentType[] = (data as BackendItem[]).map((item) => {
           let statusIcon: string = 'dashboard/courses/locked.png'
-          if (item.status === 'completed') statusIcon = '@/public/dashboard/courses/completed.png'
+          if (item.status === 'completed') statusIcon = 'dashboard/courses/completed.png'
           else if (item.status === 'ongoing') statusIcon = 'dashboard/courses/unlocked.png'
           else if (item.status === 'not-started') statusIcon = 'dashboard/courses/locked.png'
 
@@ -85,15 +87,15 @@ export default function DetailsPage() {
       }
     }
     fetchCourseItems()
-  }, [idx])
+  }, [courseId, selectedCourse?.id, selectedCourse?.course_id])
 
   useEffect(() =>{
     console.log(courseContent)
   }, [courseContent])
 
-  console.log(courseItem)
 
   if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
+  if (!selectedCourse) return <div className='p-4'>Course not found.</div>
   if (!courseContent) return <div className='p-4'>No course details found.</div>
 
   return (
@@ -112,22 +114,23 @@ export default function DetailsPage() {
 
       <Details
         props={{
-          title: courseItem.title,
-          content: courseItem.description,
-          overview: courseItem.overview,
-          progress: courseItem.progress,
-          difficulty: courseItem.difficulty,
-          duration: courseItem.duration || '5',
-          rating: courseItem.rating,
-          index: idx,
-          levelsCompleted: courseItem.levelsCompleted || 0,
-          levelTotal: courseItem.levelTotal || 5,
-          instructor: courseItem.instructor,
-          instructorRole: courseItem.instructorRole,
-          instructorCourses: courseItem.instructorCourses,
-          instructorStudents: courseItem.instructorStudents,
-          instructorRatings: courseItem.instructorRatings,
-          link: courseItem.course_url
+          title: selectedCourse.title,
+          content: selectedCourse.description,
+          overview: selectedCourse.overview,
+          progress: selectedCourse.progress,
+          difficulty: selectedCourse.difficulty,
+          duration: selectedCourse.duration || '5',
+          rating: selectedCourse.rating,
+          index: 0, // no longer used for lookups
+          levelsCompleted: selectedCourse.levelsCompleted || 0,
+          levelTotal: selectedCourse.levelTotal || 5,
+          instructor: selectedCourse.instructor,
+          instructorRole: selectedCourse.instructorRole,
+          instructorCourses: selectedCourse.instructorCourses,
+          instructorStudents: selectedCourse.instructorStudents,
+          instructorRatings: selectedCourse.instructorRatings,
+          link: selectedCourse.course_url,
+          courseId: courseId,
         }}
       >
         <div className="flex flex-col gap-5">
