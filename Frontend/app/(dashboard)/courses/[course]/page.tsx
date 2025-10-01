@@ -36,7 +36,7 @@ export default function DetailsPage() {
     const fetchCourseItems = async () => {
       try {
         // Prefer a real course/roadmap id when available, fallback to index
-        const contentId = (courseItem as any)?.id ?? idx
+        const contentId = (courseItem)?.id ?? idx
         const res = await fetch(
           `https://nuroki-backend.onrender.com/roadmaps/${contentId}/contents/`,
           {
