@@ -36,10 +36,38 @@ const CourseCard = ({
       return Number.isFinite(n) ? n : null
     }
     if (typeof v === 'object') {
-      const anyObj = v as { course_id?: unknown; id?: unknown; courseId?: unknown }
-      const cand = (anyObj.course_id ?? anyObj.id ?? anyObj.courseId) as unknown
+      const obj = v as Record<string, unknown>
+      const cand = (obj.course_id ?? obj.id ?? obj.courseId) as unknown
       const n = Number(cand)
       return Number.isFinite(n) ? n : null
+    }
+    return null
+  }
+
+  // Helpers to safely parse enrollment responses without using any
+  const pickArray = (v: unknown): unknown[] => {
+    if (Array.isArray(v)) return v
+    if (typeof v === 'object' && v !== null) {
+      const obj = v as Record<string, unknown>
+      if (Array.isArray(obj.results)) return obj.results
+      if (Array.isArray(obj.courses)) return obj.courses
+    }
+    return []
+  }
+
+  const getUserFromEnrollment = (e: unknown): string | number | null => {
+    if (typeof e === 'object' && e !== null) {
+      const obj = e as Record<string, unknown>
+      const u = obj.user
+      if (typeof u === 'string' || typeof u === 'number') return u
+    }
+    return null
+  }
+
+  const getCourseFromEnrollment = (e: unknown): unknown => {
+    if (typeof e === 'object' && e !== null) {
+      const obj = e as Record<string, unknown>
+      return obj.course
     }
     return null
   }
@@ -59,18 +87,12 @@ const CourseCard = ({
           cache: 'no-store',
         })
         if (!res.ok) return
-        const raw = await res.json()
-        const arr: any[] = Array.isArray(raw)
-          ? raw
-          : Array.isArray(raw?.results)
-          ? raw.results
-          : Array.isArray(raw?.courses)
-          ? raw.courses
-          : []
+        const raw: unknown = await res.json()
+        const arr = pickArray(raw)
         const found = arr.some((enr) => {
-          const uid = String((enr as any)?.user)
-          const cid = resolveCourseId((enr as any)?.course)
-          return uid === String(userId) && cid === props.courseId
+          const uidVal = getUserFromEnrollment(enr)
+          const cid = resolveCourseId(getCourseFromEnrollment(enr))
+          return uidVal !== null && String(uidVal) === String(userId) && cid === props.courseId
         })
         if (found) {
           setIsEnrolled(true)

@@ -79,7 +79,6 @@ export default function DetailsPage() {
       }
     }
     fetchCourseItems()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx])
 
   if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
