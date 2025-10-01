@@ -83,8 +83,8 @@ const CoursesSet = () => {
         No courses found
       </p>
     ) : (
-      displayCourses.map((item, idx) => (
-        <div key={idx} className="flex">
+      displayCourses.map((item) => (
+        <div key={item.course_id} className="flex">
           <CourseCard
             props={{
               title: item.title,

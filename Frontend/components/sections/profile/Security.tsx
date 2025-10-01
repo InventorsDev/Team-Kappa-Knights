@@ -129,20 +129,46 @@ const Security = () => {
         </section>
         <hr className='border border-[#CCCCCC]/50 w-full mt-8' /> */}
 
-        <section className=' md:flex justify-between items-center'>
+
+        <section className="select-none">
+      <div className="pb-5">
+        <p className="text-[18px] font-bold md:text-[24px]">Data Management</p>
+        <p className="text-[15px] text-[#4A4A4A] md:text-[20px]">
+          You&apos;re in charge of your information and account status.
+        </p>
+      </div>
+
+        <div className="flex md:justify-end px-[20%] md:px-0 gap-3 pt-3">
+          <button
+            type="button"
+            className="bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:w-[22%] py-3 text-white font-bold"
+            onClick={() => setIsClicked(true)}
+          >
+            Delete Account
+          </button>
+        </div>
+    </section>
+
+        {/* <section className=' md:flex justify-between items-center'>
           <div className=''>
             <p className='font-semibold md:text-[24px]'>Data Management</p>
             <p className='text-sm text-[#4A4A4A] md:text-[18px]'>You&apos;re in charge of your information and account status.
             </p>
           </div>
 
-          <div className='flex justify-center md:justify-end gap-3 pt-7'>
-            <div className='w-[45%]  md:w-full'>
-              <button className='bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:px-27 py-3 text-white font-bold hover:cursor-pointer' onClick={() => setIsClicked(true)}>Delete Account</button>
-            </div>
-          </div>
+          
+        <div className="flex md:justify-end px-[20%] md:px-0 gap-3 pt-3">
+          <button
+            type="button"
+            className="bg-[#FF6665] rounded-lg text-center md:text-[18px] w-full md:w-[22%] py-3 text-white font-bold"
+            onClick={() => setIsClicked(true)}
+          >
+            Delete Account
+          </button>
+        </div>
 
-        </section>
+
+        </section> */}
 
       </section>
     </main>

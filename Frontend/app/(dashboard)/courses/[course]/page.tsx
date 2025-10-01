@@ -31,7 +31,8 @@ export default function DetailsPage() {
   const course = params.course
   const router = useRouter()
   const idx = Number(course)
-  const courseItem = courses[idx] // top-level course info (title, desc, etc)
+  // const courseItem = courses[idx] // top-level course info (title, desc, etc)
+   const courseItem = courses[idx] 
 
   useEffect(() => {
     const fetchCourseItems = async () => {
