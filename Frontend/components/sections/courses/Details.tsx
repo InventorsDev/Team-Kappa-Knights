@@ -1,9 +1,13 @@
 import Image, { StaticImageData } from 'next/image'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import Icon from '@/public/dashboard/greenVector.png'
 import Resume from '@/public/dashboard/courses/sideArrow.png'
 import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
+import { useUserProfileStore } from '@/state/user'
+import { useUserCourses } from '@/state/store'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 type DetailsProps = {
     title: string
@@ -25,6 +29,135 @@ type DetailsProps = {
 }
 
 const Details = ({ props, children }: { props: DetailsProps, children: ReactNode }) => {
+    const router = useRouter()
+    const profile = useUserProfileStore((s) => s.profile)
+    const { courses } = useUserCourses()
+
+    // Try to resolve backend course id from courses store using the provided index
+    const courseId = useMemo(() => {
+        const c = courses?.[props.index]
+        // Prefer explicit course_id, fallback to id
+        return c?.course_id ?? c?.id ?? null
+    }, [courses, props.index]) as number | null
+
+    const [isEnrolled, setIsEnrolled] = useState(false)
+    const [adding, setAdding] = useState(false)
+
+    // Helpers mirroring CourseCard to safely parse enrollment responses
+    const resolveCourseId = (v: unknown): number | null => {
+        if (v == null) return null
+        if (typeof v === 'number') return v
+        if (typeof v === 'string') {
+            const n = Number(v)
+            return Number.isFinite(n) ? n : null
+        }
+        if (typeof v === 'object') {
+            const obj = v as Record<string, unknown>
+            const cand = (obj.course_id ?? obj.id ?? obj.courseId) as unknown
+            const n = Number(cand)
+            return Number.isFinite(n) ? n : null
+        }
+        return null
+    }
+
+    const pickArray = (v: unknown): unknown[] => {
+        if (Array.isArray(v)) return v
+        if (typeof v === 'object' && v !== null) {
+            const obj = v as Record<string, unknown>
+            if (Array.isArray(obj.results)) return obj.results
+            if (Array.isArray(obj.courses)) return obj.courses
+        }
+        return []
+    }
+
+    const getUserFromEnrollment = (e: unknown): string | number | null => {
+        if (typeof e === 'object' && e !== null) {
+            const obj = e as Record<string, unknown>
+            const u = obj.user
+            if (typeof u === 'string' || typeof u === 'number') return u
+        }
+        return null
+    }
+
+    const getCourseFromEnrollment = (e: unknown): unknown => {
+        if (typeof e === 'object' && e !== null) {
+            const obj = e as Record<string, unknown>
+            return obj.course
+        }
+        return null
+    }
+
+    useEffect(() => {
+        const checkEnrollment = async () => {
+            try {
+                const userId = profile?.user_id
+                if (!userId || !courseId) return
+                const token = localStorage.getItem('token') || undefined
+                const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                    },
+                    cache: 'no-store',
+                })
+                if (!res.ok) return
+                const raw: unknown = await res.json()
+                const arr = pickArray(raw)
+                const found = arr.some((enr) => {
+                    const uidVal = getUserFromEnrollment(enr)
+                    const cid = resolveCourseId(getCourseFromEnrollment(enr))
+                    return uidVal !== null && String(uidVal) === String(userId) && cid === courseId
+                })
+                if (found) {
+                    setIsEnrolled(true)
+                }
+            } catch {
+                // best-effort
+            }
+        }
+        checkEnrollment()
+    }, [profile?.user_id, courseId])
+
+    const enrollIfNeeded = useCallback(async () => {
+        if (isEnrolled || adding) return true
+        if (!courseId) return false
+        try {
+            setAdding(true)
+            const userId = profile?.user_id
+            if (!userId) throw new Error('User not found. Please sign in again.')
+            const token = localStorage.getItem('token') || undefined
+            const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({ user: userId, course_id: courseId }),
+            })
+            if (!res.ok) return false
+            setIsEnrolled(true)
+            return true
+        } catch {
+            return false
+        } finally {
+            setAdding(false)
+        }
+    }, [isEnrolled, adding, courseId, profile?.user_id])
+
+    const handleStartResume = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault()
+        const ok = await enrollIfNeeded()
+        if (ok) {
+            toast.success('Added to Skill Tree')
+        }
+        if (props.link) {
+            router.push(props.link)
+        }
+    }
+
+    const ctaLabel = (isEnrolled || props.progress > 0) ? 'Resume ' : 'Start '
+
     return (
         <div className='text-[#4A4A4A]'>
             <section className='flex  gap-2  py-5'>
@@ -59,8 +192,8 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
                 </div>
                 <div className='flex justify-between  md:text-[18px]'>
                     <p><span className='font-semibold'>{props.levelsCompleted}</span> of <span className='font-semibold'>{props.levelTotal}</span> levels completed</p>
-                    <Link href={props.link} className='flex items-center text-center gap-1'>
-                        <p className='text-[#00bfa5] font-semibold'>{ props.progress === 0 ? 'Start ' : 'Resume '} Learning</p>
+                    <Link href={props.link || '#'} onClick={handleStartResume} className='flex items-center text-center gap-1'>
+                        <p className='text-[#00bfa5] font-semibold'>{ ctaLabel } Learning</p>
                         <Image src={Resume} alt='' />
                     </Link>
                 </div>

@@ -60,7 +60,7 @@ export default function DetailsPage() {
         }
         const formatted: RoadmapContentType[] = (data as BackendItem[]).map((item) => {
           let statusIcon: string = 'dashboard/courses/locked.png'
-          if (item.status === 'completed') statusIcon = 'dashboard/courses/completed.png'
+          if (item.status === 'completed') statusIcon = '@/public/dashboard/courses/completed.png'
           else if (item.status === 'ongoing') statusIcon = 'dashboard/courses/unlocked.png'
           else if (item.status === 'not-started') statusIcon = 'dashboard/courses/locked.png'
 
@@ -89,6 +89,8 @@ export default function DetailsPage() {
   useEffect(() =>{
     console.log(courseContent)
   }, [courseContent])
+
+  console.log(courseItem)
 
   if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
   if (!courseContent) return <div className='p-4'>No course details found.</div>
@@ -124,7 +126,7 @@ export default function DetailsPage() {
           instructorCourses: courseItem.instructorCourses,
           instructorStudents: courseItem.instructorStudents,
           instructorRatings: courseItem.instructorRatings,
-          link: ''
+          link: courseItem.course_url
         }}
       >
         <div className="flex flex-col gap-5">
