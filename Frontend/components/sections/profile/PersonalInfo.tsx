@@ -139,6 +139,32 @@ const PersonalInfo = () => {
         }
         // update local profile store for immediate UI reflection
         updateProfile({ full_name: name, email, gender, ...(iso ? { date_of_birth: iso } : {}), ...(profilePic ? { profile_picture_url: profilePic } : {}) })
+
+        // Re-fetch authoritative profile from backend to ensure email truly changed
+        try {
+          const verify = await fetch("http://34.228.198.154/api/user/me", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            cache: 'no-store',
+          })
+          if (verify.ok) {
+            const confirmed = await verify.json()
+            setName(confirmed.full_name || name)
+            setEmail(confirmed.email || email)
+            setGender(confirmed.gender || gender)
+            updateProfile({
+              full_name: confirmed.full_name || name,
+              email: confirmed.email || email,
+              gender: confirmed.gender || gender,
+              ...(confirmed.date_of_birth ? { date_of_birth: confirmed.date_of_birth } : {}),
+              ...(confirmed.profile_picture_url ? { profile_picture_url: confirmed.profile_picture_url } : {}),
+            })
+          }
+        } catch {}
+
         toast.success("Profile updated")
       } catch (err) {
         console.error("save failed:", err);
@@ -233,18 +259,18 @@ const PersonalInfo = () => {
           {/* Email */}
           <div className="flex flex-col md:flex-row md:items-center gap-2">
             <label className="w-32 md:text-[16px] md:font-semibold">Email</label>
-            {isEditing ? (
+            {/* {isEditing ? (
               <input
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="md:py-4 p-2 rounded-lg border border-[#CCCCCC] flex-1"
               />
-            ) : (
+            ) : ( */}
               <div className="md:py-4 p-2 rounded-lg border border-[#CCCCCC] flex-1">
                 {email}
               </div>
-            )}
+            {/* )} */}
           </div>
 
           {/* Gender */}
