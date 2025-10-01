@@ -16,10 +16,11 @@ export type RoadmapContentType = {
   id: number
   levelTitle: string
   levelContent: string
-  levelTime: number
+  levelTime: string
   levelStatus: string
   // string relative to public/ (DetailCards prefixes with "/")
   levelStatusIcon: string
+  levelLink: string
 }
 
 export default function DetailsPage() {
@@ -46,15 +47,17 @@ export default function DetailsPage() {
         )
         // if (!res.ok) throw new Error('Failed to fetch course contents')
         const data = await res.json()
-
-        // map backend format → page level shape
+        
+        // console.log(data)
+        
         type BackendItem = {
           sequence: number
           title: string
           content_url: string
           status: 'completed' | 'ongoing' | 'not-started' | string
+          description: string
+          duration: string
         }
-        console.log(data)
         const formatted: RoadmapContentType[] = (data as BackendItem[]).map((item) => {
           let statusIcon: string = 'dashboard/courses/locked.png'
           if (item.status === 'completed') statusIcon = 'dashboard/courses/completed.png'
@@ -64,14 +67,16 @@ export default function DetailsPage() {
           return {
             id: item.sequence,
             levelTitle: item.title,
-            levelContent: item.content_url,
-            levelTime: 0,
+            levelContent: item.description,
+            levelTime: item.duration,
             levelStatus: item.status,
             levelStatusIcon: statusIcon,
+            levelLink: item.content_url
           }
         })
 
         setCourseContent(formatted)
+        console.log(data)
       } catch (err) {
         console.error(err)
       } finally{
@@ -81,8 +86,12 @@ export default function DetailsPage() {
     fetchCourseItems()
   }, [idx])
 
+  useEffect(() =>{
+    console.log(courseContent)
+  }, [courseContent])
+
   if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
-  if (!courseItem) return <div className='p-4'>No course details found.</div>
+  if (!courseContent) return <div className='p-4'>No course details found.</div>
 
   return (
     <div style={{ fontFamily: 'var(--font-nunito)' }}>
@@ -132,6 +141,7 @@ export default function DetailsPage() {
                   levelTime: lvl.levelTime,
                   levelStatusIcon: lvl.levelStatusIcon,
                   levelStatus: lvl.levelStatus,
+                  levelLink: lvl.levelLink
                 }}
               />
             ))
