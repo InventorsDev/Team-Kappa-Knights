@@ -82,6 +82,13 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
         return null
     }
 
+    
+    const parts = props.instructor.trim().split(/\s+/)
+  const first = parts[0] || ''
+  const firstName = first ? first.charAt(0).toUpperCase() : ''
+  const second = parts[1] || ''
+  const secondName = second ? second.charAt(0).toUpperCase() : ''
+
     useEffect(() => {
         const checkEnrollment = async () => {
             try {
@@ -162,9 +169,9 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
             </section>
 
             <section className='pb-4'>
-                <p className='font-semibold text-[18px] md:text-[20px] pb-2 text-[#212121]'>Course Overview</p>
+                <p className='font-semibold text-[18px] md:text-[20px] md:pb-2 text-[#212121]'>Course Overview</p>
                 <p className=' text-[16px] pb-4 md:text-[18px]'>{props.overview}</p>
-                <div className='flex space-x-2  py-2 text-[14px] capitalize md:text-[16px]'>
+                <div className='flex space-x-2  py- text-[12px] capitalize md:text-[16px]'>
                     <p>{props.difficulty} </p> <p>&middot; </p> 
                     <p>{props.levelTotal} Levels </p> <p>&middot; </p>  
                     <p>{props.duration}</p> <p>&middot; </p> 
@@ -174,7 +181,7 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
                     </div>
                 </div>
                 <div className='flex justify-between '>
-                    <p className='font-semibold text-[#212121] md:text-[20px]'>Your Progress</p>
+                    <p className='font-semibold text-[#212121] md:text-[20px] pt-2 md:pt-0'>Your Progress</p>
                     <p>{props.progress}%</p>
                 </div>
                 <div className={`my-2 h-[6px] md:h-[10px] w-full bg-[#EBFFFC] rounded-lg overflow-hidden`} >
@@ -202,7 +209,12 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
 
                 <section className='md:flex justify-between'>
                 <div className='flex md:flex-1 gap-3 items-center'>
-                    <div className='h-10 w-10 md:h-20 md:w-20 bg-[#EBFFFC] rounded-full'></div>
+                    {/* <div className='h-10 w-10 md:h-20 md:w-20 bg-[#EBFFFC] rounded-full'></div> */}
+                    
+        <div className={`flex w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[14px] lg:text-[20px] justify-center items-center `}>
+                        {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
+                        <p>{firstName}<span className=" hidden lg:inline-block">{secondName}</span></p>
+                      </div>
                     <div className=''>
                         <p className='font-semibold text-[20px]'>{props.instructor}</p>
                         <p className=''>{props.instructorRole}</p>

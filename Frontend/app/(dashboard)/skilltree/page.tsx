@@ -109,11 +109,19 @@ const HomePage = () => {
                   method: 'GET', headers: { 'Content-Type': 'application/json' }, cache: 'no-store'
                 }),
               ]);
-              if (!metaRes.ok) throw new Error(`meta ${id} ${metaRes.status}`);
-              if (!roadmapRes.ok) throw new Error(`roadmap ${id} ${roadmapRes.status}`);
-              const meta: any = await metaRes.json();
+
+              // Derive title if meta exists; otherwise fallback
+              let title = `Course #${id}`;
+              if (metaRes.ok) {
+                try {
+                  const meta: any = await metaRes.json();
+                  title = meta?.title || meta?.name || meta?.course_title || title;
+                } catch {}
+              }
+
+              // Roadmap is required to render the SkillTree entry; skip if missing
+              if (!roadmapRes.ok) return;
               const items: any[] = await roadmapRes.json();
-              const title = meta?.title || meta?.name || meta?.course_title || `Course #${id}`;
               const subtitles: Subtitle[] = items.map((it: any) => {
                 const raw = (it?.status as string) || 'not-started';
                 const status = raw === 'completed' ? 'completed' : raw === 'ongoing' ? 'in-progress' : 'not-started';

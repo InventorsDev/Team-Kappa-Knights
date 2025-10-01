@@ -124,11 +124,11 @@ export default function DetailsPage() {
           index: 0, // no longer used for lookups
           levelsCompleted: selectedCourse.levelsCompleted || 0,
           levelTotal: selectedCourse.levelTotal || 5,
-          instructor: selectedCourse.instructor,
-          instructorRole: selectedCourse.instructorRole,
-          instructorCourses: selectedCourse.instructorCourses,
-          instructorStudents: selectedCourse.instructorStudents,
-          instructorRatings: selectedCourse.instructorRatings,
+          instructor: selectedCourse.instructor || 'David Angola',
+          instructorRole: selectedCourse.instructorRole || 'Senior Web Developer',
+          instructorCourses: selectedCourse.instructorCourses || '15',
+          instructorStudents: selectedCourse.instructorStudents || '22k',
+          instructorRatings: selectedCourse.instructorRatings || 4.9,
           link: selectedCourse.course_url,
           courseId: courseId,
         }}

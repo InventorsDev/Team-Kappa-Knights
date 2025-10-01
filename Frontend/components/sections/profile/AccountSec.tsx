@@ -85,14 +85,14 @@ const AccountSec = () => {
                 name="current"
                 value={allPasswords.current}
                 onChange={handleChange}
-                className="flex-1 outline-none "
+                className="flex-1 outline-none py-4"
               />
             ) : (
               <span className="flex-1">{mask(allPasswords.current)}</span>
             )}
             <button
               type="button"
-              className="ml-2 text-[#00B5A5]"
+              className="ml-2 py-3 text-[#00B5A5]"
               onClick={() => setShowPassword(prev => !prev)}
             >
               {/* {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />} */}

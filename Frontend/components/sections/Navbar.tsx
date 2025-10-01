@@ -146,7 +146,7 @@ const Navbar = () => {
             <div className={`flex justify-between w-full md:justify-end items-center ${isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
               <section className="md:flex items-center gap-6">
 
-                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'md:block' : 'hidden'}`}>
+                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'md:block hidden' : 'hidden'}`}>
                   {/* Inline expanding search */}
                   <AnimatePresence initial={false}>
                     {searchOpen ? (
@@ -222,7 +222,7 @@ const Navbar = () => {
               )}
             </div>
             {!isDashboard && (
-              <div className="flex justify-between items-center w-full md:hidden py-4">
+              <div className="flex justify-between items-center w-full md:hidden py-4" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>
                 <div className="w-[10px] h-[10px]" onClick={() => router.back()}>
                   <Image src={back} alt="back" width={20} height={20} />
                 </div>

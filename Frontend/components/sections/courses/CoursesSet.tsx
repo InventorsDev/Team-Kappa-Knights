@@ -27,15 +27,15 @@ const CoursesSet = () => {
         console.log(selectedTags)
 
         const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
-          method: 'POST',
+          method: 'GET',
           headers: {
             // Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            // skill_level: skillLevel,
-            interest: interests,
-          })
+          // body: JSON.stringify({
+          //   // skill_level: skillLevel,
+          //   interest: interests,
+          // })
         })
 
         console.log(res)

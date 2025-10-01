@@ -13,6 +13,7 @@ type DetailCardsProps = {
 };
 
 const DetailCards = ({ props }: { props: DetailCardsProps }) => {
+
   return (
     <div className="p-4 rounded-2xl border border-[#CCCCCC] md:text-[18px]">
       <Link href={props.levelLink}>
@@ -32,6 +33,7 @@ const DetailCards = ({ props }: { props: DetailCardsProps }) => {
           width={16}
           height={16}
           alt={`${props.levelStatus}`}
+          className="objco"
         />
         <p className="text-[#00BFA5]">{props.levelStatus}</p>
       </div>
