@@ -139,6 +139,33 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: "user-store", // key in localStorage
+      version: 2,
+      // Only persist non-sensitive app state; exclude PII/form data
+      partialize: (state) => ({
+        gender: state.gender,
+        dob: state.dob,
+        profilePic: state.profilePic,
+        selectedSkillLevel: state.selectedSkillLevel,
+        goal: state.goal,
+        activities: state.activities,
+        daysActive: state.daysActive,
+        avgMood: state.avgMood,
+        selectedTags: state.selectedTags,
+        interests: state.interests,
+      }),
+      migrate: (persistedState, version) => {
+        if (version < 2 && persistedState && typeof persistedState === 'object') {
+          return {
+            ...persistedState,
+            name: "",
+            email: "",
+            password: "",
+            mood: "",
+            desc: "",
+          } as any;
+        }
+        return persistedState as any;
+      },
     }
   )
 )
@@ -160,5 +187,5 @@ export const useUserCourses = create<UserCourses>()(
       setCourseItems: (newItems) => set({ courseItems: newItems }),
     }),
     {
-      name: 'user-store'
+      name: 'user-courses-store'
     }))

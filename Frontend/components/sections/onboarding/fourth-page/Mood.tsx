@@ -63,7 +63,38 @@ function Mood() {
       return;
     }
     setIsRouting(true);
-    router.push("/support");
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No token found. Please sign in again.');
+      } else {
+        const res = await fetch('http://34.228.198.154/journal/', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            content: desc,
+            title: 'Onboarding',
+            mood: mood.toLowerCase(),
+          }),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || `Failed to log mood (HTTP ${res.status})`);
+        }
+        toast.success('Mood logged!');
+        // Notify dashboards/widgets to refresh immediately
+        window.dispatchEvent(new CustomEvent('journal:updated'));
+      }
+    } catch (err) {
+      console.error('Onboarding mood save failed:', err);
+      toast.error("Couldn't save mood, try again later");
+    } finally {
+      router.push('/support');
+      setIsRouting(false);
+    }
   };
   return (
     <div className="py-8 px-4 text-[#212121]">

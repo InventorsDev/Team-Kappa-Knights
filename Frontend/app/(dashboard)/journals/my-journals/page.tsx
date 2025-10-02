@@ -217,7 +217,7 @@ export default function MyJournalsPage() {
                 <div className="w-full flex justify-center">
                   <div className="flex flex-col justify-center text-center">
                   <p className="font-semibold md:text-[24px] text-[18px]">My Journals</p>
-                  <p className="text-[#4A4A4A] text-[18px]">{journals.length} entries</p>
+                  <p className="text-[#4A4A4A] text-[18px]">{journals.length} {journals.length === 1 ? 'entry' : 'entries'} </p>
                   </div>
                 </div>
                 <div className="p-3 rounded-full bg-[#E6FBE6] hover:cursor-pointer" onClick={() => router.push('/journals/create-journal')}>

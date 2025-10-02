@@ -146,7 +146,7 @@ function Support() {
         })}
       </div>
 
-      <div className="max-w-[550px] m-auto flex flex-col gap-4">
+      <div className="max-w-[550px] m-auto flex flex-col gap-4 px-5">
         <div onClick={handleRoute}>
           <AuthButton
             text="Continue"

@@ -39,7 +39,7 @@ function SkillTree({ data, completed, total }: SkillTreeProps) {
         className="flex justify-between items-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div>{data.title}</div>
+        <div className="font-semibold">{data.title}</div>
         <Caret isOpen={isOpen} setIsOpen={setIsOpen} />
       </div>
       {!isOpen && (
@@ -74,7 +74,17 @@ function SkillTree({ data, completed, total }: SkillTreeProps) {
                 }
               >
                 <Link
-                  href={subtitle.status !== "not-started" ? subtitle.link : ""}
+                  href={subtitle.link}
+                  onClick={() => {
+                    try {
+                      if (subtitle.link) {
+                        const raw = localStorage.getItem('visitedRoadmapLinks')
+                        const set = new Set<string>(raw ? JSON.parse(raw) : [])
+                        set.add(subtitle.link)
+                        localStorage.setItem('visitedRoadmapLinks', JSON.stringify(Array.from(set)))
+                      }
+                    } catch {}
+                  }}
                 >
                   <article
                     className={`rounded-[16px] text-center font-semibold py-4 flex flex-col gap-2 ${

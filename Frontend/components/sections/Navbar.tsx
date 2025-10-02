@@ -71,9 +71,8 @@ const Navbar = () => {
   const currentPage = pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   const [target, setTarget] = useState('')
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
-  // const [searchResult, setSearchResult] = useState<CourseDataType[]>()
   const { setCourses} = useUserCourses()
-    const {interests} = useOnboardingStore()
+  const {interests} = useOnboardingStore()
   console.log(currentPage);
 
   const parts = name.trim().split(/\s+/)
@@ -115,10 +114,12 @@ const Navbar = () => {
         const data = await res.json()
         setCourses(data.courses || [])
       } else {
-        const res = await fetch('https://nuroki-backend.onrender.com/search/', {
+        const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: target })
+          body: JSON.stringify({ interest: [target] })
+          
+          // body: JSON.stringify({ details: {interest: target} })
         })
         const data = await res.json()
         setCourses(data.courses || [])
@@ -146,7 +147,7 @@ const Navbar = () => {
             <div className={`flex justify-between w-full md:justify-end items-center ${isDashboard ? 'py-4' : ' py-0 '} md:py-0`}>
               <section className="md:flex items-center gap-6">
 
-                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'md:block' : 'hidden'}`}>
+                <div className={`flex items-center gap-3 flex-1 justify-end ${ currentPage === 'Courses' ? 'md:block hidden' : 'hidden'}`}>
                   {/* Inline expanding search */}
                   <AnimatePresence initial={false}>
                     {searchOpen ? (
@@ -208,7 +209,6 @@ const Navbar = () => {
                       <p className="text-[24px] font-bold">
                         <UserName />
                       </p>
-                      {/* <p className="text-[18px] text-[#4A4A4A]">Admin</p> */}
                     </div>
                   </section>
               </section>
@@ -222,7 +222,7 @@ const Navbar = () => {
               )}
             </div>
             {!isDashboard && (
-              <div className="flex justify-between items-center w-full md:hidden py-4">
+              <div className="flex justify-between items-center w-full md:hidden py-4" style={{ fontFamily: "var(--font-nunito), sans-serif" }}>
                 <div className="w-[10px] h-[10px]" onClick={() => router.back()}>
                   <Image src={back} alt="back" width={20} height={20} />
                 </div>

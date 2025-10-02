@@ -4,16 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import Side from "@/public/dashboard/sideArrow.png";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 type JournalEntry = {
   created_at: string;        
   sentiment_score: number;   
 };
 
+type Enrollment = { enrollment: number; user: string | number; course: string | number };
+
 const Progress = () => {
-  // const [daysActive, setDaysActive] = useState(0);
-  // const [avgMood, setAvgMood] = useState(0);
   const {daysActive, setDaysActive, avgMood, setAvgMood} = useUserStore()
+  const profile = useUserProfileStore((s) => s.profile)
+  const [enrolledCount, setEnrolledCount] = useState(0)
 
   const fetchProgress = useCallback(async () => {
     try {
@@ -27,7 +30,6 @@ const Progress = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data: JournalEntry[] = await res.json();
-      console.log("Raw sentiment scores:", data.map(d => d.sentiment_score))
 
       // count unique YYYY-MM-DD values
       const uniqueDays = new Set<string>();
@@ -47,9 +49,28 @@ const Progress = () => {
     }
   }, [setDaysActive, setAvgMood]);
 
+  const fetchEnrollmentsCount = useCallback(async () => {
+    try {
+      const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      })
+      if (!res.ok) return
+      const raw: unknown = await res.json()
+      const arr: Enrollment[] = Array.isArray(raw) ? raw : Array.isArray((raw as any)?.results) ? (raw as any).results : Array.isArray((raw as any)?.courses) ? (raw as any).courses : []
+      const uid = profile?.user_id
+      const count = uid == null ? arr.length : arr.filter(e => String(e.user) === String(uid)).length
+      setEnrolledCount(count)
+    } catch (e) {
+      // best effort only
+    }
+  }, [profile?.user_id])
+
   useEffect(() => {
     fetchProgress();
-  }, [fetchProgress]);
+    fetchEnrollmentsCount();
+  }, [fetchProgress, fetchEnrollmentsCount]);
 
   // Refresh progress immediately after a mood/journal is logged
   useEffect(() => {
@@ -84,13 +105,13 @@ const Progress = () => {
             <p className="text-[13px] md:text-[18px] font-bold">Day{ daysActive == 1 ? (<span></span>) : (<span>s</span>)} Active</p>
           </div>
 
-          
+          {/* Courses Enrolled */}
           <div className="text-center space-y-2">
             <p className="text-[#FF6665] text-[24px] md:text-[40px] font-bold">
-              0
+              {enrolledCount}
             </p>
             <p className="text-[13px] md:text-[18px] font-bold">
-              Courses Completed
+              {enrolledCount === 1 ? 'Course ' : 'Courses '} Enrolled
             </p>
           </div>
 
@@ -112,82 +133,3 @@ const Progress = () => {
 export default Progress;
 
 
-
-
-
-
-
-
-// "use client";
-// import React, { useEffect, useState } from "react";
-// import Image from "next/image";
-// import Link from "next/link";
-// import Side from "@/public/dashboard/sideArrow.png";
-
-// type JourneyType = {
-//   details: string;
-//   analytics: number;
-// };
-
-// const journeyContent: JourneyType[] = [
-//   {
-//     details: "Days Active",
-//     analytics: 5,
-//   },
-//   {
-//     details: "Business",
-//     analytics: 35,
-//   },
-// ];
-
-// const Progress = () => {
-//   const [journey, setJourney] = useState<JourneyType[]>([]);
-
-//   useEffect(() => {
-//     setJourney(journeyContent);
-//   }, []);
-//   return (
-//     <main className="h-full flex flex-col justify-between w-full p-4 md:px-8 py-6 rounded-[16px] select-none">
-//       <div className="flex justify-between items-center pb-5">
-//         <p className="text-[18px] font-bold md:text-[24px]">Your Progress</p>
-//         <div className="flex gap-3 items-center">
-//           <Link href={'/insights'}></Link>
-//           <p className=" text-[#4A4A4A] text-[14px] md:text-[18px]">
-//             View detailed analytics
-//           </p>
-//           <div>
-//             <Image src={Side} alt="View Analytics" />
-//           </div>
-//         </div>
-//       </div>
-//       <section className="space-y-4">
-//         <div className="flex justify-between items-center divide- divide-[#CCCCCC] text-[16px] font-semibold space-x-2 rounded-2xl p-[16px]  ">
-//           <div className="text-center space-y-2">
-//             <p className="text-[#886CFF] text-[24px] md:text-[40px] font-bold">
-//               5
-//             </p>
-//             <p className="text-[13px] md:text-[18px] font-bold">Days Active</p>
-//           </div>
-//           <div className="text-center space-y-2">
-//             <p className="text-[#FF6665] text-[24px] md:text-[40px] font-bold">
-//               8
-//             </p>
-//             <p className="text-[13px] md:text-[18px] font-bold">
-//               Courses Completed
-//             </p>
-//           </div>
-//           <div className="text-center space-y-2">
-//             <p className="text-[#7ABF00] text-[24px] md:text-[40px] font-bold">
-//               4.2/5
-//             </p>
-//             <p className="text-[13px] md:text-[18px] font-bold">
-//               Avg Mood Score
-//             </p>
-//           </div>
-//         </div>
-//       </section>
-//     </main>
-//   );
-// };
-
-// export default Progress;

@@ -1,9 +1,12 @@
 import Image, { StaticImageData } from 'next/image'
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import Icon from '@/public/dashboard/greenVector.png'
 import Resume from '@/public/dashboard/courses/sideArrow.png'
 import Star from '@/public/dashboard/courses/Star.png'
 import Link from 'next/link'
+import { useUserProfileStore } from '@/state/user'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 type DetailsProps = {
     title: string
@@ -22,9 +25,139 @@ type DetailsProps = {
     instructorStudents: string
     instructorRatings: number
     link: string
+    courseId: number
 }
 
 const Details = ({ props, children }: { props: DetailsProps, children: ReactNode }) => {
+    const router = useRouter()
+    const profile = useUserProfileStore((s) => s.profile)
+
+    // Use provided backend course id directly
+    const courseId = props.courseId
+
+    const [isEnrolled, setIsEnrolled] = useState(false)
+    const [adding, setAdding] = useState(false)
+
+    // Helpers mirroring CourseCard to safely parse enrollment responses
+    const resolveCourseId = (v: unknown): number | null => {
+        if (v == null) return null
+        if (typeof v === 'number') return v
+        if (typeof v === 'string') {
+            const n = Number(v)
+            return Number.isFinite(n) ? n : null
+        }
+        if (typeof v === 'object') {
+            const obj = v as Record<string, unknown>
+            const cand = (obj.course_id ?? obj.id ?? obj.courseId) as unknown
+            const n = Number(cand)
+            return Number.isFinite(n) ? n : null
+        }
+        return null
+    }
+
+    const pickArray = (v: unknown): unknown[] => {
+        if (Array.isArray(v)) return v
+        if (typeof v === 'object' && v !== null) {
+            const obj = v as Record<string, unknown>
+            if (Array.isArray(obj.results)) return obj.results
+            if (Array.isArray(obj.courses)) return obj.courses
+        }
+        return []
+    }
+
+    const getUserFromEnrollment = (e: unknown): string | number | null => {
+        if (typeof e === 'object' && e !== null) {
+            const obj = e as Record<string, unknown>
+            const u = obj.user
+            if (typeof u === 'string' || typeof u === 'number') return u
+        }
+        return null
+    }
+
+    const getCourseFromEnrollment = (e: unknown): unknown => {
+        if (typeof e === 'object' && e !== null) {
+            const obj = e as Record<string, unknown>
+            return obj.course
+        }
+        return null
+    }
+
+    
+    const parts = props.instructor.trim().split(/\s+/)
+  const first = parts[0] || ''
+  const firstName = first ? first.charAt(0).toUpperCase() : ''
+  const second = parts[1] || ''
+  const secondName = second ? second.charAt(0).toUpperCase() : ''
+
+    useEffect(() => {
+        const checkEnrollment = async () => {
+            try {
+                const userId = profile?.user_id
+                if (!userId || !courseId) return
+                const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    cache: 'no-store',
+                })
+                if (!res.ok) return
+                const raw: unknown = await res.json()
+                const arr = pickArray(raw)
+                const found = arr.some((enr) => {
+                    const uidVal = getUserFromEnrollment(enr)
+                    const cid = resolveCourseId(getCourseFromEnrollment(enr))
+                    return uidVal !== null && String(uidVal) === String(userId) && cid === courseId
+                })
+                if (found) {
+                    setIsEnrolled(true)
+                }
+            } catch {
+                // best-effort
+            }
+        }
+        checkEnrollment()
+    }, [profile?.user_id, courseId])
+
+    const enrollIfNeeded = useCallback(async () => {
+        if (isEnrolled || adding) return true
+        if (!courseId) return false
+        try {
+            setAdding(true)
+            const userId = profile?.user_id
+            if (!userId) throw new Error('User not found. Please sign in again.')
+            const token = localStorage.getItem('token') || undefined
+            const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify({ user: userId, course_id: courseId }),
+            })
+            if (!res.ok) return false
+            setIsEnrolled(true)
+            return true
+        } catch {
+            return false
+        } finally {
+            setAdding(false)
+        }
+    }, [isEnrolled, adding, courseId, profile?.user_id])
+
+    const handleStartResume = async (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault()
+        const ok = await enrollIfNeeded()
+        if (ok) {
+            toast.success('Added to Skill Tree')
+        }
+        if (props.link) {
+            router.push(props.link)
+        }
+    }
+
+    const ctaLabel = (isEnrolled || props.progress > 0) ? 'Resume ' : 'Start '
+
     return (
         <div className='text-[#4A4A4A]'>
             <section className='flex  gap-2  py-5'>
@@ -36,9 +169,9 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
             </section>
 
             <section className='pb-4'>
-                <p className='font-semibold text-[18px] md:text-[20px] pb-2 text-[#212121]'>Course Overview</p>
+                <p className='font-semibold text-[18px] md:text-[20px] md:pb-2 text-[#212121]'>Course Overview</p>
                 <p className=' text-[16px] pb-4 md:text-[18px]'>{props.overview}</p>
-                <div className='flex space-x-2  py-2 text-[14px] capitalize md:text-[16px]'>
+                <div className='flex space-x-2  py- text-[12px] capitalize md:text-[16px]'>
                     <p>{props.difficulty} </p> <p>&middot; </p> 
                     <p>{props.levelTotal} Levels </p> <p>&middot; </p>  
                     <p>{props.duration}</p> <p>&middot; </p> 
@@ -48,7 +181,7 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
                     </div>
                 </div>
                 <div className='flex justify-between '>
-                    <p className='font-semibold text-[#212121] md:text-[20px]'>Your Progress</p>
+                    <p className='font-semibold text-[#212121] md:text-[20px] pt-2 md:pt-0'>Your Progress</p>
                     <p>{props.progress}%</p>
                 </div>
                 <div className={`my-2 h-[6px] md:h-[10px] w-full bg-[#EBFFFC] rounded-lg overflow-hidden`} >
@@ -59,8 +192,8 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
                 </div>
                 <div className='flex justify-between  md:text-[18px]'>
                     <p><span className='font-semibold'>{props.levelsCompleted}</span> of <span className='font-semibold'>{props.levelTotal}</span> levels completed</p>
-                    <Link href={props.link} className='flex items-center text-center gap-1'>
-                        <p className='text-[#00bfa5] font-semibold'>{ props.progress === 0 ? 'Start ' : 'Resume '} Learning</p>
+                    <Link href={props.link || '#'} onClick={handleStartResume} className='flex items-center text-center gap-1'>
+                        <p className='text-[#00bfa5] font-semibold'>{ ctaLabel } Learning</p>
                         <Image src={Resume} alt='' />
                     </Link>
                 </div>
@@ -76,7 +209,12 @@ const Details = ({ props, children }: { props: DetailsProps, children: ReactNode
 
                 <section className='md:flex justify-between'>
                 <div className='flex md:flex-1 gap-3 items-center'>
-                    <div className='h-10 w-10 md:h-20 md:w-20 bg-[#EBFFFC] rounded-full'></div>
+                    {/* <div className='h-10 w-10 md:h-20 md:w-20 bg-[#EBFFFC] rounded-full'></div> */}
+                    
+        <div className={`flex w-12 h-12 rounded-full bg-[#EBFFFC] text-[#00BFA5] font-semibold text-[14px] lg:text-[20px] justify-center items-center `}>
+                        {/* <Image src={Profile} width={48} alt="Profile picture" /> */}
+                        <p>{firstName}<span className=" hidden lg:inline-block">{secondName}</span></p>
+                      </div>
                     <div className=''>
                         <p className='font-semibold text-[20px]'>{props.instructor}</p>
                         <p className=''>{props.instructorRole}</p>

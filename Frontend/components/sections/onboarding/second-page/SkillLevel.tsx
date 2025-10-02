@@ -86,7 +86,7 @@ function SkillLevel() {
                 <Image src={unselected} alt="checkbox" width={30} height={30} />
               )}
               <div className="flex flex-col">
-                <p className="font-[700] text-[#212121]">{item.name}</p>
+                <p className="font-[700] text-[#212121] capitalize">{item.name}</p>
                 <p className="text-[#4A4A4A]">{item.desc}</p>
               </div>
             </div>

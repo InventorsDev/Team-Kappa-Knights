@@ -306,6 +306,25 @@ export const handleCreateAccount = async (
       console.warn("Failed to enforce full_name via /api/user/me PUT", e);
     }
 
+    // STEP 5.3: Obtain backend session token so ProtectedLayout works after reload
+    try {
+      const backendLogin = await fetch("http://34.228.198.154/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (backendLogin.ok) {
+        const backendSession = await backendLogin.json();
+        if (backendSession?.idToken) {
+          localStorage.setItem("token", backendSession.idToken);
+        }
+      } else {
+        console.warn("Backend login after signup failed:", backendLogin.status);
+      }
+    } catch (e) {
+      console.warn("Post-signup backend login error:", e);
+    }
+
     // STEP 6: Navigate away
     toast.success("Account created successfully");
     router.replace("/interests");

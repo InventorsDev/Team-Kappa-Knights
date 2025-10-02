@@ -16,10 +16,11 @@ export type RoadmapContentType = {
   id: number
   levelTitle: string
   levelContent: string
-  levelTime: number
+  levelTime: string
   levelStatus: string
   // string relative to public/ (DetailCards prefixes with "/")
   levelStatusIcon: string
+  levelLink: string
 }
 
 export default function DetailsPage() {
@@ -27,16 +28,19 @@ export default function DetailsPage() {
   const [courseContent, setCourseContent] = useState<RoadmapContentType[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const params = useParams()
-  const course = params.course
   const router = useRouter()
-  const idx = Number(course)
-  const courseItem = courses[idx] // top-level course info (title, desc, etc)
+
+  // Parse backend id from route and find by id, not by array index
+  const courseId = Number(params.course)
+  const selectedCourse = courses.find(
+    (c) => String(c.course_id) === String(courseId) || String(c.id) === String(courseId)
+  ) // top-level course info (title, desc, etc)
 
   useEffect(() => {
     const fetchCourseItems = async () => {
       try {
-        // Prefer a real course/roadmap id when available, fallback to index
-        const contentId = (courseItem)?.id ?? idx
+        // Prefer a real course/roadmap id when available, fallback to courseId from route
+        const contentId = (selectedCourse)?.id ?? (selectedCourse)?.course_id ?? courseId
         const res = await fetch(
           `https://nuroki-backend.onrender.com/roadmaps/${contentId}/contents/`,
           {
@@ -46,15 +50,17 @@ export default function DetailsPage() {
         )
         // if (!res.ok) throw new Error('Failed to fetch course contents')
         const data = await res.json()
-
-        // map backend format → page level shape
+        
+        // console.log(data)
+        
         type BackendItem = {
           sequence: number
           title: string
           content_url: string
           status: 'completed' | 'ongoing' | 'not-started' | string
+          description: string
+          duration: string
         }
-        console.log(data)
         const formatted: RoadmapContentType[] = (data as BackendItem[]).map((item) => {
           let statusIcon: string = 'dashboard/courses/locked.png'
           if (item.status === 'completed') statusIcon = 'dashboard/courses/completed.png'
@@ -64,14 +70,16 @@ export default function DetailsPage() {
           return {
             id: item.sequence,
             levelTitle: item.title,
-            levelContent: item.content_url,
-            levelTime: 0,
+            levelContent: item.description,
+            levelTime: item.duration,
             levelStatus: item.status,
             levelStatusIcon: statusIcon,
+            levelLink: item.content_url
           }
         })
 
         setCourseContent(formatted)
+        console.log(data)
       } catch (err) {
         console.error(err)
       } finally{
@@ -79,10 +87,16 @@ export default function DetailsPage() {
       }
     }
     fetchCourseItems()
-  }, [idx])
+  }, [courseId, selectedCourse?.id, selectedCourse?.course_id])
+
+  useEffect(() =>{
+    console.log(courseContent)
+  }, [courseContent])
+
 
   if (isLoading) return <div className='w-full h-full flex items-center justify-center'><Loader /> </div>
-  if (!courseItem) return <div className='p-4'>No course details found.</div>
+  if (!selectedCourse) return <div className='p-4'>Course not found.</div>
+  if (!courseContent) return <div className='p-4'>No course details found.</div>
 
   return (
     <div style={{ fontFamily: 'var(--font-nunito)' }}>
@@ -100,22 +114,23 @@ export default function DetailsPage() {
 
       <Details
         props={{
-          title: courseItem.title,
-          content: courseItem.description,
-          overview: courseItem.overview,
-          progress: courseItem.progress,
-          difficulty: courseItem.difficulty,
-          duration: courseItem.duration || '5',
-          rating: courseItem.rating,
-          index: idx,
-          levelsCompleted: courseItem.levelsCompleted || 0,
-          levelTotal: courseItem.levelTotal || 5,
-          instructor: courseItem.instructor,
-          instructorRole: courseItem.instructorRole,
-          instructorCourses: courseItem.instructorCourses,
-          instructorStudents: courseItem.instructorStudents,
-          instructorRatings: courseItem.instructorRatings,
-          link: ''
+          title: selectedCourse.title,
+          content: selectedCourse.description,
+          overview: selectedCourse.overview,
+          progress: selectedCourse.progress,
+          difficulty: selectedCourse.difficulty,
+          duration: selectedCourse.duration || '5',
+          rating: selectedCourse.rating,
+          index: 0, 
+          levelsCompleted: selectedCourse.levelsCompleted || 0,
+          levelTotal: courseContent.length || 5,
+          instructor: selectedCourse.instructor || 'David Angola',
+          instructorRole: selectedCourse.instructorRole || 'Senior Web Developer',
+          instructorCourses: selectedCourse.instructorCourses || '15',
+          instructorStudents: selectedCourse.instructorStudents || '22k',
+          instructorRatings: selectedCourse.instructorRatings || 4.9,
+          link: selectedCourse.course_url,
+          courseId: courseId,
         }}
       >
         <div className="flex flex-col gap-5">
@@ -132,6 +147,7 @@ export default function DetailsPage() {
                   levelTime: lvl.levelTime,
                   levelStatusIcon: lvl.levelStatusIcon,
                   levelStatus: lvl.levelStatus,
+                  levelLink: lvl.levelLink
                 }}
               />
             ))

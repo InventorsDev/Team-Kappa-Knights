@@ -33,7 +33,6 @@ const Suggested = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              // skill_level: skillLevel,
               interest: interests,
             })
           })
@@ -97,9 +96,9 @@ const Suggested = () => {
 
          
       </section>
-      <Link href={'/courses'} className="text-[14px] md:text-[16px]">
+      <Link href={'/courses'} className="text-[10px] md:text-[16px]">
       <AuthButton
-        text="View Course Recommendations"
+        text="View Recommendations"
         action={isRouting}
         textWhileActionIsTakingPlace="..."
         isAuth={false}

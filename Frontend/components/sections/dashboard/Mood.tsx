@@ -12,6 +12,7 @@ import FirstName from "@/components/common/names/FirstName";
 // import { apiFetch } from "@/lib/apiClient";
 import { useUserStore } from "@/state/store";
 import Link from "next/link";
+import { X } from "lucide-react";
 
 const moods = [
   {
@@ -56,6 +57,7 @@ function Mood() {
   const { mood, setMood, desc, setDesc } = useUserStore();
   const [isRouting, setIsRouting] = useState(false);
   const [isClicked, setIsClicked] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(true);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -146,7 +148,8 @@ function Mood() {
           Here&apos;s to steady growth.
         </p>
       </div>
-      <section className=" md:border-2 md:border-gray-300 rounded-3xl md:p-6">
+      <section className={`md:border-2 md:border-gray-300 rounded-3xl md:p-6 relative ${ isOpen ? 'block' : 'hidden' }`}>
+        <X onClick={() => setIsOpen(false)} className="float-right hover:cursor-pointer"/>
         <header className="flex flex-col text-[16px] gap-2">
           <h1 className="text-[20px] font-semibold text-[#212121]">
             How are you feeling right now?
@@ -214,7 +217,7 @@ function Mood() {
               placeholder="Type a short note..."
               className="border border-[#CCCCCCCC] w-full p-4 md:p-7 pt-[9px] text-[16px] md:text-[24px] focus-within:outline-0 rounded-[16px] md:row-6 md:h-[250px]"
               value={desc}
-              maxLength={150} // 👈 built-in clamp
+              maxLength={150} 
               onChange={(e) => {
                 setDesc(e.target.value);
               }}

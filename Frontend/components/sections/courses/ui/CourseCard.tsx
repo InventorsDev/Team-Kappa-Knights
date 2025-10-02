@@ -77,12 +77,10 @@ const CourseCard = ({
       try {
         const userId = profile?.user_id
         if (!userId || !props.courseId) return
-        const token = localStorage.getItem('token') || undefined
         const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           cache: 'no-store',
         })
@@ -176,13 +174,13 @@ const CourseCard = ({
               View Details
             </button>
           </Link>
-          <button
+          {/* <button
             onClick={handleAddCourse}
             disabled={adding || added || isEnrolled}
             className={`flex-1 rounded-lg text-center w-full md:text-[18px] md:px-5 py-3 text-white font-bold hover:cursor-pointer ${(added || isEnrolled) ? 'bg-gray-400' : 'bg-[#00B5A5]'}`}
           >
             {(added || isEnrolled) ? 'Added' : adding ? 'Adding…' : 'Add Course'}
-          </button>
+          </button> */}
         </div>
       </section>
     </div>
