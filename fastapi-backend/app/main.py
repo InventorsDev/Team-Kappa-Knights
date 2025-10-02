@@ -19,6 +19,7 @@ app.add_middleware(
         "https://your-frontend-domain.com",  # Replace with actual frontend domain
         "https://your-frontend-domain.netlify.app",  # If using Netlify
         "https://your-frontend-domain.vercel.app",  # If using Vercel
+        "https://nuroki.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
