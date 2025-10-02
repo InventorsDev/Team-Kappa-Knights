@@ -1,7 +1,7 @@
 import React from "react";
 type Props = {
   text: string;
-  action: boolean;
+  action?: boolean;
   textWhileActionIsTakingPlace: string;
   isAuth: boolean;
   isSecondary?: boolean;
