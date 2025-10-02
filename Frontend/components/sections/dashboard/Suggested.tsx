@@ -33,7 +33,6 @@ const Suggested = () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              // skill_level: skillLevel,
               interest: interests,
             })
           })

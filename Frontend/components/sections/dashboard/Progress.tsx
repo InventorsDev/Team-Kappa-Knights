@@ -4,14 +4,19 @@ import Image from "next/image";
 import Link from "next/link";
 import Side from "@/public/dashboard/sideArrow.png";
 import { useUserStore } from "@/state/store";
+import { useUserProfileStore } from "@/state/user";
 
 type JournalEntry = {
   created_at: string;        
   sentiment_score: number;   
 };
 
+type Enrollment = { enrollment: number; user: string | number; course: string | number };
+
 const Progress = () => {
   const {daysActive, setDaysActive, avgMood, setAvgMood} = useUserStore()
+  const profile = useUserProfileStore((s) => s.profile)
+  const [enrolledCount, setEnrolledCount] = useState(0)
 
   const fetchProgress = useCallback(async () => {
     try {
@@ -25,7 +30,6 @@ const Progress = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
       const data: JournalEntry[] = await res.json();
-      console.log("Raw sentiment scores:", data.map(d => d.sentiment_score))
 
       // count unique YYYY-MM-DD values
       const uniqueDays = new Set<string>();
@@ -45,9 +49,28 @@ const Progress = () => {
     }
   }, [setDaysActive, setAvgMood]);
 
+  const fetchEnrollmentsCount = useCallback(async () => {
+    try {
+      const res = await fetch('https://nuroki-backend.onrender.com/enrollments/', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+      })
+      if (!res.ok) return
+      const raw: unknown = await res.json()
+      const arr: Enrollment[] = Array.isArray(raw) ? raw : Array.isArray((raw as any)?.results) ? (raw as any).results : Array.isArray((raw as any)?.courses) ? (raw as any).courses : []
+      const uid = profile?.user_id
+      const count = uid == null ? arr.length : arr.filter(e => String(e.user) === String(uid)).length
+      setEnrolledCount(count)
+    } catch (e) {
+      // best effort only
+    }
+  }, [profile?.user_id])
+
   useEffect(() => {
     fetchProgress();
-  }, [fetchProgress]);
+    fetchEnrollmentsCount();
+  }, [fetchProgress, fetchEnrollmentsCount]);
 
   // Refresh progress immediately after a mood/journal is logged
   useEffect(() => {
@@ -55,8 +78,6 @@ const Progress = () => {
     window.addEventListener("journal:updated", handler);
     return () => window.removeEventListener("journal:updated", handler);
   }, [fetchProgress]);
-
-  // useEffect(() => {}, [])
 
   return (
     <main className="h-full flex flex-col justify-between w-full p-4 md:px-8 py-6 rounded-[16px] select-none">
@@ -84,13 +105,13 @@ const Progress = () => {
             <p className="text-[13px] md:text-[18px] font-bold">Day{ daysActive == 1 ? (<span></span>) : (<span>s</span>)} Active</p>
           </div>
 
-          
+          {/* Courses Enrolled */}
           <div className="text-center space-y-2">
             <p className="text-[#FF6665] text-[24px] md:text-[40px] font-bold">
-              0
+              {enrolledCount}
             </p>
             <p className="text-[13px] md:text-[18px] font-bold">
-              Courses Completed
+              {enrolledCount === 1 ? 'Course ' : 'Courses '} Enrolled
             </p>
           </div>
 
