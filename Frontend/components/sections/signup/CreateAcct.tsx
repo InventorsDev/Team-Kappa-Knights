@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import Picture from "@/public/images/man-relaxing-taking-care-himself.png";
+// import Picture from "@/public/images/man-relaxing-taking-care-himself.png";
+import Picture from "@/public/images/ea1b6262a739e5fb38bc0cd69c97b27da0a6e89f.jpg";
 import { useState } from "react";
 import SignUpForm from "@/components/layout/forms/SignUpForm";
 import Verify from "../verify-email/Verify";
@@ -17,7 +18,8 @@ const CreateAcct = () => {
           src={Picture}
           width={638}
           priority
-          blurDataURL="https://res.cloudinary.com/dlpty7kky/image/upload/w_10,q_1,e_blur:1000/v1754322897/man-relaxing-taking-care-himself_yctzwn.png"
+          // blurDataURL="https://res.cloudinary.com/dlpty7kky/image/upload/w_10,q_1,e_blur:1000/v1754322897/man-relaxing-taking-care-himself_yctzwn.png"
+          blurDataURL="https://res.cloudinary.com/dexchhhbs/image/upload/v1759407238/Frame_1_wlsvti.png"
           height={100}
           alt=""
           className="w-full h-full object-cover scale-110"

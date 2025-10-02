@@ -371,17 +371,17 @@ const PersonalInfo = () => {
           {/* Buttons */}
           <div className="flex md:justify-end w-full">
             <div className="flex md:justify-end w-full md:w-[50%] gap-3 pt-3">
-              <button
+              {/* <button
                 type="button"
                 className="bg-[#FF6665] flex-1 rounded-lg text-center md:px-5 py-3 text-white font-bold"
                 onClick={() => setIsClicked(true)}
               >
                 Log Out
-              </button>
+              </button> */}
               <button
                 type="button"
                 onClick={toggleEdit}
-                className="bg-[#00B5A5] flex-1 rounded-lg text-center md:px-5 py-3 text-white font-bold"
+                className="bg-[#00B5A5]  rounded-lg text-center md:px-10 lg:px-30 py-3 text-white font-bold"
               >
                 {isEditing ? "Save Changes" : "Make Changes"}
               </button>
