@@ -6,6 +6,7 @@ import SkillIcon from "@/public/dashboard/skillicon.png";
 import skilltree from "@/public/SVGs/skilltree.svg";
 import { useEffect, useMemo, useState } from "react";
 import { useUserProfileStore } from "@/state/user";
+import { useUserCourses } from "@/state/store";
 import AuthButton from "@/components/common/button/Button";
 import Link from "next/link";
 
@@ -31,6 +32,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
 
   const userId = profile?.user_id;
+  const { courses: knownCourses } = useUserCourses();
 
   // helpers to parse varied backend shapes
   const pickArray = (v: unknown): unknown[] => {
@@ -87,9 +89,9 @@ const HomePage = () => {
         const mine = userId == null
           ? all
           : all.filter((e) => {
-            const uidVal = getUserFromEnrollment(e);
-            return uidVal !== null && String(uidVal) === String(userId);
-          });
+              const uidVal = getUserFromEnrollment(e);
+              return uidVal !== null && String(uidVal) === String(userId);
+            });
 
         // 2) collect unique course ids
         const ids = Array.from(new Set(
@@ -113,24 +115,38 @@ const HomePage = () => {
                 }),
               ]);
 
-              // Derive title if meta exists; otherwise fallback
-              let title = `Course #${id}`;
-              if (metaRes.ok) {
+              // Prefer known title from courses store when available
+              const known = knownCourses.find(c => String(c.course_id) === String(id) || String(c.id) === String(id));
+
+              // Derive title: store > meta > fallback
+              let title = known?.title || `Course #${id}`;
+              if (!known && metaRes.ok) {
                 try {
                   const meta: any = await metaRes.json();
                   title = meta?.title || meta?.name || meta?.course_title || title;
-                } catch { }
+                } catch {}
               }
+
+              // Load any visited roadmap links from localStorage to override status
+              let visited: Set<string> = new Set();
+              try {
+                const raw = localStorage.getItem('visitedRoadmapLinks');
+                if (raw) visited = new Set(JSON.parse(raw));
+              } catch {}
 
               // Roadmap is required to render the SkillTree entry; skip if missing
               if (!roadmapRes.ok) return;
               const items: any[] = await roadmapRes.json();
               const subtitles: Subtitle[] = items.map((it: any) => {
                 const raw = (it?.status as string) || 'not-started';
-                const status = raw === 'completed' ? 'completed' : raw === 'ongoing' ? 'in-progress' : 'not-started';
+                let status: Subtitle['status'] = raw === 'completed' ? 'completed' : raw === 'ongoing' ? 'in-progress' : 'not-started';
+                const link: string = it?.content_url || '#';
+                if (link && visited.has(link) && status === 'not-started') {
+                  status = 'in-progress';
+                }
                 return {
                   title: it?.title || it?.name || `Level ${it?.sequence ?? ''}`,
-                  link: it?.content_url || '#',
+                  link,
                   sequence: Number(it?.sequence) || 0,
                   status,
                 };
@@ -172,7 +188,7 @@ const HomePage = () => {
         ) : courses.length === 0 ? (
           <div className="text-center pt-6">
             <div className="px-6 w-full flex justify-center">
-              <Image src={SkillIcon} width={200} height={300} alt="" className="w-full md:max-w-[200px]" />
+              <Image src={SkillIcon} width={200} height={300} alt="" priority className="w-full md:max-w-[200px]" />
             </div>
             <p className="text-[24px] font-semibold">Your Learning Journey awaits you!</p>
             <p className="text-[#4A4A4A] text-[20px]">Start your first course to grow your tree and unlock new skills.</p>
