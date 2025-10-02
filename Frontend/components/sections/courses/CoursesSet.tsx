@@ -26,7 +26,6 @@ const CoursesSet = () => {
           return []
         }
 
-        // Fetch DB courses and recommendations concurrently
         const [dbRes, recRes] = await Promise.all([
           fetch('https://nuroki-backend.onrender.com/courses/', {
             method: 'GET',
@@ -38,7 +37,7 @@ const CoursesSet = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               interest: interests,
-              ...(skillLevel ? { skill_level: skillLevel } : {}),
+              // ...(skillLevel ? { skill_level: skillLevel } : {}),
             }),
           }),
         ])

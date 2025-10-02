@@ -115,19 +115,19 @@ function Interest() {
         border: "rgb(30, 144, 255)",
         text: "rgb(0, 51, 102)",
         icon: "Writing",
-        createdBy: user.uid, // 🔑 for rules
+        createdBy: user.uid, 
       };
 
-      // Write to Firestore
+   
       const docRef = await addDoc(collection(db, "tags"), newTag);
 
-      // Update local state so UI refreshes immediately
+
       setFirestoreTags((prev) => [
         ...prev,
         { id: docRef.id, ...newTag, custom: false },
       ]);
 
-      // Auto-select the tag
+    
       setSelectedTags((prev) => [...prev, newTag.name]);
       addInterest(newTag.name);
 
@@ -143,22 +143,19 @@ function Interest() {
   const handleDelete = async (id: string, custom?: boolean) => {
     try {
       if (custom) {
-        // Remove from localStorage & state
         const updated = customTags.filter((tag) => tag.id !== id);
         setCustomTags(updated);
         localStorage.setItem("newTags", JSON.stringify(updated));
 
-        // ✅ Also remove from selectedTags if it's there
         const deletedTag = customTags.find((tag) => tag.id === id);
         if (deletedTag) {
           setSelectedTags((prev) => prev.filter((t) => t !== deletedTag.name));
         }
       } else {
-        // Firestore delete
         await deleteDoc(doc(db, "tags", id));
         setFirestoreTags((prev) => prev.filter((tag) => tag.id !== id));
 
-        // Also clean from selectedTags
+        
         const deletedTag = firestoreTags.find((tag) => tag.id === id);
         if (deletedTag) {
           setSelectedTags((prev) => prev.filter((t) => t !== deletedTag.name));
@@ -212,7 +209,7 @@ function Interest() {
     console.log('After safe clearing, token still exists:', tokenAfterClear ? 'YES' : 'NO');
     console.log('Navigating to skill-level, token preserved');
     
-    router.push("./skill-level");
+    router.push("./goals");
   };
 
   // Merge both arrays for rendering

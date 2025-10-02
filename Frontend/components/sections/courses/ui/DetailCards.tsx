@@ -17,7 +17,7 @@ const DetailCards = ({ props }: { props: DetailCardsProps }) => {
   return (
     <div className="p-4 rounded-2xl border border-[#CCCCCC] md:text-[18px]">
       <Link href={props.levelLink}>
-      <p className="">
+      <p className="text-[#212121]">
         <span className="font-bold text-[#212121]">Level {props.id}:</span>{" "}
         {props.levelTitle}
       </p>

@@ -121,9 +121,9 @@ export default function DetailsPage() {
           difficulty: selectedCourse.difficulty,
           duration: selectedCourse.duration || '5',
           rating: selectedCourse.rating,
-          index: 0, // no longer used for lookups
+          index: 0, 
           levelsCompleted: selectedCourse.levelsCompleted || 0,
-          levelTotal: selectedCourse.levelTotal || 5,
+          levelTotal: courseContent.length || 5,
           instructor: selectedCourse.instructor || 'David Angola',
           instructorRole: selectedCourse.instructorRole || 'Senior Web Developer',
           instructorCourses: selectedCourse.instructorCourses || '15',

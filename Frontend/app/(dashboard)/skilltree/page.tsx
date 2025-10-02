@@ -14,7 +14,7 @@ const num: number = 1250;
 
 const fmt = (num: number) => num.toLocaleString();
 
-// Match SkillTree expected shapes
+
 interface Subtitle {
   title: string;
   link: string;

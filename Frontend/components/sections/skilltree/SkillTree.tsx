@@ -39,7 +39,7 @@ function SkillTree({ data, completed, total }: SkillTreeProps) {
         className="flex justify-between items-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <div>{data.title}</div>
+        <div className="font-semibold">{data.title}</div>
         <Caret isOpen={isOpen} setIsOpen={setIsOpen} />
       </div>
       {!isOpen && (
