@@ -69,6 +69,7 @@ const Progress = () => {
       }
       const arrUnknown = pickArray(raw)
       const arr = arrUnknown as Enrollment[]
+
       const uid = profile?.user_id
       const count = uid == null ? arr.length : arr.filter(e => String(e.user) === String(uid)).length
       setEnrolledCount(count)

@@ -174,7 +174,6 @@ const HomePage = () => {
     };
     run();
   }, [userId, knownCourses]);
-
   return (
     <div className="text-[#212121]" style={{ fontFamily: 'var(--font-nunito)' }}>
       <header className="flex py-4 items-center justify-between text-[#212121]">
