@@ -1,23 +1,17 @@
 import { auth, provider } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
-  setPersistence,
   signInWithEmailAndPassword,
   Persistence,
   signInWithPopup,
   createUserWithEmailAndPassword,
-  sendEmailVerification,
   signOut,
 } from "firebase/auth";
 
 import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { addDoc, collection } from "firebase/firestore";
 import { getFirebaseErrorMessage } from "./firebaseErrorHandler";
-import { query, where, getDocs } from "firebase/firestore";
-import { useUsername } from "@/state/usernameStore";
-import { saveTokens } from "./token";
 import { useUserStore } from "@/state/store";
 import { useUserProfileStore } from "@/state/user";
 import { useOnboardingStore } from "@/state/useOnboardingData";
@@ -339,12 +333,6 @@ export const handleCreateAccount = async (
   }
 };
 
-interface user {
-  name: string;
-  id: string;
-  email: string;
-  verified: boolean;
-}
 
 // lib/auth.ts
 export async function getCurrentUserFromFirestore() {
