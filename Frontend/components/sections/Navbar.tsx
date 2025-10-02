@@ -71,9 +71,8 @@ const Navbar = () => {
   const currentPage = pages.find((page) => pathname.startsWith(page.href))?.name || "Home";
   const [target, setTarget] = useState('')
   const [searchOpen, setSearchOpen] = useState<boolean>(false);
-  // const [searchResult, setSearchResult] = useState<CourseDataType[]>()
   const { setCourses} = useUserCourses()
-    const {interests} = useOnboardingStore()
+  const {interests} = useOnboardingStore()
   console.log(currentPage);
 
   const parts = name.trim().split(/\s+/)
@@ -115,10 +114,12 @@ const Navbar = () => {
         const data = await res.json()
         setCourses(data.courses || [])
       } else {
-        const res = await fetch('https://nuroki-backend.onrender.com/search/', {
+        const res = await fetch('https://nuroki-backend.onrender.com/outrecommendall/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: target })
+          body: JSON.stringify({ interest: [target] })
+          
+          // body: JSON.stringify({ details: {interest: target} })
         })
         const data = await res.json()
         setCourses(data.courses || [])
@@ -208,7 +209,6 @@ const Navbar = () => {
                       <p className="text-[24px] font-bold">
                         <UserName />
                       </p>
-                      {/* <p className="text-[18px] text-[#4A4A4A]">Admin</p> */}
                     </div>
                   </section>
               </section>
