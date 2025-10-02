@@ -2,6 +2,7 @@
 import SkillTree from "@/components/sections/skilltree/SkillTree";
 import XPBar from "@/components/sections/skilltree/XPBar";
 import Image from "next/image";
+import SkillIcon from "@/public/dashboard/skillicon.png";
 import skilltree from "@/public/SVGs/skilltree.svg";
 import { useEffect, useMemo, useState } from "react";
 import { useUserProfileStore } from "@/state/user";
@@ -170,6 +171,7 @@ const HomePage = () => {
           <div className="text-center">
             <p className="text-[20px] font-semibold">No skills started</p>
             <p className="text-[#4A4A4A]">Enroll in a course to see your skill tree here.</p>
+            <Image src={SkillIcon} width={500} height={300} alt=""/>
           </div>
         ) : (
           courses.map((course, idx) => {
