@@ -107,10 +107,18 @@ const LearningJourney = () => {
                 cache: 'no-store',
               });
               if (!mRes.ok) throw new Error(`meta ${id} ${mRes.status}`);
-              const mRaw: any = await mRes.json();
-              const title = mRaw?.title || mRaw?.name || mRaw?.course_title;
-              const url = mRaw?.external_url || mRaw?.url || mRaw?.link;
-              const external = Boolean(url) || mRaw?.source === 'external' || mRaw?.is_external === true;
+              const mRaw: unknown = await mRes.json();
+              let title: string | undefined = undefined;
+              let url: string | undefined = undefined;
+              let external = false;
+              if (typeof mRaw === 'object' && mRaw !== null) {
+                const obj = mRaw as Record<string, unknown>;
+                const t = obj.title ?? obj.name ?? obj.course_title;
+                if (typeof t === 'string') title = t;
+                const u = obj.external_url ?? obj.url ?? obj.link;
+                if (typeof u === 'string') url = u;
+                external = Boolean(url) || obj.source === 'external' || obj.is_external === true;
+              }
               metaEntries.push([String(id), { title, url, external }]);
             } catch {
               // ignore individual meta failures

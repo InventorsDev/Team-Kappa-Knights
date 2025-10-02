@@ -4,7 +4,7 @@ import XPBar from "@/components/sections/skilltree/XPBar";
 import Image from "next/image";
 import SkillIcon from "@/public/dashboard/skillicon.png";
 import skilltree from "@/public/SVGs/skilltree.svg";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useUserProfileStore } from "@/state/user";
 import { useUserCourses } from "@/state/store";
 import AuthButton from "@/components/common/button/Button";
@@ -122,8 +122,11 @@ const HomePage = () => {
               let title = known?.title || `Course #${id}`;
               if (!known && metaRes.ok) {
                 try {
-                  const meta: any = await metaRes.json();
-                  title = meta?.title || meta?.name || meta?.course_title || title;
+                  type CourseMetaDTO = { title?: unknown; name?: unknown; course_title?: unknown };
+                  const metaRaw: unknown = await metaRes.json();
+                  const meta = metaRaw as CourseMetaDTO;
+                  const cand = (meta?.title ?? meta?.name ?? meta?.course_title);
+                  if (typeof cand === 'string') title = cand;
                 } catch {}
               }
 
@@ -136,18 +139,22 @@ const HomePage = () => {
 
               // Roadmap is required to render the SkillTree entry; skip if missing
               if (!roadmapRes.ok) return;
-              const items: any[] = await roadmapRes.json();
-              const subtitles: Subtitle[] = items.map((it: any) => {
-                const raw = (it?.status as string) || 'not-started';
-                let status: Subtitle['status'] = raw === 'completed' ? 'completed' : raw === 'ongoing' ? 'in-progress' : 'not-started';
-                const link: string = it?.content_url || '#';
+              type RoadmapItemDTO = { sequence?: unknown; title?: unknown; name?: unknown; content_url?: unknown; status?: unknown };
+              const itemsRaw: unknown = await roadmapRes.json();
+              const items: RoadmapItemDTO[] = Array.isArray(itemsRaw) ? (itemsRaw as RoadmapItemDTO[]) : [];
+              const subtitles: Subtitle[] = items.map((it) => {
+                const rawStatus = typeof it.status === 'string' ? it.status : 'not-started';
+                let status: Subtitle['status'] = rawStatus === 'completed' ? 'completed' : rawStatus === 'ongoing' ? 'in-progress' : 'not-started';
+                const link = typeof it.content_url === 'string' ? it.content_url : '#';
                 if (link && visited.has(link) && status === 'not-started') {
                   status = 'in-progress';
                 }
+                const titleVal = typeof it.title === 'string' ? it.title : (typeof it.name === 'string' ? it.name : undefined);
+                const seqNum = typeof it.sequence === 'number' ? it.sequence : Number(it.sequence ?? 0);
                 return {
-                  title: it?.title || it?.name || `Level ${it?.sequence ?? ''}`,
+                  title: titleVal || `Level ${seqNum || ''}`,
                   link,
-                  sequence: Number(it?.sequence) || 0,
+                  sequence: Number.isFinite(seqNum) ? seqNum : 0,
                   status,
                 };
               }).sort((a, b) => a.sequence - b.sequence);
@@ -166,7 +173,7 @@ const HomePage = () => {
       }
     };
     run();
-  }, [userId]);
+  }, [userId, knownCourses]);
 
   return (
     <div className="text-[#212121]" style={{ fontFamily: 'var(--font-nunito)' }}>

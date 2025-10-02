@@ -58,7 +58,17 @@ const Progress = () => {
       })
       if (!res.ok) return
       const raw: unknown = await res.json()
-      const arr: Enrollment[] = Array.isArray(raw) ? raw : Array.isArray((raw as any)?.results) ? (raw as any).results : Array.isArray((raw as any)?.courses) ? (raw as any).courses : []
+      const pickArray = (v: unknown): unknown[] => {
+        if (Array.isArray(v)) return v
+        if (typeof v === 'object' && v !== null) {
+          const o = v as Record<string, unknown>
+          if (Array.isArray(o.results)) return o.results
+          if (Array.isArray(o.courses)) return o.courses
+        }
+        return []
+      }
+      const arrUnknown = pickArray(raw)
+      const arr = arrUnknown as Enrollment[]
       const uid = profile?.user_id
       const count = uid == null ? arr.length : arr.filter(e => String(e.user) === String(uid)).length
       setEnrolledCount(count)
