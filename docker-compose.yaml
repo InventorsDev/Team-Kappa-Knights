@@ -1,0 +1,22 @@
+name: Neuroloom App
+
+services:
+  frontend:
+    build:
+      context: Frontend/
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+    env_file:
+      - Frontend/.env.dev
+    ports:
+      - 3000:3000
+    networks:
+      - Neuroloom-net
+    restart: unless-stopped
+
+
+networks:
+  Neuroloom-net:

@@ -41,6 +41,9 @@ An intelligent learning platform that adapts to you. Nuroki helps learners track
 
 ```
 Team-Kappa-Knights/
+├─ .github/
+│  └─ workflows/
+│     └─ frontend.yaml
 ├─ Frontend/
 │  ├─ app/
 │  │  ├─ (dashboard)/
@@ -61,13 +64,34 @@ Team-Kappa-Knights/
 │  │  └─ layout/
 │  ├─ lib/ (auth, firebase, helpers)
 │  ├─ state/ (Zustand stores)
+│  ├─ Dockerfile
+│  ├─ .dockerignore 
 │  └─ public/
+├─ docker-compose.yaml
+├─ sonar-project.properties
 └─ README.md  ← you are here
 ```
 
+- **Docker support**  
+  - Multi-stage `Dockerfile` (supports both `dev` and `production`)
+  - `.dockerignore` to reduce image size
+  - `docker-compose.yml` for local development and testing
+
+- **CI/CD via GitHub Actions**  
+  - `frontend.yaml` workflow:
+    - Runs linting & tests on every push
+    - Performs secret scanning
+    - Runs SonarQube scan on every PR to main (if configured)
+    - Builds Docker image and optionally pushes to Docker Hub (if configured)
+
+- **SonarQube configuration**  
+  - `sonar-project.properties` added to support static analysis (comment/uncomment job in workflow to enable).
+
+---
+
 ## Environment Variables
 
-Create `Frontend/.env.local` and configure the following. Values below are examples/placeholders—use your real values.
+Create `Frontend/.env.local` or `Frontend/.env.dev` for Docker Compose and configure the following. Values below are examples/placeholders—use your real values.
 
 Firebase (required)
 - NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -88,7 +112,62 @@ Backend API bases (recommended)
 Notes
 - The app currently references some endpoints directly in code. For multi-env deployments, move hard-coded URLs into these env variables and consume them via a small API client helper.
 
-## Setup & Development
+---
+
+## 🐳 Running with Docker
+
+### 1. Install Docker & Docker Compose
+
+* [Install Docker Desktop](https://docs.docker.com/get-docker/)
+* Verify installation:
+
+  ```bash
+  docker --version
+  docker compose version
+  ```
+
+### 2. Development (hot reload enabled)
+
+```bash
+docker compose up --build
+```
+
+* App runs at [http://localhost:3000](http://localhost:3000)
+* Code changes are reflected automatically thanks to volume mounting.
+
+### 3. Production (optimized build)
+
+Build and run production image:
+
+```bash
+docker build -t nuroki-frontend --target prod ./Frontend
+docker run -p 3000:3000 nuroki-frontend
+```
+
+---
+
+## 🔄 CI/CD (GitHub Actions)
+
+The workflow (`.github/workflows/frontend.yaml`) runs automatically on pushes and PRs to `main`:
+
+* **Lint & test** with Node.js 20
+* **Secret scanning** via TruffleHog
+* **Code quality** checks with SonarQube (if secrets configured)
+* **Build & push** Docker image to Docker Hub (if `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN` are configured)
+
+---
+
+## 📊 Code Quality
+
+SonarQube is pre-configured via `sonar-project.properties`.
+To enable in CI:
+
+* Add `SONAR_TOKEN` to repo secrets
+* Ensure the job in `frontend.yaml` is uncommented
+
+---
+
+## 🔧 Local Development (without Docker)
 
 Prerequisites
 - Node.js 18+
